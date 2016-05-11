@@ -1,0 +1,1 @@
+xsel -o -b --display :0
