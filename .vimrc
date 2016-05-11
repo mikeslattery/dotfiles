@@ -39,7 +39,7 @@ set incsearch
 set hlsearch
 nnoremap ,b :CtrlPBuffer<CR>
 nnoremap ,m :CtrlPMRU<CR>
-nnoremap ,p :CtrlP ~/src/puppet<CR>
+nnoremap ,p :CtrlP ~/src/mect<CR>
 nnoremap ,x :bd<CR>
 nnoremap ,e :e %:p:h<CR>
 nnoremap ,k :bp<CR>
@@ -56,6 +56,8 @@ nmap <C-k> <Plug>MoveLineUp
 " Files
 set autoread
 nmap ,w :w<CR>
+set directory=$HOME/.vim/swap//
+set backupdir=$HOME/.vim/swap//
 
 " Browsing
 set foldenable
@@ -70,4 +72,10 @@ vmap <C-C> "+yi
 vmap <C-x> "+c
 vmap <C-v> c<ESC>"+p
 imap <C-v> <ESC>"+pa
+
+" L&F
+let &t_ti.="\e[1 q"
+let &t_SI.="\e[5 q"
+let &t_EI.="\e[1 q"
+let &t_te.="\e[0 q"
 
