@@ -132,4 +132,5 @@ alias viminst='vim +PluginInstall +qall'
 alias getclip='xsel -o -b --display :0'
 alias clip='xsel -i -b --display :0'
 alias weather='curl -4 http://wttr.in/Indianapolis'
+function ngrep() { names="$1"; shift; find -name "$names" -type f -not -path '*/target/*' -exec grep "$@" '{}' \; ; }
 
