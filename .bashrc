@@ -133,4 +133,8 @@ alias getclip='xsel -o -b --display :0'
 alias clip='xsel -i -b --display :0'
 alias weather='curl -4 http://wttr.in/Indianapolis'
 function ngrep() { names="$1"; shift; find -name "$names" -type f -not -path '*/target/*' -exec grep "$@" '{}' \; ; }
+alias c1="awk '{ print \$1; }'"
+alias c2="awk '{ print \$2; }'"
+alias c3="awk '{ print \$3; }'"
+#source '/home/v64162/.babun-docker/setup.sh'
 
