@@ -20,6 +20,10 @@ Plugin 'bling/vim-airline'
 Plugin 'tpope/vim-commentary'
 Plugin 'tpope/vim-fugitive'
 Plugin 'tpope/vim-rsi'
+Plugin 'airblade/vim-gitgutter'
+Plugin 'tfnico/vim-gradle'
+Plugin 'tpope/vim-dispatch'
+
 "TODO: fix babun.  Install Cygwin64
 "TODO: consider:
 "TODO:  terminus, fugative, surround, tagbar,
@@ -40,6 +44,11 @@ filetype plugin indent on    " required
 " EXECUTION
 command! -nargs=1 Silent execute 'silent !' . <q-args> | execute 'redraw!'
 nnoremap ,v :execute getline('.')<CR>
+nnoremap ,s :mksession! $HOME/.vim/sessions/
+nnoremap ,r :so $HOME/.vim/sessions/
+nnoremap ,,w :update\|silent! make -s\|redraw!\|cc<cr>
+" ignore any further error formats.  (hopefully this doesn't break any plugins)
+set errorformat+=%-G%.%#
 
 " WHITESPACE
 set tabstop=4
@@ -48,14 +57,12 @@ set shiftwidth=4
 set expandtab
 set smarttab
 
-" SEARCHING FILES
+" SEARCHING FOR FILES
 set showmatch
 set incsearch
 set hlsearch
 set ignorecase
 set smartcase
-nnoremap ,s :mksession! $HOME/.vim/sessions/
-nnoremap ,r :so $HOME/.vim/sessions/
 nnoremap ,i :execute "silent !cscript //b //nologo $(cygpath -wa ~/bin/idea.vbs) ".getcwd()." ".expand("%")." ".line(".")." ".col(".")\|redraw!<CR>
 "if ctrlp not installed:
 "nnoremap ,b :ls<cr>:b
@@ -63,17 +70,30 @@ nnoremap ,i :execute "silent !cscript //b //nologo $(cygpath -wa ~/bin/idea.vbs)
 "nnoremap ,p :find *
 nnoremap ,b :CtrlPBuffer<CR>
 nnoremap ,m :CtrlPMRU<CR>
-nnoremap ,p :CtrlP ~/src/mect<CR>
-nnoremap ,d :redraw!<CR>
+nnoremap ,p :CtrlP ~/src2<CR>
+let g:ctrlp_user_command = 'fd --type f --hidden --color never "" %s'
+let g:ctrlp_working_path_mode = 'r'
 vnoremap ,c :I#<ESC><C-i>
 "   close current buffer
 nnoremap ,x :bp\|bd #<CR>
 "   browse files in same dir as current file
 nnoremap ,e :e %:p:h<CR>
+nnoremap ,,e :checktime<CR>
 nnoremap ,,rm :call delete(expand('%'))\|bdelete!<CR>
 nnoremap ,,grm :!git rm %\|bdelete!<CR>
 set wildignore+=.git/*,*/target/*,*.class,*.png,*.gif,*.pdf,*.exe,*.so,*.jar,*.war,*.ear,*.dll,*.swp,*.zip
 set path+=**
+
+" SEARCHING FILE CONTENTS
+if executable("rg")
+    set grepprg=rg\ --vimgrep\ --no-heading
+    set grepformat=%f:%l:%c:%m,%f:%l:%m
+endif
+augroup myvimrc
+    autocmd!
+    autocmd QuickFixCmdPost [^l]* cwindow
+    autocmd QuickFixCmdPost l*    lwindow
+augroup END
 
 " EDITING
 "nnoremap <cr> o<esc>
@@ -91,10 +111,10 @@ nnoremap ,,java :-1read $HOME/.vim/templates/template.java<CR>/REPLACEME<CR>
 set autoread
 set hidden
 set undofile
-set undodir=$HOME/.vim/swap//
-set nobackup
+set undodir=$HOME/.vim/undo//
+set backup
+set backupdir=$HOME/.vim/backup//
 set noswapfile
-"set directory=$HOME/.vim/swap//
 
 " BROWSING TEXT
 set foldenable
