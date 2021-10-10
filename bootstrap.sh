@@ -27,7 +27,7 @@ for i in $(git ls-files | grep -vxFf .dotignore); do
   # if it's already a symlink, do nothing
   if [ ! -L "$HOME/$i" ]; then
     # Backup pre-existing files
-    if [ -f "$HOME/$i" ] && [ ! -f "backup/$i" ]; then
+    if [ -f "$HOME/$i" ] && [ ! -f "backup/$i" ] && ! cmd --silent "$HOME/$i" "$i"; then
       mkdir -p "$(dirname "backup/$i")"
       log mv "$HOME/$i" "backup/$i"
     fi
