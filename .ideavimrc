@@ -1,0 +1,154 @@
+" IDEAVIM settings
+
+" Plugins
+
+set commentary
+" gc
+set surround
+" cs"'  
+
+nnoremap ,,v :source ~/.ideavimrc<cr>
+"nnoremap ,,w :update\|silent! make -s\|redraw!\|cc<cr>
+" ignore any further error formats.  (hopefully this doesn't break any plugins)
+set errorformat+=%-G%.%#
+
+" gitgutter
+" In compare, F7=]c S-F7=[c
+nnoremap ]c :action VcsShowNextChangeMarker<cr>
+nnoremap [c :action VcsShowPrevChangeMarker<cr>
+nnoremap <leader>hu :action Vcs.RollbackChangedLines<cr>
+nnoremap <leader>hp :action Vcs.ShowHistoryForBlock<cr>
+
+" WHITESPACE (default)
+set tabstop=4
+set softtabstop=4
+set shiftwidth=4
+set expandtab
+set smarttab
+
+" IDE
+nnoremap ,r :action ChooseRunConfiguration<cr>
+"LastVersion?
+nnoremap ,,d :action Compare.SameVersion<cr>
+nnoremap ,,l :action RecentLocations<cr>
+nnoremap ,,i :action QuickJavaDoc<cr>
+nnoremap ,i  :action Tool_External Tools_gvim<cr>
+
+command! CloseOthers action CloseAllEditorsButActive
+command! BreakpointEnabled action ToggleBreakpointEnabled
+" doesn't work for some reason
+command! MuteBreakpoints action XDebugger.MuteBreakpoints
+
+noremap <c-=> :action EditorIncreaseFontSize<cr>
+noremap <c--> :action EditorDecreaseFontSize<cr>
+
+" Intellij Built-in:
+" S-F10 run, S-F9 debug, C-S-F10/A-F9 run to location.
+" A-F8 expression
+" C-S-F8 Breakpoint manager
+" A-S-9 Run to cursor
+" C-S-i Show def
+" <esc>  - back to editor, from any other window
+" c+s+F4 - close window and goto editor
+" c+a+H  - call hierarchy
+
+" vim surround:
+" dst - delete outer tags
+" dit - delete inner tags
+" c"' - change double quotes to single
+" cst<p> - change current tag to p
+" vit    - select tag
+" vitit  - select around (keep adding it)
+" S<p>   - add tag  (after vit)
+" vititd - delete tag and children
+
+" Vim built-in
+" zz - line to middle
+" zt - line to top
+" zb - line to bottom
+" zo,zO - open fold, all folds
+" zc - close fold
+" zf[N]j - fold N lines
+" c-^ - last file
+
+" SEARCHING FOR FILES
+set showmatch
+set incsearch
+set hlsearch
+set ignorecase
+set smartcase
+
+"if ctrlp not installed:
+"nnoremap ,b :ls<cr>:b
+"nnoremap ,m :browse oldfiles<cr>q
+"nnoremap ,p :find *
+nnoremap ,b :action RecentFiles<cr>
+nnoremap ,m :action RecentFiles<cr>
+nnoremap ,p :action GotoFile<cr>
+nnoremap ,g :action FindInPath<cr>
+" nnoremap ,k :Marks<CR>
+"nnoremap ,l :action Find<CR>
+nnoremap ,l :action FileStructurePopup<CR>
+"nnoremap ,l :action ActivateStructureToolWindow<CR>
+nnoremap ,/ :noh<cr>
+"   close current buffer
+nnoremap ,x :action CloseContent<cr>
+"   browse files in same dir as current file
+nnoremap ,e :action SelectInProjectView<cr>
+nnoremap ,,e :action Synchronize<cr>
+nnoremap ,,rm :action SafeDelete<cr>
+nnoremap ,,grm :action SafeDelete<cr>
+set wildignore+=.git/*,*/target/*,*.class,*.png,*.gif,*.pdf,*.exe,*.so,*.jar,*.war,*.ear,*.dll,*.swp,*.zip
+set path+=**
+
+" EDITING
+nnoremap ,c :action EditorPopupMenu<cr>
+set clipboard=unnamed,unnamedplus
+" delete without yank
+nnoremap ,d "_d
+vnoremap ,d "_d
+" delete previous word
+inoremap <C-h> <C-w>
+inoremap <C-bs> <C-w>
+" Capitalize previous word
+inoremap <C-\> <esc>b~wi
+" readline-like mappings
+inoremap <C-a> <C-o>^
+inoremap <C-e> <C-o>A
+inoremap <C-k> <C-o>d$
+inoremap <A-b> <C-o>b
+inoremap <A-f> <C-o>w
+inoremap <A-d> <C-o>dw
+" built-in: c-u, c-w
+" excluded: c-b
+
+" CREATE/SAVE FILES
+nnoremap ,w :w<CR>
+set autoread
+set hidden
+set undofile
+set undodir=$HOME/.vim/undo//
+set backup
+set backupdir=$HOME/.vim/backup//
+set noswapfile
+
+" BROWSING TEXT
+set foldenable
+set mouse=a
+inoremap jk <esc>
+nnoremap ,n :set relativenumber!<CR>
+set number
+set relativenumber
+set wrap linebreak nolist
+set tw=480
+
+" SOUNDS
+set visualbell
+set noerrorbells
+
+"TODO:
+" Run this test class.
+" Run test for this class.
+"TODO: intellij
+"<c-w>_ maximize editor
+"<c-w>j/k go to other editor panes. 
