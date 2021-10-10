@@ -1,0 +1,28 @@
+#!/bin/sh
+
+# Moves a file in home to dotfiles.
+
+# To do the reverse, run bootstrap.sh
+
+set -eu
+
+file="$HOME/$1"
+dotfiles="$HOME/src/dotfiles"
+
+testordie() { test "$@" || { echo "$*"; exit 1; }; }
+
+testordie   -d "$dotfiles"
+
+testordie ! -f "$dotfiles/$file"
+testordie   -f "$HOME/$file"
+testordie ! -d "$HOME/$file"
+testordie ! -L "$HOME/$file"
+testordie   -f "$HOME/$dotfiles/backup/$file"
+
+mkdir -p "$(dirname "$dotfiles/$file")"
+
+set -x
+
+git add -C "$dotfiles" "$file"
+ln -sfn "$file" "$dotfiles/$file"
+

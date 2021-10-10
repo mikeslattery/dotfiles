@@ -1,24 +1,44 @@
-#!/bin/bash
+#!/bin/sh
 
-# Usage:
-# git clone https://github.com/mikeslattery/dotfiles.git && dotfiles/bootstrap.sh
+# Initial install of dotfiles.
 
-set -eux
+# Creates symlinks from home files to dotfiles
+# Creates backups for pre-existing files in home
+# Idempotent
+# Meant only to be called by download.sh
 
-#TODO: figure out current directory
-dotfiles=~/src/dotfiles
-dotlist='bin .bashrc .bash_logout .vimrc .config/i3 bin .bashrc .bash_logout .profile .selected_editor'
-#TODO: .urxvt
-mkdir -p ~/.backup
-mkdir -p ~/.config
-for i in $dotlist; do
-    [ -f ~/$i ] && [ ! -f ~/.backup/$i ] && mv ~/$i ~/.backup/$i
-    rm -rf ~/$i
-    ln -s $dotfiles/$i ~/$i
+# Manual Usage: ~/src/dotfiles/bootstrap.sh
+
+set -eu
+
+echo "Installing dotfiles..."
+echo ''
+
+cd "$(dirname "$0")"
+
+mkdir -p backup
+
+log() {
+  echo "$*"
+  "$@"
+}
+
+for i in $(git ls-files | grep -vxFf .dotignore); do
+  # if it's already a symlink, do nothing
+  if [ ! -L "$HOME/$i" ]; then
+    # Backup pre-existing files
+    if [ -f "$HOME/$i" ] && [ ! -f "backup/$i" ]; then
+      mkdir -p "$(dirname "backup/$i")"
+      log mv "$HOME/$i" "backup/$i"
+    fi
+
+    # create the symlink
+    mkdir -p "$(dirname "$HOME/$i")"
+    log ln -sfn "$i" "$HOME/$i"
+  fi
 done
-unset dotlist
 
-mkdir -p ~/.vim/swap
-[ -d ~/.vim/bundle/vundle.vim ] || git clone https://github.com/VundleVim/Vundle.vim.git ~/.vim/bundle/Vundle.vim
-vim +PluginInstall +qall
+echo ''
+echo "You can find file backups in ~/src/dotfiles/backup"
+echo "To install new file: adddotfile .config/newfile"
 
