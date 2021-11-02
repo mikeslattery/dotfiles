@@ -1,4 +1,5 @@
-bootstrap.sh
-download.sh
-.gitignore
-.dotignore
+^bootstrap.sh
+^download.sh
+^\.gitignore
+^\.dotignore
+^etc

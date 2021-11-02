@@ -24,20 +24,10 @@ log() {
   "$@"
 }
 
-for i in $(git ls-files | grep -vxFf .dotignore | grep -v '^etc/' ); do
-  # if it's already a symlink, do nothing
-  if [ ! -L "$HOME/$i" ]; then
-    # Backup pre-existing files
-    if [ -f "$HOME/$i" ] && [ ! -f "backup/$i" ] && ! cmp --silent "$HOME/$i" "$i"; then
-      mkdir -p "$(dirname "backup/$i")"
-      log mv "$HOME/$i" "backup/$i"
-    fi
+git ls-files | grep -vxf .dotignore | xargs -r -I{} -t cp -s -a --backup "$PWD"/{} ~/{}
 
-    # create the symlink
-    mkdir -p "$(dirname "$HOME/$i")"
-    log ln -sfn "$i" "$HOME/$i"
-  fi
-done
+echo 'Backups:'
+find ~ -name '*~'
 
 echo ''
 echo "You can find file backups in $PWD/backup"

@@ -21,7 +21,7 @@ log() {
 }
 
 git ls-files | grep -vxFf .dotignore | grep -v '^etc/' | xargs -d"\n" -tI{} cp -a "$PWD/{}" "$HOME/{}"
-log cp -av "backup/" "$HOME/"
+log cp -av backup/* "$HOME/"
 
 echo ''
 find backup -type f
