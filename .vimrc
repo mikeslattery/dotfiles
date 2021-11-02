@@ -1,28 +1,40 @@
-"exec" vim +PlugInstall +qa
-set nocompatible
+"mkdir" -p ~/.vim/{autoload,sessions,templates,backup,undo}
+"curl" -fLo ~/.vim/autoload/plug.vim https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+"exec" vim '+PlugClean|PlugUpdate --sync|PlugUpgrade|bd|source $MYVIMRC' "$@"
+
+" .vimrc is executable. Usages:
+" ~/.vimrc      - Update plugins
+" ~/.vimrc +qa  - Initial install, and quit
+
+" Requires: vim (w/+clipboard support), git, curl, fzf, rg
+" Windows gVim not supported
 
 " Autoinstall plugin manager
 if empty(glob('~/.vim/autoload/plug.vim'))
-  silent !mkdir -p ~/.vim/{sessions,templates,backup}
   silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
       \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+  " Subdirs
+  for d in ['sessions', 'templates', 'backup', 'undo']
+    \ | call mkdir($HOME.'/.vim/'.d, 'p') | endfor
 endif
 " Install missing plugins
+"TODO: check for 1:1 g:plugs to directory match
 autocmd VimEnter * if len(filter(values(g:plugs), '!isdirectory(v:val.dir)'))
-    \| PlugInstall --sync | source $MYVIMRC
+    \| PlugClean | PlugUpdate --sync | source $MYVIMRC
   \| endif
 
 call plug#begin('~/.vim/plugged')
 
-Plug 'junegunn/fzf'
-Plug 'junegunn/fzf.vim'
+Plug 'tpope/vim-sensible'
+if executable('fzf')
+  Plug 'junegunn/fzf.vim'
+else
+  Plug 'ctrlpvim/ctrlp.vim'
+endif
 Plug 'dense-analysis/ale'
 Plug 'bling/vim-airline'
-if executable('git')
-  Plug 'airblade/vim-gitgutter'
-  "Plug 'tpope/vim-fugitive'
-endif
-Plug 'tpope/vim-sensible'
+Plug 'airblade/vim-gitgutter'
+"Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-commentary'
 
@@ -46,10 +58,12 @@ call plug#end()
 " See:
 "   http://dougblack.io/words/a-good-vimrc.html
 
+let mapleader=','
+let maplocalleader=mapleader
 
 " EXECUTION
 command! -nargs=1 Silent execute 'silent !' . <q-args> | execute 'redraw!'
-nnoremap ,v :execute getline('.')<CR>
+nnoremap ,v  :execute getline('.')<CR>
 nnoremap ,,v :source $MYVIMRC<CR>
 nnoremap ,,u :PlugClean\|PlugUpgrade\|PlugUpdate<cr>
 nnoremap ,,s :mksession! $HOME/.vim/sessions/
@@ -65,16 +79,17 @@ set tabstop=2
 set softtabstop=2
 set shiftwidth=2
 set expandtab
-set smarttab
 set autoindent
+set backspace=indent,eol,start
 
 " SEARCHING FOR FILES
 set showmatch
+nnoremap ,/ :noh<cr>
 set incsearch
 "set hlsearch
 set ignorecase
 set smartcase
-nnoremap ,i :execute "silent !curl -fs 'http://localhost:63342/api/file/".expand("%")."?line=".line(".")."&column=".col(".")."'"\|redraw!<cr>
+nnoremap ,i :execute "update\|silent !curl -fs 'http://localhost:63342/api/file/".expand("%")."?line=".line(".")."&column=".col(".")."'"\|redraw!<cr>
 
 if executable('fzf')
   nnoremap ,b :Buffers<CR>
@@ -87,24 +102,35 @@ if executable('fzf')
   else
     nnoremap ,g :grep<space>
   endif
+  nnoremap <leader>j :Jumps<cr>
+  nnoremap <leader>c :Changes<cr>
 else
-  nnoremap ,b :ls<cr>:b
-  nnoremap ,m :browse oldfiles<cr>
-  nnoremap ,p :find **/**<left>
+  nnoremap ,b :CtrlPBuffer<cr>
+  nnoremap ,m :CtrlPMRU<cr>
+  nnoremap ,p :CtrlP<cr>
   nnoremap ,k :marks<cr>
   nnoremap ,l /
   nnoremap ,g :grep<space>
+  nnoremap <leader>j :jumps<cr>
+  nnoremap <leader>c :changes<cr>
 endif
-vnoremap ,c :I#<ESC><C-i>
+"TODO: what? vnoremap ,c :I#<ESC><C-i>
 "   close current buffer
-nnoremap ,x :bp\|bd #<CR>
+nnoremap ,x :bd<CR>
 "   browse files in same dir as current file
-nnoremap ,e :let curfile=expand('%')<cr>:e %:p:h<CR>:execute '/\V'.curfile.'\$'<cr>:noh<cr>
-nnoremap ,,e :checktime<CR>
+nnoremap ,e :let @/=expand('%:t')<cr>:Explore<cr>
+"   browse files in project dir
+nnoremap ,,e :Explore .<cr>
+nnoremap ,,,e :checktime<CR>
 nnoremap ,,rm :call delete(expand('%'))\|bdelete!<CR>
-nnoremap ,,grm :!git rm %\|bdelete!<CR>
-set wildignore+=.git/*,*/target/*,*.class,*.png,*.gif,*.pdf,*.exe,*.so,*.jar,*.war,*.ear,*.dll,*.swp,*.zip
+nnoremap ,,grm :silent !git rm %\|bdelete!<CR>
+set wildignore+=.git/*,*/target/*,*/node_modules/*,dist/*,.nuxt/*
 set path+=**
+"TODO: let g:netrw_list_hide=netrw_gitignore#Hide()
+"TODO: execute 'set wildignore+='.substitute(g:netrw_list_hide.',**/.git/*','/,','/*,','g')
+"TODO: execute 'set path+='.system('git ls-files | xargs -r dirname | sort -u | sed "s|/\\?$|/\\*|;" | paste -sd , -')
+" Toggle banner with: I
+let g:netrw_banner=0
 let g:netrw_liststyle=4
 let g:netrw_bufsettings='relativenumber nomodifiable nomodified readonly nobuflisted'
 
@@ -113,12 +139,13 @@ if executable("rg")
   set grepprg=rg\ --vimgrep\ --no-heading
   set grepformat=%f:%l:%c:%m,%f:%l:%m
 endif
+"TODO: what is this?
 augroup myvimrc
   autocmd!
   autocmd QuickFixCmdPost [^l]* cwindow
   autocmd QuickFixCmdPost l*    lwindow
 augroup END
-nnoremap ,/ :noh<cr>
+
 
 " EDITING
 "nnoremap <cr> o<esc>
@@ -129,21 +156,25 @@ map <C-h> <C-W>h
 map <C-l> <C-W>l
 nnoremap ,d "_d
 vnoremap ,d "_d
+nnoremap ,q @q
+
 set clipboard=unnamed,unnamedplus
-" delete previous word
+" ctrl-backspace to delete previous word
 inoremap <C-h> <C-w>
+cnoremap <C-h> <C-w>
 inoremap <C-bs> <C-w>
-" Capitalize previous word
-inoremap <C-\> <esc>b~wi
+cnoremap <C-bs> <C-w>
+" Capitalize previous word while editing
+inoremap <C-\> <esc>m'b~`'a
+" Capitalize sentence
+"TODO: inoremap <c-\> <esc>:silent s/\([\.\?]\s\s*\)\(\w\)/\1\u\2/ge<cr>^gUlo
+
 " readline-like mappings
 inoremap <C-a> <C-o>^
 inoremap <C-e> <C-o>A
 inoremap <C-f> <Right>
 inoremap <C-b> <Left>
 inoremap <C-k> <C-o>d$
-inoremap <esc>b <S-Left>
-inoremap <esc>f <S-Right>
-inoremap <esc>d <C-o>dw
 " ideavim
 "inoremap <A-b> <C-o>b
 "inoremap <A-f> <C-o>w
@@ -161,7 +192,7 @@ nnoremap ,,l :call term_sendkeys(bufnr($SHELL),getline('.') . "\n")<cr>
 " CREATE/SAVE FILES
 nnoremap ,,t :exec "e ".system('mktemp -p /var/tmp')<cr>
 nnoremap ,w :up<CR>
-nnoremap ,,java :-1read $HOME/.vim/templates/template.java<CR>/REPLACEME<CR>
+"TODO: nnoremap ,,java :-1read $HOME/.vim/templates/template.java<CR>/REPLACEME<CR>
 set autoread
 set hidden
 set undofile
@@ -171,14 +202,33 @@ set backupdir=$HOME/.vim/backup//
 set noswapfile
 
 " BROWSING TEXT
-set foldenable
+set nofoldenable
+set foldmethod=indent
+set foldcolumn=1
+set foldlevelstart=99
+set foldnestmax=10
+set foldlevel=2
+let g:markdown_folding=1
 set mouse=a
+"TODO: remove jk
 inoremap jk <esc>
+nnoremap <C-Space> i
+nnoremap <C-@> i
+inoremap <C-Space> <Esc>
+inoremap <C-@> <Esc>
+inoremap <C-c> <esc>
+
 nnoremap ,n :set relativenumber!<CR>
 set number
 set relativenumber
 set wrap linebreak nolist
 set tw=480
+" stay centered
+nnoremap n nzzzv
+nnoremap N Nzzzv
+" add to jumplist on relative moves
+nnoremap <expr> j (v:count > 5 ? "m'" . v:count . "j" : "j")
+nnoremap <expr> k (v:count > 5 ? "m'" . v:count . "k" : "k")
 
 " SOURCE CODE
 let g:ale_linters={'java': []}
@@ -199,6 +249,71 @@ if has('gui_running')
   highlight Normal guifg=white guibg=black
 endif
 
+" Functions
+
+function GoTo(jumpline)
+  let values = split(a:jumpline, ":")
+  echo "e ".values[0]
+  call cursor(str2nr(values[1]), str2nr(values[2]))
+  execute "normal! zvzz"
+endfunction
+
+function GetLine(bufnr, lnum)
+  let lines = getbufline(a:bufnr, a:lnum)
+  if len(lines)>0
+    return trim(lines[0])
+  else
+    return ''
+  endif
+endfunction
+
+function! Jumps()
+  " Get jumps with filename added
+  let jumps = map(reverse(copy(getjumplist()[0])), 
+    \ { key, val -> extend(val, {'name': expand('#'.(val.bufnr)) }) })
+
+  let jumptext = map(copy(jumps), { index, val -> 
+      \ (val.name).':'.(val.lnum).':'.(val.col+1).': '.GetLine(val.bufnr, val.lnum) })
+
+  call fzf#run(fzf#vim#with_preview(fzf#wrap({
+        \ 'source': jumptext,
+        \ 'column': 1,
+        \ 'options': ['--delimiter', ':', '--bind', 'alt-a:select-all,alt-d:deselect-all', '--preview-window', '+{2}-/2'],
+        \ 'sink': function('GoTo')})))
+endfunction
+
+command! Jumps call Jumps()
+
+function! Changes()
+  let changes  = reverse(copy(getchangelist()[0]))
+
+  let offset = &lines / 2 - 3
+  let changetext = map(copy(changes), { index, val -> 
+      \ expand('%').':'.(val.lnum).':'.(val.col+1).': '.GetLine(bufnr('%'), val.lnum) })
+
+  call fzf#run(fzf#vim#with_preview(fzf#wrap({
+        \ 'source': changetext,
+        \ 'column': 1,
+        \ 'options': ['--delimiter', ':', '--bind', 'alt-a:select-all,alt-d:deselect-all', '--preview-window', '+{2}-/2'],
+        \ 'sink': function('GoTo')})))
+endfunction
+
+command! Changes call Changes()
+
+
 "TODO
+" Tabs
+"   help tab
+"   fzf tabs
+"   taboo plugin
+"   tab name in status line
 " On save, if %.watch exists, run it.
-" Ale + LSP. Jetbrains mappings
+" CoC.  Jetbrains mappings
+" Learn:
+"   marks, registers, record/playback, quickfix lists
+"   vim-surround, vim-commentary
+"   browse/edit command history, tags
+"   vimdiff, themes
+" Source of other mappings
+" https://www.youtube.com/watch?v=hSHATqh8svM
+

@@ -12,6 +12,15 @@ nnoremap ,,v :source ~/.ideavimrc<cr>
 " ignore any further error formats.  (hopefully this doesn't break any plugins)
 set errorformat+=%-G%.%#
 
+" Tmux emualation
+"TODO: nnoremap <c-b>% :action terminal<cr>
+"TODO: nnoremap <c-b>" :action terminal<cr>
+"TODO: nnoremap <c-w>% :action terminal<cr>
+"TODO: nnoremap <c-w>" :action terminal<cr>
+"TODO: nnoremap <c-b>z <c-s-F12>
+"TODO: nnoremap <c-6> ... last position
+"TODO: nnoremap <c-w>j ActivateTerminalToolWindow
+
 " gitgutter
 " In compare, F7=]c S-F7=[c
 nnoremap ]c :action VcsShowNextChangeMarker<cr>
@@ -135,7 +144,11 @@ set noswapfile
 " BROWSING TEXT
 set foldenable
 set mouse=a
+"TODO: remove jk
 inoremap jk <esc>
+nnoremap <C-Space> i
+inoremap <C-Space> <Esc>
+inoremap <C-c> <esc>
 nnoremap ,n :set relativenumber!<CR>
 set number
 set relativenumber
