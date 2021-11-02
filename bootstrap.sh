@@ -5,7 +5,8 @@
 # Creates symlinks from home files to dotfiles
 # Creates backups for pre-existing files in home
 # Idempotent
-# Meant only to be called by download.sh
+# Meant only to be called by download.sh,
+# but may also be called if files missing
 
 # Manual Usage: ~/src/dotfiles/bootstrap.sh
 
@@ -19,15 +20,15 @@ cd "$(dirname "$0")"
 mkdir -p backup
 
 log() {
-  echo "$*"
+  echo "+ $*"
   "$@"
 }
 
-for i in $(git ls-files | grep -vxFf .dotignore); do
+for i in $(git ls-files | grep -vxFf .dotignore | grep -v '^etc/' ); do
   # if it's already a symlink, do nothing
   if [ ! -L "$HOME/$i" ]; then
     # Backup pre-existing files
-    if [ -f "$HOME/$i" ] && [ ! -f "backup/$i" ] && ! cmd --silent "$HOME/$i" "$i"; then
+    if [ -f "$HOME/$i" ] && [ ! -f "backup/$i" ] && ! cmp --silent "$HOME/$i" "$i"; then
       mkdir -p "$(dirname "backup/$i")"
       log mv "$HOME/$i" "backup/$i"
     fi
@@ -39,6 +40,6 @@ for i in $(git ls-files | grep -vxFf .dotignore); do
 done
 
 echo ''
-echo "You can find file backups in ~/src/dotfiles/backup"
-echo "To install new file: adddotfile .config/newfile"
+echo "You can find file backups in $PWD/backup"
+echo "To install new file: dotfile .config/newfile"
 

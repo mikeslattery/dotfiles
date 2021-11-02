@@ -7,8 +7,7 @@
 
 set -eu
 
-mkdir -p ~/src
-mkdir ~/src/dotfiles
+mkdir -p ~/src/dotfiles
 git clone https://github.com/mikeslattery/dotfiles.git ~/src/dotfiles
 
 ~/src/dotfiles/bootstrap.sh
