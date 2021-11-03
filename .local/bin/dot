@@ -18,7 +18,6 @@ dot [--help]               - This message.
 dot etc                    - Copy ~/.config/etc to /etc
 dot uninstall              - Removes bare repo
                                 To Reinstall: dot clone
-dot getstarted             - How to create a new dotfiles project
 
 See also:
 https://www.atlassian.com/git/tutorials/dotfiles
@@ -52,9 +51,10 @@ case "${1:---help}" in
     ;;
   init)
     git config user.name || die 'E: Must configure user.email/name'
+    [ ! -d "$GIT_DIR" ] || echo "W: $GIT_DIR already exists."
 
-    echo 'This will ERASE all files of an existing dotfile repo.'
     echo "https://github.com/${2} must already exist."
+    echo 'This will ERASE all files of the project, if any.'
     echo 'You must already have registered your ssh keys with github.'
     echo 'Hit Ctrl-C to abort, or Enter to continue:'
     read -r
@@ -99,8 +99,8 @@ case "${1:---help}" in
     ;;
   uninstall)
     [ -d "$GIT_DIR" ] || die "E: Not installed at $GIT_DIR"
-    echo "You may also want to run: rm $0"
-    echo "To reinstall: $0 install"
+    echo "You may want to run: rm ~/.local/bin/dot"
+    echo "To reinstall: dot install"
     set -x
     rm -rf "$GIT_DIR"
     ;;
