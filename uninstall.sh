@@ -20,14 +20,7 @@ log() {
   "$@"
 }
 
-git ls-files | grep -vxFf .dotignore | grep -v '^etc/' | xargs -d"\n" -tI{} cp -a "$PWD/{}" "$HOME/{}"
-log cp -av backup/* "$HOME/"
-
-echo ''
-find backup -type f
-echo 'Hit enter to delete above backup files: '
-read -r
-log rm -rf backup/
+git ls-files | grep -vxf .dotignore | xargs -d"\n" -tI{} cp -a --remove-destination "$PWD/{}" "$HOME/{}"
 
 echo ''
 echo 'Complete.'

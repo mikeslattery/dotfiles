@@ -1,5 +1,6 @@
-^bootstrap.sh
-^download.sh
-^\.gitignore
-^\.dotignore
-^etc
+bootstrap.sh
+download.sh
+uninstall.sh
+\.gitignore
+\.dotignore
+etc(/.*)?

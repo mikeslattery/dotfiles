@@ -2,11 +2,11 @@
 
 # Initial install of dotfiles.
 
-# Creates symlinks from home files to dotfiles
-# Creates backups for pre-existing files in home
-# Idempotent
+# Creates symlinks from home files to dotfiles.
+# Idempotent.
 # Meant only to be called by download.sh,
-# but may also be called if files missing
+# but may also be called if files missing.
+# Requires: git, gnu cp
 
 # Manual Usage: ~/src/dotfiles/bootstrap.sh
 
@@ -24,12 +24,11 @@ log() {
   "$@"
 }
 
-git ls-files | grep -vxf .dotignore | xargs -r -I{} -t cp -s -a --backup "$PWD"/{} ~/{}
+files() { git ls-files | grep -vxf .dotignore; }
 
-echo 'Backups:'
-find ~ -name '*~'
+files | xargs dirname | sort -u | xargs -r -t -I{} mkdir -p "$HOME"/{}
+files | xargs -r -I{} -t cp -s -a "$PWD"/{} ~/{}
 
 echo ''
-echo "You can find file backups in $PWD/backup"
 echo "To install new file: dotfile .config/newfile"
 
