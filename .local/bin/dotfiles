@@ -5,7 +5,7 @@ Dotfile wrapper over git.
 To install:
   curl -L https://raw.githubusercontent.com/mikeslattery/dotfiles/master/.local/bin/dotfiles | /bin/sh -s install
 or
-  wget "https://raw.githubusercontent.com/mikeslattery/dotfiles/master/.local/bin/dotfiles" -O - | /bin/sh -s install
+  wget https://raw.githubusercontent.com/mikeslattery/dotfiles/master/.local/bin/dotfiles -O - | /bin/sh -s install
 
 Usage:
   dotfiles [help]     - This message.
@@ -25,10 +25,12 @@ Requirements:
 To push/pull over ssh:
   cat ~/.local/bin/dotfiles | ssh <server> /bin/sh -s install
   ssh <server> cat .local/bin/dotfiles | /bin/sh -s install
+To push over ssh without git:
+  config ls-files | xargs -I{} scp ~/{} <server>:{}
 
 See also:
-  https://www.atlassian.com/git/tutorials/dotfiles
   Other files in .config/dotfiles
+  https://www.atlassian.com/git/tutorials/dotfiles
 
 USAGE
 }
@@ -50,7 +52,7 @@ case "${1:-help}" in
     ;;
   install)
     [ ! -d "$GIT_DIR" ] || die "E: $GIT_DIR already exists."
-    if ! git config user.name; then
+    if ! git config user.name 2>/dev/null; then
       gitconfig="https://raw.githubusercontent.com/${github}/master/.gitconfig"
       if command -v curl > /dev/null; then
         curl -sLf "$gitconfig" -o ~/.gitconfig
@@ -63,9 +65,9 @@ case "${1:-help}" in
     git clone --bare "$git_ssh_url" "$GIT_DIR" || git clone --bare "$git_http_url" "$GIT_DIR"
     git config --local status.showUntrackedFiles no
     git config --local core.excludesFile ~/.config/dotfiles/gitignore
+    git config --local branch.master.remote origin
+    git config --local branch.master.merge refs/heads/master
     git reset --hard
-    git config branch.master.remote origin
-    git config branch.master.merge refs/heads/master
     ;;
   etc)
     sudo cp -r --preserve=mode ~/.config/dotfiles/etc/* /etc/
@@ -81,7 +83,4 @@ case "${1:-help}" in
     exec git "$@"
     ;;
 esac
-
-#TODO: rename to dotfiles
-#TODO: alias config='git --git-dir ... --work-dir ...'
 
