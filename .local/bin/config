@@ -71,11 +71,11 @@ case "${1:---help}" in
     read -r
 
     # Create initial files
-    mkdir -p "$(dirname "$GIT_DIR")" "$HOME/.local/bin"
+    mkdir -p "$(dirname "$GIT_DIR")" "$HOME/.local/bin" "$HOME/.config/dotfiles"
     [ -f ~/.local/bin/config ] || cp "$0" ~/.local/bin/config
     sed -i "s|$github|$2|" ~/.local/bin/config
     chmod +x ~/.local/bin/config
-    basename "$GIT_DIR" >> ~/.gitignore
+    basename "$GIT_DIR" > "$HOME/.config/dotfiles/gitignore"
     (
       # Create local repo
       set -x
