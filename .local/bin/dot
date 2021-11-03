@@ -1,0 +1,111 @@
+#!/bin/sh
+usage() { cat >&2 <<USAGE
+Dotfile wrapper over git.
+
+To install:
+curl -L https://raw.githubusercontent.com/mikeslattery/dotfiles/master/.local/bin/dot | /bin/sh -s install
+
+Usage:
+dot add <file>             - add file to git index
+dot add -u                 - add changed tracked files to index
+dot commit -m '<message>'  - Save changes to local log
+dot push                   - Save changes to repository
+dot pull                   - Load changes from repository
+dot status                 - View changed and new files
+
+dot help [<command>]       - More help on commands
+dot [--help]               - This message.
+dot etc                    - Copy ~/.config/etc to /etc
+dot uninstall              - Removes bare repo
+                                To Reinstall: dot clone
+dot getstarted             - How to create a new dotfiles project
+
+See also:
+https://www.atlassian.com/git/tutorials/dotfiles
+
+To start your own dotfiles project:
+curl https://raw.githubusercontent.com/mikeslattery/dotfiles/master/.local/bin/dot -o dot
+bash dot init <github-user/project>
+rm dot
+
+USAGE
+}
+
+set -eu
+
+github='mikeslattery/dotfiles'
+git_ssh_url="git@github.com:${github}.git"
+git_http_url="https://github.com/${github}.git"
+export GIT_DIR="$HOME/.dotfiles"
+export GIT_WORK_TREE="$HOME"
+
+cd "$(dirname "$0")"
+
+die() { echo "$*"; exit 1; }
+
+case "${1:---help}" in
+  --help)
+    usage
+    ;;
+  help)
+    git "$@" 2>&1 | sed 's/git[- ]/dot /g;' | less -F
+    ;;
+  init)
+    git config user.name || die 'E: Must configure user.email/name'
+
+    echo 'This will ERASE all files of an existing dotfile repo.'
+    echo "https://github.com/${2} must already exist."
+    echo 'You must already have registered your ssh keys with github.'
+    echo 'Hit Ctrl-C to abort, or Enter to continue:'
+    read -r
+
+    # Create initial files
+    mkdir -p "$(dirname "$GIT_DIR")" "$HOME/.local/bin"
+    [ -f ~/.local/bin/dot ] || cp "$0" ~/.local/bin/dot
+    sed -i "s|$github|$2|" ~/.local/bin/dot
+    chmod +x ~/.local/bin/dot
+    basename "$GIT_DIR" >> ~/.gitignore
+    (
+      # Create local repo
+      set -x
+      git init
+      git remote add origin "git@github.com:${2}.git" || true
+      git config --local status.showUntrackedFiles no
+      git add .gitignore .local/bin/dot .gitconfig
+      git commit -m 'original commit'
+    )
+    echo 'Hit enter to push to github:'
+    read -r
+    git push -u -f --verbose origin master
+    ;;
+  install)
+    [ ! -d "$GIT_DIR" ] || die "E: $GIT_DIR already exists."
+    if ! git config user.name; then
+      gitconfig="https://raw.githubusercontent.com/${github}/master/.gitconfig"
+      if command -v curl > /dev/null; then
+        curl -sLf "$gitconfig" -o ~/.gitconfig
+      else
+        wget "$gitconfig" -O ~/.gitconfig -q
+      fi
+    fi
+    mkdir -p "$(dirname "$GIT_DIR")"
+    set -x
+    git clone --bare "$git_ssh_url" "$GIT_DIR" || git clone --bare "$git_http_url" "$GIT_DIR"
+    git config --local status.showUntrackedFiles no
+    git reset --hard
+    ;;
+  etc)
+    sudo cp -r --preserve=mode ~/.config/etc/* /etc/
+    ;;
+  uninstall)
+    [ -d "$GIT_DIR" ] || die "E: Not installed at $GIT_DIR"
+    echo "You may also want to run: rm $0"
+    echo "To reinstall: $0 install"
+    set -x
+    rm -rf "$GIT_DIR"
+    ;;
+  *)
+    exec git "$@"
+    ;;
+esac
+
