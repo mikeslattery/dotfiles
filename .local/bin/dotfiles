@@ -4,33 +4,39 @@ Dotfile wrapper over git.
 
 To install:
   curl -L https://raw.githubusercontent.com/mikeslattery/dotfiles/master/.local/bin/dotfiles | /bin/sh -s install
-
-To push over ssh:
-  curl -L https://raw.githubusercontent.com/mikeslattery/dotfiles/master/.local/bin/dotfiles | ssh <server> /bin/sh -s install
+or
+  wget "https://raw.githubusercontent.com/mikeslattery/dotfiles/master/.local/bin/dotfiles" -O - | /bin/sh -s install
 
 Usage:
-  dotfiles [--help]               - This message.
-  dotfiles etc                    - Copy ~/.config/dotfiles/etc to /etc
-  dotfiles uninstall              - Removes bare repo
+  dotfiles [help]     - This message.
+  dotfiles etc        - Copy ~/.config/dotfiles/etc to /etc
+  dotfiles uninstall  - Removes bare repo
+  dotfiles ...        - git command. (in case "config" alias not set)
+  config   ...        - ditto
 
 Requirements:
 
   git
-  for install: curl
+  for install: curl or wget
   for pushes: openssh, and keys registered with github
   ~/.local/bin must be in PATH
+  In .zshrc: alias config="git --git-dir=$HOME/.dotfiles --work-tree=$HOME"
 
-See also: https://www.atlassian.com/git/tutorials/dotfiles
+To push/pull over ssh:
+  cat ~/.local/bin/dotfiles | ssh <server> /bin/sh -s install
+  ssh <server> cat .local/bin/dotfiles | /bin/sh -s install
+
+See also:
+  https://www.atlassian.com/git/tutorials/dotfiles
+  Other files in .config/dotfiles
 
 USAGE
 }
 
-# This must be in .zshrc:
-# alias config="git --git-dir=$HOME/.dotfiles --work-tree=$HOME"
-
 set -eu
 
 github='mikeslattery/dotfiles'
+
 git_ssh_url="git@github.com:${github}.git"
 git_http_url="https://github.com/${github}.git"
 export GIT_DIR="$HOME/.dotfiles"
@@ -38,8 +44,8 @@ export GIT_WORK_TREE="$HOME"
 
 die() { echo "$*"; exit 1; }
 
-case "${1:---help}" in
-  --help)
+case "${1:-help}" in
+  help)
     usage
     ;;
   install)
