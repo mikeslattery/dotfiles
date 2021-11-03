@@ -58,7 +58,7 @@ case "${1:-help}" in
       zip="https://github.com/${github}/archive/refs/heads/master.zip"
       curl -O "$zip" || wget "$zip"
       ln -s ~ dotfiles-master
-      unzip master.zip
+      unzip -o master.zip
       rm master.zip dotfiles-master
 
       echo 'W: git is not installed.'
