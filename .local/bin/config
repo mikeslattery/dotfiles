@@ -19,13 +19,16 @@ config etc                    - Copy ~/.config/etc to /etc
 config uninstall              - Removes bare repo
                                 To Reinstall: config clone
 
-See also:
-https://www.atlassian.com/git/tutorials/dotfiles
+Requirements:
+  git openssh
+  ssh keys registered with github
+
+See also: https://www.atlassian.com/git/tutorials/dotfiles
 
 To start your own dotfiles project:
-curl https://raw.githubusercontent.com/mikeslattery/dotfiles/master/.local/bin/config -o config
-bash config init <github-user/project>
-rm config
+  curl https://raw.githubusercontent.com/mikeslattery/dotfiles/master/.local/bin/config -o config
+  bash config init <github-user/project>
+  rm config
 
 USAGE
 }
