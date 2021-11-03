@@ -3,29 +3,29 @@ usage() { cat >&2 <<USAGE
 Dotfile wrapper over git.
 
 To install:
-curl -L https://raw.githubusercontent.com/mikeslattery/dotfiles/master/.local/bin/dot | /bin/sh -s install
+curl -L https://raw.githubusercontent.com/mikeslattery/dotfiles/master/.local/bin/config | /bin/sh -s install
 
 Usage:
-dot add <file>             - add file to git index
-dot add -u                 - add changed tracked files to index
-dot commit -m '<message>'  - Save changes to local log
-dot push                   - Save changes to repository
-dot pull                   - Load changes from repository
-dot status                 - View changed and new files
+config add <file>             - add file to git index
+config add -u                 - add changed tracked files to index
+config commit -m '<message>'  - Save changes to local log
+config push                   - Save changes to repository
+config pull                   - Load changes from repository
+config status                 - View changed and new files
 
-dot help [<command>]       - More help on commands
-dot [--help]               - This message.
-dot etc                    - Copy ~/.config/etc to /etc
-dot uninstall              - Removes bare repo
-                                To Reinstall: dot clone
+config help [<command>]       - More help on commands
+config [--help]               - This message.
+config etc                    - Copy ~/.config/etc to /etc
+config uninstall              - Removes bare repo
+                                To Reinstall: config clone
 
 See also:
 https://www.atlassian.com/git/tutorials/dotfiles
 
 To start your own dotfiles project:
-curl https://raw.githubusercontent.com/mikeslattery/dotfiles/master/.local/bin/dot -o dot
-bash dot init <github-user/project>
-rm dot
+curl https://raw.githubusercontent.com/mikeslattery/dotfiles/master/.local/bin/config -o config
+bash config init <github-user/project>
+rm config
 
 USAGE
 }
@@ -47,7 +47,7 @@ case "${1:---help}" in
     usage
     ;;
   help)
-    git "$@" 2>&1 | sed 's/git[- ]/dot /g;' | less -F
+    git "$@" 2>&1 | sed 's/git[- ]/config /g;' | less -F
     ;;
   init)
     git config user.name || die 'E: Must configure user.email/name'
@@ -61,9 +61,9 @@ case "${1:---help}" in
 
     # Create initial files
     mkdir -p "$(dirname "$GIT_DIR")" "$HOME/.local/bin"
-    [ -f ~/.local/bin/dot ] || cp "$0" ~/.local/bin/dot
-    sed -i "s|$github|$2|" ~/.local/bin/dot
-    chmod +x ~/.local/bin/dot
+    [ -f ~/.local/bin/config ] || cp "$0" ~/.local/bin/config
+    sed -i "s|$github|$2|" ~/.local/bin/config
+    chmod +x ~/.local/bin/config
     basename "$GIT_DIR" >> ~/.gitignore
     (
       # Create local repo
@@ -71,7 +71,7 @@ case "${1:---help}" in
       git init
       git remote add origin "git@github.com:${2}.git" || true
       git config --local status.showUntrackedFiles no
-      git add .gitignore .local/bin/dot .gitconfig
+      git add .gitignore .local/bin/config .gitconfig
       git commit -m 'original commit'
     )
     echo 'Hit enter to push to github:'
@@ -99,8 +99,8 @@ case "${1:---help}" in
     ;;
   uninstall)
     [ -d "$GIT_DIR" ] || die "E: Not installed at $GIT_DIR"
-    echo "You may want to run: rm ~/.local/bin/dot"
-    echo "To reinstall: dot install"
+    echo "You may want to run: rm ~/.local/bin/config"
+    echo "To reinstall: config install"
     set -x
     rm -rf "$GIT_DIR"
     ;;
