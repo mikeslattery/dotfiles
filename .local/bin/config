@@ -107,8 +107,8 @@ case "${1:---help}" in
     git clone --bare "$git_ssh_url" "$GIT_DIR" || git clone --bare "$git_http_url" "$GIT_DIR"
     git config --local status.showUntrackedFiles no
     git config --local core.excludesFile ~/.config/dotfiles/gitignore
-    git fetch --all
-    git reset --hard orgin/master
+    git reset --hard
+    git push -u origin master
     ;;
   etc)
     sudo cp -r --preserve=mode ~/.config/dotfiles/etc/* /etc/
