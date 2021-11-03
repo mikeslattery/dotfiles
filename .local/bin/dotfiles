@@ -15,7 +15,6 @@ Usage:
   config   ...        - ditto
 
 Requirements:
-
   for install: git or unzip, curl or wget
   for pushes: git, openssh, and keys registered with github
   ~/.local/bin must be in PATH.  If not, this should be set in .zshrc
@@ -24,8 +23,8 @@ Requirements:
 To push/pull over ssh:
   cat ~/.local/bin/dotfiles | ssh <server> /bin/sh -s install
   ssh <server> cat .local/bin/dotfiles | /bin/sh -s install
-To push over ssh without git:
-  config ls-files | xargs -I{} scp ~/{} <server>:{}
+To push over ssh without git or unzip:
+  config archive master | ssh <server> tar -x
 
 See also:
   Other files in .config/dotfiles
