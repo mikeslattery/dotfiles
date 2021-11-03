@@ -68,7 +68,7 @@ case "${1:---help}" in
     (
       # Create local repo
       set -x
-      git init
+      git init --initial-branch=master
       git remote add origin "git@github.com:${2}.git" || true
       git config --local status.showUntrackedFiles no
       git add .gitignore .local/bin/config .gitconfig
