@@ -476,6 +476,7 @@ stt-clip() {
   ssh phone termux-dialog -m | jq '.text' -r | /usr/bin/xclip -i -selection clipboard
 }
 
+alias config="git --git-dir=$HOME/.dotfiles --work-tree=$HOME"
 
 # cleanup
 unset -f pathmunge
