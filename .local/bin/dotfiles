@@ -51,23 +51,36 @@ case "${1:-help}" in
     usage
     ;;
   install)
-    [ ! -d "$GIT_DIR" ] || die "E: $GIT_DIR already exists."
-    if ! git config user.name 2>/dev/null; then
-      gitconfig="https://raw.githubusercontent.com/${github}/master/.gitconfig"
-      if command -v curl > /dev/null; then
-        curl -sLf "$gitconfig" -o ~/.gitconfig
-      else
-        wget "$gitconfig" -O ~/.gitconfig -q
+    if ! command -v git >/dev/null; then
+      # fallback to copy/unzip, if git not installed
+      command -v unzip >/dev/null || die 'E: git nor unzip are installed'
+      cd ~
+      zip="https://github.com/${github}/archive/refs/heads/master.zip"
+      curl -O "$zip" || wget "$zip"
+      ln -s ~ dotfiles-master
+      unzip master.zip
+      rm master.zip dotfiles-master
+
+      echo 'W: git is not installed.'
+    else
+      [ ! -d "$GIT_DIR" ] || die "E: $GIT_DIR already exists."
+      if ! git config user.name 2>/dev/null; then
+        gitconfig="https://raw.githubusercontent.com/${github}/master/.gitconfig"
+        if command -v curl > /dev/null; then
+          curl -sLf "$gitconfig" -o ~/.gitconfig
+        else
+          wget "$gitconfig" -O ~/.gitconfig -q
+        fi
       fi
+      mkdir -p "$(dirname "$GIT_DIR")"
+      set -x
+      git clone --bare "$git_ssh_url" "$GIT_DIR" || git clone --bare "$git_http_url" "$GIT_DIR"
+      git config --local status.showUntrackedFiles no
+      git config --local core.excludesFile ~/.config/dotfiles/gitignore
+      git config --local branch.master.remote origin
+      git config --local branch.master.merge refs/heads/master
+      git reset --hard
     fi
-    mkdir -p "$(dirname "$GIT_DIR")"
-    set -x
-    git clone --bare "$git_ssh_url" "$GIT_DIR" || git clone --bare "$git_http_url" "$GIT_DIR"
-    git config --local status.showUntrackedFiles no
-    git config --local core.excludesFile ~/.config/dotfiles/gitignore
-    git config --local branch.master.remote origin
-    git config --local branch.master.merge refs/heads/master
-    git reset --hard
     ;;
   etc)
     sudo cp -r --preserve=mode ~/.config/dotfiles/etc/* /etc/
