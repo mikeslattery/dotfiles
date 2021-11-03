@@ -5,6 +5,9 @@ Dotfile wrapper over git.
 To install:
 curl -L https://raw.githubusercontent.com/mikeslattery/dotfiles/master/.local/bin/config | /bin/sh -s install
 
+To push over ssh:
+curl -L https://raw.githubusercontent.com/mikeslattery/dotfiles/master/.local/bin/config | ssh <server> /bin/sh -s install
+
 Usage:
 config add <file>             - add file to git index
 config add -u                 - add changed tracked files to index
@@ -17,7 +20,6 @@ config help [<command>]       - More help on commands
 config [--help]               - This message.
 config etc                    - Copy ~/.config/etc to /etc
 config uninstall              - Removes bare repo
-                                To Reinstall: config clone
 
 Requirements:
   git openssh
