@@ -52,25 +52,22 @@ case "${1:-help}" in
     ;;
   install)
     if ! command -v git >/dev/null; then
-      # fallback to copy/unzip, if git not installed
+      # fallback to unzip, if git not installed
       command -v unzip >/dev/null || die 'E: git nor unzip are installed'
       cd ~
       zip="https://github.com/${github}/archive/refs/heads/master.zip"
-      curl -O "$zip" || wget "$zip"
-      ln -s ~ dotfiles-master
+      curl -sfLO "$zip" || wget -q "$zip"
+      ln -sfn ~ dotfiles-master
       unzip -o master.zip
       rm master.zip dotfiles-master
 
       echo 'W: git is not installed.'
     else
       [ ! -d "$GIT_DIR" ] || die "E: $GIT_DIR already exists."
+      # If git user not set, download
       if ! git config user.name 2>/dev/null; then
         gitconfig="https://raw.githubusercontent.com/${github}/master/.gitconfig"
-        if command -v curl > /dev/null; then
-          curl -sLf "$gitconfig" -o ~/.gitconfig
-        else
-          wget "$gitconfig" -O ~/.gitconfig -q
-        fi
+        curl -sLf "$gitconfig" -o ~/.gitconfig || wget "$gitconfig" -O ~/.gitconfig -q
       fi
       mkdir -p "$(dirname "$GIT_DIR")"
       set -x
