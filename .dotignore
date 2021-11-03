@@ -1,6 +1,0 @@
-bootstrap.sh
-download.sh
-uninstall.sh
-\.gitignore
-\.dotignore
-etc(/.*)?
