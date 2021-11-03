@@ -83,7 +83,7 @@ case "${1:---help}" in
       git remote add origin "git@github.com:${2}.git" || true
       git config --local status.showUntrackedFiles no
       git config --local core.excludesFile ~/.config/dotfiles/gitignore
-      git add .gitignore .local/bin/config .gitconfig
+      git add .config/dotfiles/gitignore .local/bin/config .gitconfig
       git commit -m 'original commit'
     )
     echo 'Hit enter to push to github:'
