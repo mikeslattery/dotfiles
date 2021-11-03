@@ -37,7 +37,7 @@ See also: https://www.atlassian.com/git/tutorials/dotfiles
 
 To start your own dotfiles project:
   curl https://raw.githubusercontent.com/mikeslattery/dotfiles/master/.local/bin/config -o config
-  bash config init <github-user/project>
+  sh config init <github-user/project>
   rm config
 
 USAGE
@@ -71,7 +71,6 @@ case "${1:---help}" in
     read -r
 
     # Create initial files
-    cd ~
     mkdir -p "$(dirname "$GIT_DIR")" "$HOME/.local/bin"
     [ -f ~/.local/bin/config ] || cp "$0" ~/.local/bin/config
     sed -i "s|$github|$2|" ~/.local/bin/config
@@ -92,7 +91,6 @@ case "${1:---help}" in
     git push -u -f --verbose origin master
     ;;
   install)
-    cd ~
     [ ! -d "$GIT_DIR" ] || die "E: $GIT_DIR already exists."
     if ! git config user.name; then
       gitconfig="https://raw.githubusercontent.com/${github}/master/.gitconfig"
@@ -108,7 +106,8 @@ case "${1:---help}" in
     git config --local status.showUntrackedFiles no
     git config --local core.excludesFile ~/.config/dotfiles/gitignore
     git reset --hard
-    git push -u origin master
+    git config branch.master.remote origin
+    git config branch.master.merge refs/heads/master
     ;;
   etc)
     sudo cp -r --preserve=mode ~/.config/dotfiles/etc/* /etc/
