@@ -51,8 +51,6 @@ git_http_url="https://github.com/${github}.git"
 export GIT_DIR="$HOME/.dotfiles"
 export GIT_WORK_TREE="$HOME"
 
-cd "$(dirname "$0")"
-
 die() { echo "$*"; exit 1; }
 
 case "${1:---help}" in
@@ -73,6 +71,7 @@ case "${1:---help}" in
     read -r
 
     # Create initial files
+    cd ~
     mkdir -p "$(dirname "$GIT_DIR")" "$HOME/.local/bin"
     [ -f ~/.local/bin/config ] || cp "$0" ~/.local/bin/config
     sed -i "s|$github|$2|" ~/.local/bin/config
@@ -93,6 +92,7 @@ case "${1:---help}" in
     git push -u -f --verbose origin master
     ;;
   install)
+    cd ~
     [ ! -d "$GIT_DIR" ] || die "E: $GIT_DIR already exists."
     if ! git config user.name; then
       gitconfig="https://raw.githubusercontent.com/${github}/master/.gitconfig"
