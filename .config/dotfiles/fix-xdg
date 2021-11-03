@@ -1,0 +1,31 @@
+#!/bin/bash
+
+cd ~ || exit 1
+
+
+
+move1() {
+  local name="$1"
+  if [[ -f ".$name" ]]; then
+    mv ".$name/" ~/.config/"$name"/
+  fi
+}
+
+move2() {
+  local name="$1"
+  local dest="$2"
+  if [[ -f "$name" ]]; then
+    mv "$name/" ~/.config/"$dest"
+  fi
+}
+
+#TODO: androidstudio, antimicrox, blender
+move1 aria2
+move2 .asoundrc alsa/asoundrc
+move2 .asunder asunder/asunder
+move2 .asunder_album_artist asunder/asunder_album_artist
+move2 .asunder_album_genre asunder/asunder_album_genre
+move2 .asunder_album_title asunder/asunder_album_title
+move1 binwalk
+move1 calcurse
+move2 .ccache ccache/ccache.conf

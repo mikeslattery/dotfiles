@@ -19,7 +19,7 @@ Usage:
 
   config help [<command>]       - More help on commands
   config [--help]               - This message.
-  config etc                    - Copy ~/.config/etc to /etc
+  config etc                    - Copy ~/.config/dotfiles/etc to /etc
   config uninstall              - Removes bare repo
 
 Usage without this script:
@@ -84,6 +84,7 @@ case "${1:---help}" in
       git init --initial-branch=master
       git remote add origin "git@github.com:${2}.git" || true
       git config --local status.showUntrackedFiles no
+      git config --local core.excludesFile ~/.config/dotfiles/gitignore
       git add .gitignore .local/bin/config .gitconfig
       git commit -m 'original commit'
     )
@@ -105,10 +106,11 @@ case "${1:---help}" in
     set -x
     git clone --bare "$git_ssh_url" "$GIT_DIR" || git clone --bare "$git_http_url" "$GIT_DIR"
     git config --local status.showUntrackedFiles no
+    git config --local core.excludesFile ~/.config/dotfiles/gitignore
     git reset --hard
     ;;
   etc)
-    sudo cp -r --preserve=mode ~/.config/etc/* /etc/
+    sudo cp -r --preserve=mode ~/.config/dotfiles/etc/* /etc/
     ;;
   uninstall)
     [ -d "$GIT_DIR" ] || die "E: Not installed at $GIT_DIR"

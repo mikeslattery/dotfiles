@@ -1,0 +1,26 @@
+%wheel	ALL=(ALL)	NOPASSWD: /usr/bin/dnf history
+%wheel	ALL=(ALL)	NOPASSWD: /usr/bin/dnf history *
+%wheel	ALL=(ALL)	NOPASSWD: /usr/bin/dnf info *
+%wheel	ALL=(ALL)	NOPASSWD: /usr/bin/dnf list
+%wheel	ALL=(ALL)	NOPASSWD: /usr/bin/dnf list *
+%wheel	ALL=(ALL)	NOPASSWD: /usr/bin/dnf provides *
+%wheel	ALL=(ALL)	NOPASSWD: /usr/bin/dnf repolist
+%wheel	ALL=(ALL)	NOPASSWD: /usr/bin/dnf search *
+%wheel	ALL=(ALL)	NOPASSWD: /usr/bin/dnf upgrade
+%wheel	ALL=(ALL)	NOPASSWD: /usr/bin/dnf upgrade *
+%wheel	ALL=(ALL)	NOPASSWD: /usr/bin/dnf upgrade-minimal
+%wheel	ALL=(ALL)	NOPASSWD: /usr/bin/dnf upgrade-minimal *
+%wheel	ALL=(ALL)	NOPASSWD: /usr/bin/dnf autoremove
+
+%wheel	ALL=(ALL)	NOPASSWD: /usr/bin/flatpak update
+%wheel	ALL=(ALL)	NOPASSWD: /usr/bin/flatpak update *
+
+%wheel	ALL=(ALL)	NOPASSWD: /usr/bin/du *
+
+%wheel	ALL=(ALL)	NOPASSWD: /usr/sbin/tlp *
+%wheel	ALL=(ALL)	NOPASSWD: /usr/bin/tlp-stat *
+
+%wheel	ALL=(ALL)	NOPASSWD: /usr/bin/fd *
+%wheel	ALL=(ALL)	NOPASSWD: /usr/bin/find *
+%wheel	ALL=(ALL)	NOPASSWD: /usr/bin/exa *
+
