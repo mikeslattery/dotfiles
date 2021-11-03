@@ -3,27 +3,35 @@ usage() { cat >&2 <<USAGE
 Dotfile wrapper over git.
 
 To install:
-curl -L https://raw.githubusercontent.com/mikeslattery/dotfiles/master/.local/bin/config | /bin/sh -s install
+  curl -L https://raw.githubusercontent.com/mikeslattery/dotfiles/master/.local/bin/config | /bin/sh -s install
 
 To push over ssh:
-curl -L https://raw.githubusercontent.com/mikeslattery/dotfiles/master/.local/bin/config | ssh <server> /bin/sh -s install
+  curl -L https://raw.githubusercontent.com/mikeslattery/dotfiles/master/.local/bin/config | ssh <server> /bin/sh -s install
 
 Usage:
-config add <file>             - add file to git index
-config add -u                 - add changed tracked files to index
-config commit -m '<message>'  - Save changes to local log
-config push                   - Save changes to repository
-config pull                   - Load changes from repository
-config status                 - View changed and new files
 
-config help [<command>]       - More help on commands
-config [--help]               - This message.
-config etc                    - Copy ~/.config/etc to /etc
-config uninstall              - Removes bare repo
+  config add <file>             - add file to git index
+  config add -u                 - add changed tracked files to index
+  config commit -m '<message>'  - Save changes to local log
+  config push                   - Save changes to repository
+  config pull                   - Load changes from repository
+  config status                 - View changed and new files
+
+  config help [<command>]       - More help on commands
+  config [--help]               - This message.
+  config etc                    - Copy ~/.config/etc to /etc
+  config uninstall              - Removes bare repo
+
+Usage without this script:
+
+  git --git-dir=~/.dotfiles --work-tree=~ ...
 
 Requirements:
-  git openssh
-  ssh keys registered with github
+
+  git
+  for install: curl
+  for pushes: openssh, and keys registered with github
+  ~/.local/bin must be in PATH
 
 See also: https://www.atlassian.com/git/tutorials/dotfiles
 
