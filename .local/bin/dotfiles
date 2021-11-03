@@ -11,15 +11,14 @@ Usage:
   dotfiles [help]     - This message.
   dotfiles etc        - Copy ~/.config/dotfiles/etc to /etc
   dotfiles uninstall  - Removes bare repo
-  dotfiles ...        - git command. (in case "config" alias not set)
+  dotfiles ...        - git subcommand. (in case "config" alias not set)
   config   ...        - ditto
 
 Requirements:
 
-  git
-  for install: curl or wget
-  for pushes: openssh, and keys registered with github
-  ~/.local/bin must be in PATH
+  for install: git or unzip, curl or wget
+  for pushes: git, openssh, and keys registered with github
+  ~/.local/bin must be in PATH.  If not, this should be set in .zshrc
   In .zshrc: alias config="git --git-dir=$HOME/.dotfiles --work-tree=$HOME"
 
 To push/pull over ssh:
@@ -80,7 +79,7 @@ case "${1:-help}" in
     fi
     ;;
   etc)
-    sudo cp -r --preserve=mode ~/.config/dotfiles/etc/* /etc/
+    sudo cp -rv --preserve=mode ~/.config/dotfiles/etc/* /etc/
     ;;
   uninstall)
     [ -d "$GIT_DIR" ] || die "E: Not installed at $GIT_DIR"
