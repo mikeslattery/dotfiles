@@ -80,7 +80,7 @@ case "$cmd" in
       git config --local branch.master.remote origin
       git config --local branch.master.merge refs/heads/master
       git reset
-      git stash save backup
+      git stash push backup
       ls -la ~
       echo 'Run this: . ~/.zshrc'
     fi
