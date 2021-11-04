@@ -1,6 +1,6 @@
 #!/bin/sh
 usage() { cat >&2 <<USAGE
-Dotfile wrapper over git.
+Dotfile installer.
 
 To install:
   curl -L https://raw.githubusercontent.com/mikeslattery/dotfiles/master/.local/bin/dotfiles | /bin/sh -s install
@@ -11,20 +11,16 @@ Usage:
   dotfiles [help]     - This message.
   dotfiles etc        - Copy ~/.config/dotfiles/etc to /etc
   dotfiles uninstall  - Removes bare repo
+  dotfiles ssh <host> - Install to ssh host
+  dotfiles tar <host> - Copy to host w/o github access
   dotfiles ...        - git subcommand. (in case "config" alias not set)
-  config   ...        - ditto
+  config   ...        - ditto.  Requires alias in .zshrc
 
 Requirements:
   for install: git or unzip, curl or wget
   for pushes: git, openssh, and keys registered with github
-  ~/.local/bin must be in PATH.  If not, this should be set in .zshrc
-  In .zshrc: alias config="git --git-dir=$HOME/.dotfiles --work-tree=$HOME"
-
-To push/pull over ssh:
-  cat ~/.local/bin/dotfiles | ssh <server> /bin/sh -s install
-  ssh <server> cat .local/bin/dotfiles | /bin/sh -s install
-To push over ssh without git or unzip:
-  config archive master | ssh <server> tar -x
+  In .zprofile: export "PATH=$HOME/.local/bin"
+  In .zshrc: alias config="git -C $HOME --git-dir=$HOME/.dotfiles --work-tree=$HOME"
 
 See also:
   Other files in .config/dotfiles
@@ -44,9 +40,18 @@ export GIT_WORK_TREE="$HOME"
 
 die() { echo "$*"; exit 1; }
 
-case "${1:-help}" in
+cmd="${1:-help}"
+shift
+case "$cmd" in
   help)
     usage
+    ;;
+  curl)
+    # for copy-paste
+    echo "curl -L https://raw.githubusercontent.com/${github}/master/.local/bin/dotfiles | /bin/sh -s install"
+    ;;
+  wget)
+    echo "wget https://raw.githubusercontent.com/${github}/master/.local/bin/dotfiles -O - | /bin/sh -s install"
     ;;
   install)
     if ! command -v git >/dev/null; then
@@ -62,7 +67,7 @@ case "${1:-help}" in
       echo 'W: git is not installed.'
     else
       [ ! -d "$GIT_DIR" ] || die "E: $GIT_DIR already exists."
-      # If git user not set, download
+      # If git user not set, download config
       if ! git config user.name 2>/dev/null; then
         gitconfig="https://raw.githubusercontent.com/${github}/master/.gitconfig"
         curl -sLf "$gitconfig" -o ~/.gitconfig || wget "$gitconfig" -O ~/.gitconfig -q
@@ -74,10 +79,14 @@ case "${1:-help}" in
       git config --local core.excludesFile ~/.config/dotfiles/gitignore
       git config --local branch.master.remote origin
       git config --local branch.master.merge refs/heads/master
-      git reset --hard
+      git reset
+      git stash save backup
+      ls -la ~
+      echo 'Run this: . ~/.zshrc'
     fi
     ;;
   etc)
+    # Requires coreutils
     sudo cp -rv --preserve=mode ~/.config/dotfiles/etc/* /etc/
     ;;
   uninstall)
@@ -87,8 +96,17 @@ case "${1:-help}" in
     set -x
     rm -rf "$GIT_DIR"
     ;;
+  ssh)
+    set -x
+    ssh "$@" /bin/sh -s install < "$0"
+    ;;
+  tar)
+    set -x
+    git -C ~ archive master | ssh "$@" tar -x
+    ssh "$@" ls -la
+    ;;
   *)
-    exec git "$@"
+    exec git -C "$HOME" "$cmd" "$@"
     ;;
 esac
 

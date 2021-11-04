@@ -143,6 +143,7 @@ fi
 
 export HISTSIZE=999000
 export HISTFILESIZE=$HISTSIZE
+export SAVEHIST=$HISTSIZE
 setopt hist_ignore_space
 PROMPT="${PROMPT/$/%h$}"
 export CDPATH=".:$HOME/src:$HOME"
@@ -476,7 +477,7 @@ stt-clip() {
   ssh phone termux-dialog -m | jq '.text' -r | /usr/bin/xclip -i -selection clipboard
 }
 
-alias config="git --git-dir=$HOME/.dotfiles --work-tree=$HOME"
+alias config="git -C $HOME --git-dir=$HOME/.dotfiles --work-tree=$HOME"
 
 # cleanup
 unset -f pathmunge
