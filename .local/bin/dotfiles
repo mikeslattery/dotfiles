@@ -7,24 +7,38 @@ To install:
 or
   wget https://raw.githubusercontent.com/mikeslattery/dotfiles/master/.local/bin/dotfiles -O - | /bin/sh -s install
 
-Usage:
+An install will:
+- Create a bare git repo at $GIT_DIR
+- Checkout files to ~
+- git stash previous conflicting dot files
+- Configure to not show untracked files
+- if git user isn't set up, downloads .gitconfig
+- if git isn't installed, falls back to download files
+- if ssh isn't set up or installed, falls back to https
+- if curl isn't installed, falls back to wget
+
+Usage:  (after install)
+  config   ...        - git subcomment.  Requires alias in .zshrc
   dotfiles [help]     - This message.
   dotfiles etc        - Copy ~/.config/dotfiles/etc to /etc
-  dotfiles uninstall  - Removes bare repo
   dotfiles ssh <host> - Install to ssh host
   dotfiles tar <host> - Copy to host w/o github access
+  dotfiles uninstall  - Revert to config as before install.
   dotfiles ...        - git subcommand. (in case "config" alias not set)
-  config   ...        - ditto.  Requires alias in .zshrc
 
 Requirements:
-  for install: git or unzip, curl or wget
-  for pushes: git, openssh, and keys registered with github
+  for install:  git or unzip, curl or wget
+  for pushes:   git, openssh, and keys registered with github
   In .zprofile: export "PATH=$HOME/.local/bin"
-  In .zshrc: alias config="git -C $HOME --git-dir=$HOME/.dotfiles --work-tree=$HOME"
+  In .zshrc:    alias config="git -C $HOME --git-dir=$HOME/.dotfiles --work-tree=$HOME"
 
 See also:
   Other files in .config/dotfiles
   https://www.atlassian.com/git/tutorials/dotfiles
+
+Advice:
+  Never run: config add <directory>, or config commit -a -m <message>
+  "config" works best if run from home directory.
 
 USAGE
 }
@@ -79,22 +93,26 @@ case "$cmd" in
       git config --local core.excludesFile ~/.config/dotfiles/gitignore
       git config --local branch.master.remote origin
       git config --local branch.master.merge refs/heads/master
+      git config --local branch.master.first_commit "$(git rev-parse HEAD)"
       git reset
-      git stash push backup
+      git stash push -m backup
       ls -la ~
       echo 'Run this: . ~/.zshrc'
     fi
     ;;
-  etc)
-    # Requires coreutils
-    sudo cp -rv --preserve=mode ~/.config/dotfiles/etc/* /etc/
-    ;;
   uninstall)
-    [ -d "$GIT_DIR" ] || die "E: Not installed at $GIT_DIR"
-    echo "To remove: rm ~/.local/bin/dotfiles"
-    echo "To reinstall: ~/.local/bin/dotfiles install"
+    cd ~
     set -x
-    rm -rf "$GIT_DIR"
+    git reset
+    git checkout
+    git checkout master
+    git reset --hard "$(git config --local branch.master.first_commit)"
+    git stash apply 'stash^{/backup}' || true
+    rm -rf "$GIT_DIR" ~/.config/dotfiles
+    ;;
+  etc)
+    sudo cp -rv --preserve=mode ~/.config/dotfiles/etc/* /etc/ \
+      || die 'E: coreutils not installed?'
     ;;
   ssh)
     set -x
