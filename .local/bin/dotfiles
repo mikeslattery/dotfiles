@@ -51,63 +51,73 @@ git_ssh_url="git@github.com:${github}.git"
 git_http_url="https://github.com/${github}.git"
 export GIT_DIR="$HOME/.dotfiles"
 export GIT_WORK_TREE="$HOME"
+branch=master
+HOSTNAME="${HOSTNAME:-$(hostname)}"
+USER="${USER:-$(whoami)}"
 
 die() { echo "$*"; exit 1; }
 
 cmd="${1:-help}"
-shift
+[ "$#" -eq 0 ] || shift
+
 case "$cmd" in
   help)
     usage
     ;;
   curl)
     # for copy-paste
-    echo "curl -L https://raw.githubusercontent.com/${github}/master/.local/bin/dotfiles | /bin/sh -s install"
+    echo "curl -L https://raw.githubusercontent.com/${github}/${branch}/.local/bin/dotfiles | /bin/sh -s install"
     ;;
   wget)
-    echo "wget https://raw.githubusercontent.com/${github}/master/.local/bin/dotfiles -O - | /bin/sh -s install"
+    echo "wget https://raw.githubusercontent.com/${github}/${branch}/.local/bin/dotfiles -O - | /bin/sh -s install"
     ;;
   install)
     if ! command -v git >/dev/null; then
       # fallback to unzip, if git not installed
       command -v unzip >/dev/null || die 'E: git nor unzip are installed'
       cd ~
-      zip="https://github.com/${github}/archive/refs/heads/master.zip"
+      zip="https://github.com/${github}/archive/refs/heads/${branch}.zip"
       curl -sfLO "$zip" || wget -q "$zip"
-      ln -sfn ~ dotfiles-master
-      unzip -o master.zip
-      rm master.zip dotfiles-master
+      ln -sfn ~ "dotfiles-${branch}"
+      unzip -o "${branch}.zip"
+      rm "${branch}.zip" "dotfiles-${branch}"
 
       echo 'W: git is not installed.'
     else
       [ ! -d "$GIT_DIR" ] || die "E: $GIT_DIR already exists."
       # If git user not set, download config
       if ! git config user.name 2>/dev/null; then
-        gitconfig="https://raw.githubusercontent.com/${github}/master/.gitconfig"
+        gitconfig="https://raw.githubusercontent.com/${github}/${branch}/.gitconfig"
         curl -sLf "$gitconfig" -o ~/.gitconfig || wget "$gitconfig" -O ~/.gitconfig -q
       fi
       mkdir -p "$(dirname "$GIT_DIR")"
-      set -x
-      git clone --bare "$git_ssh_url" "$GIT_DIR" || git clone --bare "$git_http_url" "$GIT_DIR"
-      git config --local status.showUntrackedFiles no
-      git config --local core.excludesFile ~/.config/dotfiles/gitignore
-      git config --local branch.master.remote origin
-      git config --local branch.master.merge refs/heads/master
-      git config --local branch.master.first_commit "$(git rev-parse HEAD)"
-      git reset
-      git stash push -m backup
+      (
+        set -x
+        git clone   --bare --branch "$branch" "$git_ssh_url"  "$GIT_DIR" || \
+          git clone --bare --branch "$branch" "$git_http_url" "$GIT_DIR"
+        git config --local status.showUntrackedFiles no
+        git config --local core.excludesFile ~/.config/dotfiles/gitignore
+        git config --local "branch.${branch}.remote" "origin"
+        git config --local "branch.${branch}.merge" "refs/heads/${branch}"
+        git reset
+        git checkout -b "backup-${branch}-$HOSTNAME"
+        git add -u
+        git commit -m "backup of $HOSTNAME for $USER"
+        git checkout -
+      )
+
       ls -la ~
-      echo 'Run this: . ~/.zshrc'
+      git status -b -s
+      echo 'Run this: . ~/.zshrc, or: zsh'
     fi
     ;;
   uninstall)
     cd ~
+    git diff-index --quiet HEAD || die 'E: Uncommitted changes'
     set -x
-    git reset
+
     git checkout
-    git checkout master
-    git reset --hard "$(git config --local branch.master.first_commit)"
-    git stash apply 'stash^{/backup}' || true
+    git checkout "backup-$branch-$HOSTNAME"
     rm -rf "$GIT_DIR" ~/.config/dotfiles
     ;;
   etc)
@@ -120,7 +130,7 @@ case "$cmd" in
     ;;
   tar)
     set -x
-    git -C ~ archive master | ssh "$@" tar -x
+    git -C ~ archive "${branch}" | ssh "$@" tar -x
     ssh "$@" ls -la
     ;;
   *)
