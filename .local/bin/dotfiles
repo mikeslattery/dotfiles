@@ -7,16 +7,6 @@ To install:
 or
   wget https://raw.githubusercontent.com/mikeslattery/dotfiles/master/.local/bin/dotfiles -O - | /bin/sh -s install
 
-An install will:
-- Create a bare git repo at $GIT_DIR
-- Checkout files to ~
-- Backup original files to a backup-$branch-$HOSTNAME
-- Configure to not show untracked files
-- if git user.email isn't set up, downloads .gitconfig
-- if ssh isn't set up or installed, falls back to https
-- if git isn't installed, falls back to download files
-- if curl isn't installed, falls back to wget
-
 Usage:  (after install)
   config   ...        - git subcomment.  Requires alias in .zshrc
   dotfiles [help]     - This message.
@@ -26,29 +16,13 @@ Usage:  (after install)
   dotfiles uninstall  - Revert to config as before install.
   dotfiles ...        - git subcommand. (in case "config" alias not set)
 
-To make your own new empty dotfiles project, based on this one.
-  1. Read the requirements section.
-  2. Create an github dotfiles repo, with an initial commit.
-  3. Run: export DOTFILES_NAME=<github-username>/<project>
-  4. Run the install command from top of this help message.
-
-Advice:
-  Never run: config add <directory>, or config commit -a -m <message>
-     Instead use: config add -u [<path>...]
-  "config" works best if run from home directory.
-
-Requirements:
-  for install:  git or unzip, curl or wget
-  for pushes:   git, openssh, and keys registered with github
-  In .zprofile: export "PATH=$HOME/.local/bin"
-  In .zshrc:    alias config="git -C $HOME --git-dir=$HOME/.dotfiles --work-tree=$HOME"
-
 Environmental override variables
   DOTFILES_NAME   - github owner/project.  It's better to change the default.
   DOTFILES_BRANCH - default is master
   DOTFILES_DIR    - default is ~/.dotfiles
 
-See also:
+For more information, see:
+  ~/README.md
   Other files in .config/dotfiles
   https://www.atlassian.com/git/tutorials/dotfiles
 
