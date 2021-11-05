@@ -4,29 +4,26 @@
 # .bashrc should only contain:  source ~/.zshrc
 # I don't try to make bash work well, just to not be broken.
 
-if [[ "$1" == "install" ]]; then
-    set -xeu
-    zsh --version
-    if ! [[ -d ~/.oh-my-zsh ]]; then
-        grep -sq "^$USER:.*zsh" /etc/passwd || sudo sed -i "s|^($USER):.*:)[^:]*\$|\\1$(command -v zsh)|" /etc/passwd
-        ( set +x; sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"; )
+export ZSH="$HOME/.oh-my-zsh"
+export ZSH_CUSTOM="$ZSH/.zshrd.d"
 
-        if [[ -f ~/.bashrc ]] && ! [[ -f ~/.config/.bashrc.orig ]]; then
-            mv ~/.bashrc ~/.config/.bashrc.orig
-        fi
-        echo 'source ~/.zshrc' > ~/.bashrc
-    else
-        echo 'oh-my-zsh already installed'
-    fi
-    exit
+if [[ "$1" == "install" ]]; then
+    set -eu
+    sh -c "RUNZSH=no; $(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+    mkdir "$ZSH"/{completions,custom,functions}
+    exit $?
 elif [[ "$1" == "shellcheck" ]]; then
-    set -xeu
     cd ~
+    set -x
     shellcheck -x -e SC2154,SC1090,SC2139,SC2090,SC2089 -s bash "$0"
+    zsh -i -c ''
+    exit $?
+elif [[ "$1" == "upgrade" ]]; then
+    "$ZSH"/tools/upgrade.sh
     exit $?
 fi
 
-if [[ "$(ps -p "$$" -o comm -h)" == "zsh" ]]; then
+if [[ -n "$ZSH_VERSION" ]]; then
     alias iszsh=true
     function has() {
         (( $+commands[$1] ))
@@ -49,6 +46,16 @@ else
     # Ignore .zsh stuff
     setopt() { :; }
     unsetopt() { :; }
+
+fi
+
+# Install oh-my-zsh
+if ! [[ -d "$ZSH" ]]; then
+    if has zsh && has git && has curl && has chsh; then
+        sh ~/.zshrc install
+    else
+        echo 'E: oh-my-zsh requires: zsh, git, curl, chsh'
+    fi
 fi
 
 addpath() {
@@ -82,8 +89,6 @@ if has podman-compose && ! has docker-compose; then
 fi
 
 if iszsh; then
-    export ZSH="$HOME/.oh-my-zsh"
-
     ZSH_THEME="avit"
     ZSH_THEME="ys"
     ZSH_THEME="powerlevel10k/powerlevel10k"
@@ -102,16 +107,18 @@ if iszsh; then
         fi
     fi
 
-    plugins=(
-        git
-        gradle
-        npm
-    )
+    completions=( fd vagrant yarn )
+
+    plugins=( git gradle npm )
+
     if is_fedora; then
         plugins+=('dnf')
     fi
     if has brew; then
         plugins+=('brew')
+    fi
+    if has mosh; then
+        plugins+=('mosh')
     fi
     if has docker || has podman; then
         if ! has docker; then
@@ -121,12 +128,19 @@ if iszsh; then
         plugins+=('docker' 'docker-compose')
     fi
 
+    for plugin in "${completions[@]}"; do
+        fpath=("$ZSH/plugins/$plugin" $fpath)
+    done
+
+    #TODO: completions bundler, cpan, gem, pip, hub, gradle
     #TODO: z fzf git* mvn fasd vi-mode vim-interaction pass gnu-utils
     #tig, systemd, tmux* vault
+    #yarn
+    #gh, github, git-flow
     #jira
     #colorize colored-man-pages compleat dirhistory dnf fbterm man
     #terminalapp themes ufw
-    source "$ZSH/oh-my-zsh.sh"
+    source ~/.oh-my-zsh/oh-my-zsh.sh
 else
     HISTCONTROL=ignoreboth
 fi
@@ -156,37 +170,6 @@ fi
 
 # If an ssh connection, connect X back to the client
 [ -z "$SSH_CLIENT" ] || export DISPLAY="${SSH_CLIENT/ */}:0"
-
-if [[ "$(uname -r)" == *-Microsoft ]]; then
-    # WSL
-
-    unsetopt BG_NICE # https://github.com/Microsoft/WSL/issues/1887
-    nice() {
-        if [[ "$1" == "-n" ]]; then shift; shift; fi
-        "$@"
-    }
-    export nice
-    renice() { :; }
-    export renice
-
-    if has docker; then
-        export DOCKER_HOST=tcp://0.0.0.0:2375
-    fi
-    export DISPLAY=:0
-
-    alias powershell=/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe
-    alias cmd=/mnt/c/Windows/System32/cmd.exe
-    alias clip=/mnt/c/Windows/System32/clip.exe
-    alias permissions='cmd /c whoami /all /FO LIST'
-    alias notify-send="/mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe -file 'C:/Users/$USER/bin/notify-send.ps1'"
-
-    # Remove Windows from path
-    export PATH="$(sed -r 's|:?(/mnt)?/c/[^:]*||g;' <<<"$PATH")"
-    export USERPROFILE="/c/Users/$USER"
-
-    sudo mount -a
-fi
-
 
 cheat() { curl -s "cheat.sh/$(echo -n "$*" | jq -sRr @uri)"; }
 nocolor() { sed -r 's:\x1B\[[0-9;]*[mKB]::g; s:^.*\x0D::g;'; }
@@ -352,7 +335,8 @@ export ANDROID_SDK_ROOT=$HOME/Android/Sdk
 #export PERL_MB_OPT="--install_base \"$HOME/perl5\""; export PERL_MB_OPT;
 #export PERL_MM_OPT="INSTALL_BASE=$HOME/perl5"; export PERL_MM_OPT;
 
-export EDITOR="$(which vim)"
+EDITOR="$(which vim)"
+export EDITOR
 
 # Container package manager
 contize() {
@@ -482,3 +466,4 @@ alias config="git -C $HOME --git-dir=$HOME/.dotfiles --work-tree=$HOME"
 # cleanup
 unset -f pathmunge
 unset -f addpath
+
