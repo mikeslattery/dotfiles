@@ -1,10 +1,6 @@
-"mkdir" -p ~/.vim/{autoload,sessions,templates,backup,undo}
-"curl" -fLo ~/.vim/autoload/plug.vim https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+"curl" -fLo ~/.vim/autoload/plug.vim --create-dirs \
+  "https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim"
 "exec" vim '+PlugClean|PlugUpdate --sync|PlugUpgrade|bd|source $MYVIMRC' "$@"
-
-" .vimrc is executable. Usages:
-" ~/.vimrc      - Update plugins
-" ~/.vimrc +qa  - Initial install, and quit
 
 " Requires: vim (w/+clipboard support), git, curl, fzf, rg
 " Windows gVim not supported
@@ -13,9 +9,6 @@
 if empty(glob('~/.vim/autoload/plug.vim'))
   silent !curl -fLo ~/.vim/autoload/plug.vim --create-dirs
       \ https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
-  " Subdirs
-  for d in ['sessions', 'templates', 'backup', 'undo']
-    \ | call mkdir($HOME.'/.vim/'.d, 'p') | endfor
 endif
 " Install missing plugins
 "TODO: check for 1:1 g:plugs to directory match
@@ -66,6 +59,7 @@ command! -nargs=1 Silent execute 'silent !' . <q-args> | execute 'redraw!'
 nnoremap ,v  :execute getline('.')<CR>
 nnoremap ,,v :source $MYVIMRC<CR>
 nnoremap ,,u :PlugClean\|PlugUpgrade\|PlugUpdate<cr>
+call mkdir($HOME.'/.vim/sessions', 'p')
 nnoremap ,,s :mksession! $HOME/.vim/sessions/
 nnoremap ,,r :so $HOME/.vim/sessions/
 nnoremap ,,w :update\|silent! make -s\|redraw!\|cc<cr>
@@ -192,12 +186,15 @@ nnoremap ,,l :call term_sendkeys(bufnr($SHELL),getline('.') . "\n")<cr>
 " CREATE/SAVE FILES
 nnoremap ,,t :exec "e ".system('mktemp -p /var/tmp')<cr>
 nnoremap ,w :up<CR>
+"TODO: call mkdir($HOME.'/.vim/templates', 'p')
 "TODO: nnoremap ,,java :-1read $HOME/.vim/templates/template.java<CR>/REPLACEME<CR>
 set autoread
 set hidden
 set undofile
+call mkdir($HOME.'/.vim/undo', 'p')
 set undodir=$HOME/.vim/undo//
 set backup
+call mkdir($HOME.'/.vim/backup', 'p')
 set backupdir=$HOME/.vim/backup//
 set noswapfile
 
