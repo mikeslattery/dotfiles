@@ -12,8 +12,9 @@ Usage:  (after install)
   dotfiles [help]     - This message.
   dotfiles etc        - Copy ~/.config/dotfiles/etc to /etc
   dotfiles ssh <host> - Install to ssh host
-  dotfiles tar <host> - Copy to host w/o github access
+  dotfiles tar <host> - Copy to ssh host w/o github access
   dotfiles uninstall  - Revert to config as before install.
+  dotfiles docker <id>- Install into a running docker container
   dotfiles ...        - git subcommand. (in case "config" alias not set)
 
 Environmental override variables
@@ -93,6 +94,13 @@ case "$cmd" in
         git add -u
         git commit -m "backup of $HOSTNAME for $USER"
         git checkout -
+        # if a new project w/o the script
+        if [ ! -f .local/bin/dotfiles ]; then
+          curl -L https://raw.githubusercontent.com/mikeslattery/dotfiles/master/.local/bin/dotfiles \
+            --create-dirs -o ~/.local/bin/dotfiles
+          chmod +x -o ~/.local/bin/dotfiles
+          git add ~/.local/bin/dotfiles
+        fi
       )
       # in case someone else is using this
       sed -i "s|mikeslattery/dotfiles|$github|" "$HOME/.local/bin/dotfiles"
@@ -105,6 +113,7 @@ case "$cmd" in
   uninstall)
     cd ~
     git diff-index --quiet HEAD || die 'E: Uncommitted changes'
+    echo 'To reinstall: dotfile install'
     set -x
 
     git checkout "backup-$branch-$HOSTNAME"
@@ -122,6 +131,13 @@ case "$cmd" in
     set -x
     git -C ~ archive "${branch}" | ssh "$@" tar -x
     ssh "$@" ls -la
+    ;;
+  podman|docker)
+    id="${1:-$("$cmd" ps -q | head -1)}"
+    shift || true
+    #shellcheck disable=SC2016
+    dhome="$("$cmd" exec "$@" "$id" sh -c 'echo $HOME')"
+    git archive "$branch" | "$cmd" exec -i "$@" "$id" tar -C "$dhome" -x
     ;;
   *)
     exec git -C "$HOME" "$cmd" "$@"

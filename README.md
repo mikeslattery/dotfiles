@@ -6,14 +6,14 @@ This is my personal dotfiles and dotfiles manager project on github.
 
 ### To install
 
-```
+```sh
 curl -L https://raw.githubusercontent.com/mikeslattery/dotfiles/master/.local/bin/dotfiles | \
   /bin/sh -s install
 ```
 
 or
 
-```
+```sh
 wget https://raw.githubusercontent.com/mikeslattery/dotfiles/master/.local/bin/dotfiles -O - | \
   /bin/sh -s install
 ```
@@ -22,7 +22,7 @@ wget https://raw.githubusercontent.com/mikeslattery/dotfiles/master/.local/bin/d
 
 - Create a bare git repo at `$GIT_DIR`
 - Checkout files to `~`
-- Backup original files to a `backup-$branch-$HOSTNAME`
+- Backup original files to a `backup-$branch-$HOSTNAME` branch
 - Configure to not show untracked files
 - if git user.email isn't set up, downloads `.gitconfig`
 - if ssh isn't set up or installed, falls back to https
@@ -35,8 +35,8 @@ for information see the [.local/bin/dotfiles](.local/bin/dotfiles) script.
 
 - for install:  `git` or `unzip`, `curl` or `wget`
 - for pushes:   `git`, `openssh`, and keys registered with github
-- In .zprofile: `export "PATH=$HOME/.local/bin"`
-- In .zshrc:    `alias config="git -C $HOME --git-dir=$HOME/.dotfiles --work-tree=$HOME"`
+- In [.zshrc](.zshrc):    `alias config="git -C $HOME --git-dir=$HOME/.dotfiles --work-tree=$HOME"`
+- In .zshrc:    `export "PATH=$HOME/.local/bin"`
 
 ## Managing the dot files
 
@@ -50,6 +50,7 @@ config   ...        - git subcommand.  Requires alias in .zshrc
 dotfiles etc        - Copy ~/.config/dotfiles/etc to /etc
 dotfiles ssh <host> - Install to ssh host
 dotfiles tar <host> - Copy to host w/o github access
+dotfiles docker <id>- Install into a running docker container
 dotfiles uninstall  - Revert to config as before install.
 dotfiles ...        - git subcommand. (in case `config` alias not set)
 ```
@@ -62,12 +63,12 @@ dotfiles ...        - git subcommand. (in case `config` alias not set)
 
 ### To make your own
 
-To make your own new empty dotfiles project, based on this script:
+To make your own new empty dotfiles project, based on this script.
 
-  1. Read the requirements section.
-  2. Create a github dotfiles repo, with an initial commit.
-  3. Run: `export DOTFILES_NAME=<github-username>/<project>`
-  4. Run the install command from top of this readme.
+  1. Match the requirements section.
+  2. Create an empty github dotfiles repo.
+  3. Run: `export DOTFILES_NAME=<github-username>/dotfiles`
+  4. Run the install command from the top of this readme.
 
 ### Environmental override variables
 
@@ -93,4 +94,40 @@ DOTFILES_DIR    - default is ~/.dotfiles
 * npm, yarn
 * i3, sway
 * Alacritty
+
+### Operating Environments
+
+These are environments I've successfully used
+these dot files with at some point.
+
+* Linux.  Fedora, Ubuntu, Alpine, Arch.
+* WSL 1  (WSL 2 not tested)
+* Cygwin, Msys2
+* Git for Windows (striped down Msys2)
+* Docker container
+* RHEL over ssh
+
+## FAQ
+
+Q: Why not use one of the other dotfiles managers or `stow`?
+
+A: I wanted something as simple as plain `git`, but no simpler.
+
+Q: But isn't your script also complicated?
+
+A: The core of what it does is simple.
+But it handles several special cases.
+
+I could have just written this:
+
+```sh
+git clone --bare https://github.com/mikeslattery/dotfiles/ ~/.dotfiles
+config config --local status.showUntrackedFiles no
+config reset --hard
+```
+
+Q: Why not use symlinks to all the files?
+
+A: I used to, but they don't track with file deletions or moves, 
+and adds required 2 steps (`git add` + `ln -s`)
 
