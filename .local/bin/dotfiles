@@ -45,6 +45,12 @@ USER="${USER:-$(whoami)}"
 
 die() { echo "$*"; exit 1; }
 
+dl() {
+  mkdir -p "$(dirname "$2")"
+  curl -sSLf "$1" -o "$2" || \
+    wget "$1" -O "$2" -q
+}
+
 cmd="${1:-help}"
 [ "$#" -eq 0 ] || shift
 
@@ -65,7 +71,7 @@ case "$cmd" in
       command -v unzip >/dev/null || die 'E: git nor unzip are installed'
       cd ~
       zip="https://github.com/${github}/archive/refs/heads/${branch}.zip"
-      curl -sfLO "$zip" || wget -q "$zip"
+      dl "$zip" "${branch}.zip"
       ln -sfn ~ "dotfiles-${branch}"
       unzip -o "${branch}.zip"
       rm "${branch}.zip" "dotfiles-${branch}"
@@ -76,8 +82,7 @@ case "$cmd" in
       # If git user not set, download config
       if ! git config user.name 2>/dev/null; then
         gitconfig="https://raw.githubusercontent.com/${github}/${branch}/.gitconfig"
-        curl -sSLf "$gitconfig" -o ~/.gitconfig || \
-          wget "$gitconfig" -O ~/.gitconfig -q || \
+        dl "$gitconfig" ~/.gitconfig || \
           git config --global --edit
       fi
       mkdir -p "$(dirname "$GIT_DIR")"
@@ -94,17 +99,17 @@ case "$cmd" in
         git add -u
         git commit -m "backup of $HOSTNAME for $USER"
         git checkout -
-        # if a new project w/o the script
-        if [ ! -f .local/bin/dotfiles ]; then
-          curl -L https://raw.githubusercontent.com/mikeslattery/dotfiles/master/.local/bin/dotfiles \
-            --create-dirs -o ~/.local/bin/dotfiles
-          chmod +x -o ~/.local/bin/dotfiles
-          git add ~/.local/bin/dotfiles
-        fi
       )
-      # in case someone else is using this
+      # if this is a new project
+      if [ ! -f ~/.local/bin/dotfiles ]; then
+        dl https://raw.githubusercontent.com/mikeslattery/dotfiles/master/.local/bin/dotfiles \
+          ~/.local/bin/dotfiles
+        chmod +x -o ~/.local/bin/dotfiles
+        git add ~/.local/bin/dotfiles
+      fi
       sed -i "s|mikeslattery/dotfiles|$github|" "$HOME/.local/bin/dotfiles"
 
+      # feedback
       ls -la ~
       git status -b -s
       echo 'Run this: . ~/.zshrc, or: zsh'
@@ -124,8 +129,8 @@ case "$cmd" in
       || die 'E: coreutils not installed?'
     ;;
   ssh)
-    set -x
-    ssh "$@" /bin/sh -s install < "$0"
+    cat "$0" | ssh "$@" -c "cat > /tmp/dotfiles"
+    ssh "$@" /bin/sh /tmp/dotfiles install
     ;;
   tar)
     set -x

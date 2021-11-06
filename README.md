@@ -11,12 +11,28 @@ curl -L https://raw.githubusercontent.com/mikeslattery/dotfiles/master/.local/bi
   /bin/sh -s install
 ```
 
-or
+or, if you don't have `curl`
 
 ```sh
 wget https://raw.githubusercontent.com/mikeslattery/dotfiles/master/.local/bin/dotfiles -O - | \
   /bin/sh -s install
 ```
+
+or, if you don't want to use the `dotfiles` script.
+
+```sh
+git clone --bare https://github.com/mikeslattery/dotfiles/ ~/.dotfiles
+alias config="git -C $HOME --git-dir=$HOME/.dotfiles --work-tree=$HOME"
+config config --local status.showUntrackedFiles no
+config reset --hard
+```
+
+### Requirements:
+
+- for install:  `git` or `unzip`, `curl` or `wget`
+- for pushes:   `git`, `openssh`, and keys registered with github
+- In [.zshrc](.zshrc):    `alias config="git -C $HOME --git-dir=$HOME/.dotfiles --work-tree=$HOME"`
+- In .zshrc:    `export "PATH=$HOME/.local/bin"`
 
 ### What install does
 
@@ -30,13 +46,6 @@ wget https://raw.githubusercontent.com/mikeslattery/dotfiles/master/.local/bin/d
 - if curl isn't installed, falls back to wget
 
 for information see the [.local/bin/dotfiles](.local/bin/dotfiles) script.
-
-### Requirements:
-
-- for install:  `git` or `unzip`, `curl` or `wget`
-- for pushes:   `git`, `openssh`, and keys registered with github
-- In [.zshrc](.zshrc):    `alias config="git -C $HOME --git-dir=$HOME/.dotfiles --work-tree=$HOME"`
-- In .zshrc:    `export "PATH=$HOME/.local/bin"`
 
 ## Managing the dot files
 
@@ -95,17 +104,19 @@ DOTFILES_DIR    - default is ~/.dotfiles
 * i3, sway
 * Alacritty
 
+Some of the above may not be fully supported at any time as I change tools.
+
 ### Operating Environments
 
 These are environments I've successfully used
-these dot files with at some point.
+these dot files with, at some point.
 
 * Linux.  Fedora, Ubuntu, Alpine, Arch.
 * WSL 1  (WSL 2 not tested)
 * Cygwin, Msys2
 * Git for Windows (striped down Msys2)
-* Docker container
-* RHEL over ssh
+* Docker containers: alpine, ubuntu, fedora, debian
+* RHEL over ssh (w/o git installed)
 
 ## FAQ
 
@@ -115,16 +126,9 @@ A: I wanted something as simple as plain `git`, but no simpler.
 
 Q: But isn't your script also complicated?
 
-A: The core of what it does is simple.
-But it handles several special cases.
-
-I could have just written this:
-
-```sh
-git clone --bare https://github.com/mikeslattery/dotfiles/ ~/.dotfiles
-config config --local status.showUntrackedFiles no
-config reset --hard
-```
+A: The script is only for initial install.
+The core of what it does is simple,
+but it handles several special cases.
 
 Q: Why not use symlinks to all the files?
 
