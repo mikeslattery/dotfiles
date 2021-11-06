@@ -1,33 +1,33 @@
 #!/bin/sh
-usage() { cat >&2 <<USAGE
-Dotfile installer.
+#shellcheck disable=SC2016
+usage() { echo 'Dotfile installer.
 
 To install:
-  curl -L https://raw.githubusercontent.com/mikeslattery/dotfiles/master/.local/bin/dotfiles | /bin/sh -s install
+  sh -c "$(curl https://git.io/msdot -L)"
 or
-  wget https://raw.githubusercontent.com/mikeslattery/dotfiles/master/.local/bin/dotfiles -O - | /bin/sh -s install
+  sh -c "$(wget https://git.io/msdot -O -)" -- i
 
 Usage:  (after install)
   config   ...        - git subcomment.  Requires alias in .zshrc
-  dotfiles [help]     - This message.
+  dotfiles help       - This message.
   dotfiles etc        - Copy ~/.config/dotfiles/etc to /etc
   dotfiles ssh <host> - Install to ssh host
   dotfiles tar <host> - Copy to ssh host w/o github access
   dotfiles uninstall  - Revert to config as before install.
   dotfiles docker <id>- Install into a running docker container
+  dotfiles curl|wget  - Print out install command, for copy-paste purposes.
   dotfiles ...        - git subcommand. (in case "config" alias not set)
 
 Environmental override variables
-  DOTFILES_NAME   - github owner/project.  It's better to change the default.
+  DOTFILES_NAME   - github owner/project.
   DOTFILES_BRANCH - default is master
   DOTFILES_DIR    - default is ~/.dotfiles
 
 For more information, see:
-  ~/README.md
+  README.md
   Other files in .config/dotfiles
   https://www.atlassian.com/git/tutorials/dotfiles
-
-USAGE
+'
 }
 
 set -eu
@@ -51,101 +51,117 @@ dl() {
     wget "$1" -O "$2" -q
 }
 
-cmd="${1:-help}"
-[ "$#" -eq 0 ] || shift
+main() {
+  cmd="${1:-helporinstall}"
+  [ "$#" -eq 0 ] || shift
 
-case "$cmd" in
-  help)
-    usage
-    ;;
-  curl)
-    # for copy-paste
-    echo "curl -L https://raw.githubusercontent.com/${github}/${branch}/.local/bin/dotfiles | /bin/sh -s install"
-    ;;
-  wget)
-    echo "wget https://raw.githubusercontent.com/${github}/${branch}/.local/bin/dotfiles -O - | /bin/sh -s install"
-    ;;
-  install)
-    if ! command -v git >/dev/null; then
-      # fallback to unzip, if git not installed
-      command -v unzip >/dev/null || die 'E: git nor unzip are installed'
+  case "$cmd" in
+    help)
+      usage
+      ;;
+    helporinstall)
+      if [ ! -d ~/.config/dotfiles ]; then
+        echo ''
+        echo 'For usage, use the help subcommand.'
+        echo 'Do you want to install? (y/N)'
+        read -r yn
+        if [ "$yn" = "y" ]; then
+          main install
+        fi
+      else
+        usage
+      fi
+      ;;
+    curl)
+      # for copy-paste
+      echo "/bin/sh -c \"\$(curl -sL https://raw.githubusercontent.com/$github/$branch/.local/bin/dotfiles)\" -- install"
+      ;;
+    wget)
+      echo "/bin/sh -c \"\$(wget -q -O - https://raw.githubusercontent.com/$github/$branch/.local/bin/dotfiles)\" -- install"
+      ;;
+    install|i)
+      if ! command -v git >/dev/null; then
+        # fallback to unzip, if git not installed
+        command -v unzip >/dev/null || die 'E: git nor unzip are installed'
+        cd ~
+        zip="https://github.com/${github}/archive/refs/heads/${branch}.zip"
+        dl "$zip" "${branch}.zip"
+        ln -sfn ~ "dotfiles-${branch}"
+        unzip -o "${branch}.zip"
+        rm "${branch}.zip" "dotfiles-${branch}"
+
+        echo 'W: git is not installed.'
+      else
+        [ ! -d "$GIT_DIR" ] || die "E: $GIT_DIR already exists."
+        # If git user not set, download config
+        if ! git config user.name 2>/dev/null; then
+          gitconfig="https://raw.githubusercontent.com/${github}/${branch}/.gitconfig"
+          dl "$gitconfig" ~/.gitconfig || \
+            git config --global --edit
+        fi
+        mkdir -p "$(dirname "$GIT_DIR")"
+        (
+          set -x
+          git clone   --bare --branch "$branch" "$git_ssh_url"  "$GIT_DIR" || \
+            git clone --bare --branch "$branch" "$git_http_url" "$GIT_DIR"
+          git config --local status.showUntrackedFiles no
+          git config --local core.excludesFile ~/.config/dotfiles/gitignore
+          git config --local "branch.${branch}.remote" "origin"
+          git config --local "branch.${branch}.merge" "refs/heads/${branch}"
+          git reset
+          git checkout -b "backup-${branch}-$HOSTNAME"
+          git add -u
+          git commit -m "backup of $HOSTNAME for $USER"
+          git checkout -
+        )
+        # if this is a new project
+        if [ ! -f ~/.local/bin/dotfiles ]; then
+          dl https://raw.githubusercontent.com/mikeslattery/dotfiles/master/.local/bin/dotfiles \
+            ~/.local/bin/dotfiles
+          chmod +x -o ~/.local/bin/dotfiles
+          git add ~/.local/bin/dotfiles
+        fi
+        sed -i "s|mikeslattery/dotfiles|$github|" "$HOME/.local/bin/dotfiles"
+
+        # feedback
+        ls -la ~
+        git status -b -s
+        echo 'Run this: . ~/.zshrc, or: zsh'
+      fi
+      ;;
+    uninstall)
       cd ~
-      zip="https://github.com/${github}/archive/refs/heads/${branch}.zip"
-      dl "$zip" "${branch}.zip"
-      ln -sfn ~ "dotfiles-${branch}"
-      unzip -o "${branch}.zip"
-      rm "${branch}.zip" "dotfiles-${branch}"
+      git diff-index --quiet HEAD || die 'E: Uncommitted changes'
+      echo 'To reinstall: dotfile install'
+      set -x
 
-      echo 'W: git is not installed.'
-    else
-      [ ! -d "$GIT_DIR" ] || die "E: $GIT_DIR already exists."
-      # If git user not set, download config
-      if ! git config user.name 2>/dev/null; then
-        gitconfig="https://raw.githubusercontent.com/${github}/${branch}/.gitconfig"
-        dl "$gitconfig" ~/.gitconfig || \
-          git config --global --edit
-      fi
-      mkdir -p "$(dirname "$GIT_DIR")"
-      (
-        set -x
-        git clone   --bare --branch "$branch" "$git_ssh_url"  "$GIT_DIR" || \
-          git clone --bare --branch "$branch" "$git_http_url" "$GIT_DIR"
-        git config --local status.showUntrackedFiles no
-        git config --local core.excludesFile ~/.config/dotfiles/gitignore
-        git config --local "branch.${branch}.remote" "origin"
-        git config --local "branch.${branch}.merge" "refs/heads/${branch}"
-        git reset
-        git checkout -b "backup-${branch}-$HOSTNAME"
-        git add -u
-        git commit -m "backup of $HOSTNAME for $USER"
-        git checkout -
-      )
-      # if this is a new project
-      if [ ! -f ~/.local/bin/dotfiles ]; then
-        dl https://raw.githubusercontent.com/mikeslattery/dotfiles/master/.local/bin/dotfiles \
-          ~/.local/bin/dotfiles
-        chmod +x -o ~/.local/bin/dotfiles
-        git add ~/.local/bin/dotfiles
-      fi
-      sed -i "s|mikeslattery/dotfiles|$github|" "$HOME/.local/bin/dotfiles"
+      git checkout "backup-$branch-$HOSTNAME"
+      rm -rf "$GIT_DIR" ~/.config/dotfiles
+      ;;
+    etc)
+      sudo cp -rv --preserve=mode ~/.config/dotfiles/etc/* /etc/ \
+        || die 'E: coreutils not installed?'
+      ;;
+    ssh)
+      cat "$0" | ssh "$@" -c "cat > /tmp/dotfiles"
+      ssh "$@" /bin/sh /tmp/dotfiles install
+      ;;
+    tar)
+      set -x
+      git -C ~ archive "${branch}" | ssh "$@" tar -x
+      ssh "$@" ls -la
+      ;;
+    podman|docker)
+      id="${1:-$("$cmd" ps -q | head -1)}"
+      shift || true
+      #shellcheck disable=SC2016
+      dhome="$("$cmd" exec "$@" "$id" sh -c 'echo $HOME')"
+      git archive "$branch" | "$cmd" exec -i "$@" "$id" tar -C "$dhome" -x
+      ;;
+    *)
+      exec git -C "$HOME" "$cmd" "$@"
+      ;;
+  esac
+}
 
-      # feedback
-      ls -la ~
-      git status -b -s
-      echo 'Run this: . ~/.zshrc, or: zsh'
-    fi
-    ;;
-  uninstall)
-    cd ~
-    git diff-index --quiet HEAD || die 'E: Uncommitted changes'
-    echo 'To reinstall: dotfile install'
-    set -x
-
-    git checkout "backup-$branch-$HOSTNAME"
-    rm -rf "$GIT_DIR" ~/.config/dotfiles
-    ;;
-  etc)
-    sudo cp -rv --preserve=mode ~/.config/dotfiles/etc/* /etc/ \
-      || die 'E: coreutils not installed?'
-    ;;
-  ssh)
-    cat "$0" | ssh "$@" -c "cat > /tmp/dotfiles"
-    ssh "$@" /bin/sh /tmp/dotfiles install
-    ;;
-  tar)
-    set -x
-    git -C ~ archive "${branch}" | ssh "$@" tar -x
-    ssh "$@" ls -la
-    ;;
-  podman|docker)
-    id="${1:-$("$cmd" ps -q | head -1)}"
-    shift || true
-    #shellcheck disable=SC2016
-    dhome="$("$cmd" exec "$@" "$id" sh -c 'echo $HOME')"
-    git archive "$branch" | "$cmd" exec -i "$@" "$id" tar -C "$dhome" -x
-    ;;
-  *)
-    exec git -C "$HOME" "$cmd" "$@"
-    ;;
-esac
-
+main "$@"

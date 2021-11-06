@@ -7,21 +7,19 @@ This is my personal dotfiles and dotfiles manager project on github.
 ### To install
 
 ```sh
-curl -L https://raw.githubusercontent.com/mikeslattery/dotfiles/master/.local/bin/dotfiles | \
-  /bin/sh -s install
+sh -c "$(curl https://git.io/msdot -L)"
 ```
 
-or, if you don't have `curl`
+or, if you don't have `curl`, and don't want a prompt
 
 ```sh
-wget https://raw.githubusercontent.com/mikeslattery/dotfiles/master/.local/bin/dotfiles -O - | \
-  /bin/sh -s install
+sh -c "$(wget https://git.io/msdot -O -)" -- i
 ```
 
 or, if you don't want to use the `dotfiles` script.
 
 ```sh
-git clone --bare https://github.com/mikeslattery/dotfiles/ ~/.dotfiles
+git clone --bare https://github.com/mikeslattery/dotfiles .dotfiles
 alias config="git -C $HOME --git-dir=$HOME/.dotfiles --work-tree=$HOME"
 config config --local status.showUntrackedFiles no
 config reset --hard
@@ -38,10 +36,10 @@ config reset --hard
 
 - Create a bare git repo at `$GIT_DIR`
 - Checkout files to `~`
-- Backup original files to a `backup-$branch-$HOSTNAME` branch
+- Backup original files to a branch, `backup-$branch-$HOSTNAME`
 - Configure to not show untracked files
 - if git user.email isn't set up, downloads `.gitconfig`
-- if ssh isn't set up or installed, falls back to https
+- if git+ssh isn't set up or installed, falls back to https
 - if git isn't installed, falls back to download files
 - if curl isn't installed, falls back to wget
 
@@ -56,11 +54,14 @@ but only for your dot files in `$HOME`.
 
 ```
 config   ...        - git subcommand.  Requires alias in .zshrc
+dotfiles help       - Usage.
 dotfiles etc        - Copy ~/.config/dotfiles/etc to /etc
 dotfiles ssh <host> - Install to ssh host
-dotfiles tar <host> - Copy to host w/o github access
+dotfiles tar <host> - Copy to ssh host w/o github access
 dotfiles docker <id>- Install into a running docker container
 dotfiles uninstall  - Revert to config as before install.
+dotfiles docker <id>- Install into a running docker container
+dotfiles curl|wget  - Print out install command, for copy-paste purposes.
 dotfiles ...        - git subcommand. (in case `config` alias not set)
 ```
 
@@ -77,7 +78,7 @@ To make your own new empty dotfiles project, based on this script.
   1. Match the requirements section.
   2. Create an empty github dotfiles repo.
   3. Run: `export DOTFILES_NAME=<github-username>/dotfiles`
-  4. Run the install command from the top of this readme.
+  4. Run: `sh -c "$(curl https://git.io/msdot -L)"`
 
 ### Environmental override variables
 
@@ -126,12 +127,15 @@ A: I wanted something as simple as plain `git`, but no simpler.
 
 Q: But isn't your script also complicated?
 
-A: The script is only for initial install.
+A: The script is optional and only for initial install.
 The core of what it does is simple,
 but it handles several special cases.
 
 Q: Why not use symlinks to all the files?
 
 A: I used to, but they don't track with file deletions or moves, 
-and adds required 2 steps (`git add` + `ln -s`)
+and adding a file required 2 steps (`git add` + `ln -s`)
+
+Q: How did you create the shortened vanity URL?
+A: `curl https://git.io/ -i -F "url=<url>" -F "code=<name>"`
 

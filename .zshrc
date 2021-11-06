@@ -9,7 +9,7 @@ export ZSH_CUSTOM="$ZSH/.zshrd.d"
 
 if [[ "$1" == "install" ]]; then
     set -eu
-    sh -c "RUNZSH=no; $(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+    sh -c "RUNZSH=no; $(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" -- --keep-zshrc
     mkdir "$ZSH"/{completions,custom,functions}
     exit $?
 elif [[ "$1" == "shellcheck" ]]; then
