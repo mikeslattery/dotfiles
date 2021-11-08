@@ -47,8 +47,8 @@ die() { echo "$*"; exit 1; }
 
 dl() {
   mkdir -p "$(dirname "$2")"
-  curl -sSLf "$1" -o "$2" || \
-    wget "$1" -O "$2" -q
+  wget "$1" -O "$2" -q 2>/dev/null || \
+    curl -sLf "$1" -o "$2"
 }
 
 main() {
@@ -132,7 +132,7 @@ main() {
     uninstall)
       cd ~
       git diff-index --quiet HEAD || die 'E: Uncommitted changes'
-      echo 'To reinstall: dotfile install'
+      echo 'To reinstall: dotfiles install'
       set -x
 
       git checkout "backup-$branch-$HOSTNAME"
@@ -152,10 +152,13 @@ main() {
       ssh "$@" ls -la
       ;;
     podman|docker)
+      cd ~
       id="${1:-$("$cmd" ps -q | head -1)}"
       shift || true
       #shellcheck disable=SC2016
       dhome="$("$cmd" exec "$@" "$id" sh -c 'echo $HOME')"
+      set -x
+
       git archive "$branch" | "$cmd" exec -i "$@" "$id" tar -C "$dhome" -x
       ;;
     *)

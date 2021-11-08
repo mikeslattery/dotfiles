@@ -27,23 +27,8 @@ endif
 Plug 'dense-analysis/ale'
 Plug 'bling/vim-airline'
 Plug 'airblade/vim-gitgutter'
-"Plug 'tpope/vim-fugitive'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-commentary'
-
-"Plug 'tfnico/vim-gradle'
-"Plug 'tpope/vim-dispatch'
-"Plug 'tpope/vim-rsi'
-
-"TODO: consider:
-"TODO:  terminus, fugitive, surround, tagbar,
-"TODO:  repeat, easymotion
-"TODO:  lsp
-"TODO: replacements:
-"TODO:  neomake, coc, dispatch
-"TODO: diy
-"TODO:  vim-sensible, fzf, vim-airline
-"TODO: put vim-sensible settings in this file.
 
 call plug#end()
 
@@ -55,7 +40,9 @@ let mapleader=','
 let maplocalleader=mapleader
 
 " EXECUTION
-command! -nargs=1 Silent execute 'silent !' . <q-args> | execute 'redraw!'
+" silently run a command, and only show output on error
+command! -nargs=1 Silent execute 'silent !(' . <q-args> .') || (echo Hit enter:; read)' | execute 'redraw!'
+nnoremap ,,m :update\|Silent pandoc % -o /tmp/vim.pdf<cr>
 nnoremap ,v  :execute getline('.')<CR>
 nnoremap ,,v :source $MYVIMRC<CR>
 nnoremap ,,u :PlugClean\|PlugUpgrade\|PlugUpdate<cr>
@@ -207,6 +194,9 @@ set foldnestmax=10
 set foldlevel=2
 let g:markdown_folding=1
 set mouse=a
+" double click check box
+"TODO: uncheck.  only check if brackets.  single click
+nnoremap <2-LeftMouse> rx
 "TODO: remove jk
 inoremap jk <esc>
 nnoremap <C-Space> i
@@ -305,12 +295,29 @@ command! Changes call Changes()
 "   taboo plugin
 "   tab name in status line
 " On save, if %.watch exists, run it.
-" CoC.  Jetbrains mappings
 " Learn:
 "   marks, registers, record/playback, quickfix lists
-"   vim-surround, vim-commentary
+"   vim-easymotion, vim-surround, vim-commentary
 "   browse/edit command history, tags
 "   vimdiff, themes
 " Source of other mappings
 " https://www.youtube.com/watch?v=hSHATqh8svM
+
+" consider plugins:
+"  CoC.  Jetbrains mappings
+"  quick-scope
+"  terminus, fugitive, surround, tagbar,
+"  repeat, easymotion
+"  coc or neovim lsp-config
+" replacements:
+"  neomake, coc, dispatch
+" diy
+"  vim-sensible, fzf, vim-airline
+" put vim-sensible settings in this file.
+"Plug 'deris/vim-shot-f'
+"Plug 'rhysd/clever-f.vim'
+"Plug 'tpope/vim-fugitive'
+"Plug 'tfnico/vim-gradle'
+"Plug 'tpope/vim-dispatch'
+"Plug 'tpope/vim-rsi'
 

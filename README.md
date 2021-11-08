@@ -1,6 +1,6 @@
 # Dotfiles project
 
-This is my personal dotfiles and dotfiles manager project on github.
+This is my personal dotfiles and dotfiles installer project on github.
 
 ## Getting started
 
@@ -34,12 +34,12 @@ config reset --hard
 
 ### What install does
 
-- Create a bare git repo at `$GIT_DIR`
+- Create a bare git repo at `~/.dotfiles`
 - Checkout files to `~`
-- Backup original files to a branch, `backup-$branch-$HOSTNAME`
 - Configure to not show untracked files
-- if git user.email isn't set up, downloads `.gitconfig`
-- if git+ssh isn't set up or installed, falls back to https
+- Backup original files to a branch, `backup-master-$HOSTNAME`
+- if git user.email isn't set, download `.gitconfig`
+- if git+ssh isn't set up or installed, fall back to https
 - if git isn't installed, falls back to download files
 - if curl isn't installed, falls back to wget
 
@@ -97,10 +97,9 @@ DOTFILES_DIR    - default is ~/.dotfiles
 
 ### Software
 
-* Vim, NeoVim
-* Zsh
+* Vim, NeoVim, IDEAVim
+* Zsh, Oh-My-Zsh with Agnoster theme
 * Tmux
-* Jetbrains IDEAVim
 * npm, yarn
 * i3, sway
 * Alacritty
@@ -110,7 +109,7 @@ Some of the above may not be fully supported at any time as I change tools.
 ### Operating Environments
 
 These are environments I've successfully used
-these dot files with, at some point.
+these dot files with.
 
 * Linux.  Fedora, Ubuntu, Alpine, Arch.
 * WSL 1  (WSL 2 not tested)
@@ -118,6 +117,11 @@ these dot files with, at some point.
 * Git for Windows (striped down Msys2)
 * Docker containers: alpine, ubuntu, fedora, debian
 * RHEL over ssh (w/o git installed)
+
+### Notable Features
+
+* Auto-install of plugin managers for Vim, Tmux, Zsh.
+* Integration of Jetbrains IDEs and Vim
 
 ## FAQ
 
@@ -134,8 +138,15 @@ but it handles several special cases.
 Q: Why not use symlinks to all the files?
 
 A: I used to, but they don't track with file deletions or moves, 
-and adding a file required 2 steps (`git add` + `ln -s`)
+adding a file required 2 steps (`git add` + `ln -s`,
+and uninstalling or moving the repo was a mess.
 
-Q: How did you create the shortened vanity URL?
-A: `curl https://git.io/ -i -F "url=<url>" -F "code=<name>"`
+Q: How did you create the shortened vanity URL?  Is it safe?
+
+A: `git.io` is [run by github](https://github.blog/2011-11-10-git-io-github-url-shortener/).
+This command allocated the URL:
+
+```
+curl https://git.io/ -i -F "url=https://raw.githubusercontent.com/mikeslattery/dotfiles/master/.local/bin/dotfiles" -F "code=msdot"
+```
 
