@@ -1,0 +1,30 @@
+# Global git ignore ~/.config/git/ignore
+
+# This should contains things specific to a local environment, such as IDE, OS, or editor.
+# This shouldn't contain anything created or used by project command line build tools.
+
+# Jetbrains
+.idea
+
+# Vim
+tags
+Session.vim
+Sessionx.vim
+
+# JVM
+hs_err_pid*
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# Sandbox files
+/junk
+junk*
+
+# Nuxt sandbox
+pages/box.vue
+pages/mockups.vue
+

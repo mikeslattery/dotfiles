@@ -1,15 +1,13 @@
-# For more info see $ZSH/templates/zshrc.zsh-template
-
-# This .zshrc also nominally works as .bashrc
-# .bashrc should only contain:  source ~/.zshrc
-# I don't try to make bash work well, just to not be broken.
+# For more info see ~/.oh-my-zsh/templates/zshrc.zsh-template and ~/.bashrc
 
 export ZSH="$HOME/.oh-my-zsh"
-export ZSH_CUSTOM="$ZSH/.zshrd.d"
+# moved from $ZSH/custom
+export ZSH_CUSTOM="$HOME/.config/zsh/custom"
 
 if [[ "$1" == "install" ]]; then
     set -eu
-    sh -c "RUNZSH=no; $(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" -- --keep-zshrc
+    dl() { wget "$1" -O -q 2>/dev/null || curl -sLf "$1"; }
+    sh -c "RUNZSH=no; $(dl https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" -- --keep-zshrc
     mkdir "$ZSH"/{completions,custom,functions}
     exit $?
 elif [[ "$1" == "shellcheck" ]]; then
@@ -51,10 +49,10 @@ fi
 
 # Install oh-my-zsh
 if ! [[ -d "$ZSH" ]]; then
-    if has zsh && has git && has curl && has chsh; then
+    if has zsh && has git; then
         sh ~/.zshrc install
     else
-        echo 'E: oh-my-zsh requires: zsh, git, curl, chsh'
+        echo 'W: oh-my-zsh requires: zsh, git, chsh'
     fi
 fi
 
@@ -131,6 +129,8 @@ if iszsh; then
     for plugin in "${completions[@]}"; do
         fpath=("$ZSH/plugins/$plugin" $fpath)
     done
+
+    fpath=("$HOME/.local/completions" $fpath)
 
     #TODO: completions bundler, cpan, gem, pip, hub, gradle
     #TODO: z fzf git* mvn fasd vi-mode vim-interaction pass gnu-utils
@@ -466,4 +466,9 @@ alias config="git -C $HOME --git-dir=$HOME/.dotfiles --work-tree=$HOME"
 # cleanup
 unset -f pathmunge
 unset -f addpath
+
+# https://unix.stackexchange.com/questions/41274/having-tmux-load-by-default-when-a-zsh-terminal-is-launched
+if iszsh && [[ -z "$TMUX" ]] && [[ -z "$SSH_CLIENT" ]]; then
+  # exec tmux
+fi
 

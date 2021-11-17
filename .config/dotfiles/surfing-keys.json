@@ -1,0 +1,17 @@
+{
+  "blacklist": {
+    "https://mail.google.com": 1
+  },
+  "findHistory": [
+    "clone",
+    "dive.*into",
+    "dive"
+  ],
+  "lastKeys": [
+    "yj"
+  ],
+  "localPath": "",
+  "savedAt": 1636054652603,
+  "showAdvanced": true,
+  "snippets": "/*\nType \"yj\" to copy settings into clipboard\n*/\n// an example to create a new mapping `ctrl-y`\n/*\nmapkey('<ctrl-y>', 'Show me the money', function() {\n    Front.showPopup('a well-known phrase uttered by characters in the 1996 film Jerry Maguire (Escape to close).');\n});\n*/\n\n// an example to replace `T` with `gt`, click `Default mappings` to see how `T` works.\n// map('gt', 'T');\n\n// an example to remove mapkey `Ctrl-i`\n// unmap('<ctrl-i>');\n\nimap('jk', '<Esc>')\nimap('<C-Space>', '<Esc>')\naceVimMap('jj', '<Esc>', 'insert');\naceVimMap('<C-Space>', '<Esc>', 'insert');\naddSearchAliasX('e', 'wikipedia', 'https://en.wikipedia.org/wiki/', 's', 'https://en.wikipedia.org/w/api.php?action=opensearch&format=json&formatversion=2&namespace=0&limit=40&search=', function(response) {\n    return JSON.parse(response.text)[1];\n});\nmapkey('oe', '#8Open Search with alias e', function() {\n    // wikipedia\n    Front.openOmnibar({type: \"SearchEngine\", extra: \"e\"});\n});\nmapkey('os', '#8Open Search with alias e', function() {\n    // Stack overflow\n    Front.openOmnibar({type: \"SearchEngine\", extra: \"s\"});\n});\n/* TODO: conflicts with search history\nmapkey('oh', '#8Open Search with alias e', function() {\n    // github\n    Front.openOmnibar({type: \"SearchEngine\", extra: \"h\"});\n});\n*/\n// set theme\nsettings.theme = `\n.sk_theme {\n    font-family: Input Sans Condensed, Charcoal, sans-serif;\n    font-size: 10pt;\n    background: #24272e;\n    color: #abb2bf;\n}\n.sk_theme tbody {\n    color: #fff;\n}\n.sk_theme input {\n    color: #d0d0d0;\n}\n.sk_theme .url {\n    color: #61afef;\n}\n.sk_theme .annotation {\n    color: #56b6c2;\n}\n.sk_theme .omnibar_highlight {\n    color: #528bff;\n}\n.sk_theme .omnibar_timestamp {\n    color: #e5c07b;\n}\n.sk_theme .omnibar_visitcount {\n    color: #98c379;\n}\n.sk_theme #sk_omnibarSearchResult ul li:nth-child(odd) {\n    background: #303030;\n}\n.sk_theme #sk_omnibarSearchResult ul li.focused {\n    background: #3e4452;\n}\n#sk_status, #sk_find {\n    font-size: 20pt;\n}`;\n// click `Save` button to make above settings to take effect.</ctrl-i></ctrl-y>"
+}

@@ -11,6 +11,7 @@ Usage:  (after install)
   config   ...        - git subcomment.  Requires alias in .zshrc
   dotfiles help       - This message.
   dotfiles etc        - Copy ~/.config/dotfiles/etc to /etc
+  dotfiles tig        - Run `tig`
   dotfiles ssh <host> - Install to ssh host
   dotfiles tar <host> - Copy to ssh host w/o github access
   dotfiles uninstall  - Revert to config as before install.
@@ -119,7 +120,7 @@ main() {
           dl https://raw.githubusercontent.com/mikeslattery/dotfiles/master/.local/bin/dotfiles \
             ~/.local/bin/dotfiles
           chmod +x -o ~/.local/bin/dotfiles
-          git add ~/.local/bin/dotfiles
+          git add ~/.local/bin/dotfiles ~/.gitconfig
         fi
         sed -i "s|mikeslattery/dotfiles|$github|" "$HOME/.local/bin/dotfiles"
 
@@ -161,6 +162,9 @@ main() {
 
       git archive "$branch" | "$cmd" exec -i "$@" "$id" tar -C "$dhome" -x
       ;;
+    tig)
+      exec tig -C"$HOME" "$@"
+      ;;
     *)
       exec git -C "$HOME" "$cmd" "$@"
       ;;
@@ -168,3 +172,4 @@ main() {
 }
 
 main "$@"
+

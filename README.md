@@ -37,11 +37,11 @@ config reset --hard
 - Create a bare git repo at `~/.dotfiles`
 - Checkout files to `~`
 - Configure to not show untracked files
-- Backup original files to a branch, `backup-master-$HOSTNAME`
-- if git user.email isn't set, download `.gitconfig`
+- Backup original files to a branch, `backup-master-$HOSTNAME`. (requires `git` be installed beforehand)
+- if git user.email isn't set, download `.gitconfig` or input interactively.
 - if git+ssh isn't set up or installed, fall back to https
-- if git isn't installed, falls back to download files
-- if curl isn't installed, falls back to wget
+- if git isn't installed, fall back to download files
+- if curl isn't installed, fall back to wget
 
 for information see the [.local/bin/dotfiles](.local/bin/dotfiles) script.
 
@@ -65,20 +65,25 @@ dotfiles curl|wget  - Print out install command, for copy-paste purposes.
 dotfiles ...        - git subcommand. (in case `config` alias not set)
 ```
 
-### Advice
+### Advice and pitfalls
 
-- Never run: `config add <directory>`, or `config commit -a -m <message>`
-     Instead use: `config add -u [<path>...]`
+- Never run: `config add <directory>`, `config add -A`, or `config commit -a -m <message>`
+     Instead use: `config add -u` or `config add <file>`
 - `config` works best if run from home directory.
+- Dot files will not be backed up if you don't have `git` installed.
+- If you installed without `git` and then decide to install it,
+  you can later run `dotfiles install` to create the `~/.dotfile` repo.
 
 ### To make your own
 
 To make your own new empty dotfiles project, based on this script.
 
-  1. Match the requirements section.
-  2. Create an empty github dotfiles repo.
-  3. Run: `export DOTFILES_NAME=<github-username>/dotfiles`
-  4. Run: `sh -c "$(curl https://git.io/msdot -L)"`
+1. Match the requirements section.
+2. Create an empty dotfiles repo on <https://github.com>
+3. Run: `export DOTFILES_NAME=<github-username>/dotfiles`
+4. Run: `sh -c "$(curl https://git.io/msdot -L)"`
+
+The only file from this repo you'll inherit is `dotfiles`.
 
 ### Environmental override variables
 
@@ -90,10 +95,13 @@ DOTFILES_DIR    - default is ~/.dotfiles
 
 ### More Information
 
-* Other files in [.config/dotfiles](.config/dotfiles)
 * <https://www.atlassian.com/git/tutorials/dotfiles>
+* Read the [.local/bin/dotfiles](.local/bin/dotfiles) script
+* Other files in [.config/dotfiles](.config/dotfiles)
 
 ## Supported Environment
+
+Some of the following may not be fully supported at any time as I change tools.
 
 ### Software
 
@@ -104,12 +112,9 @@ DOTFILES_DIR    - default is ~/.dotfiles
 * i3, sway
 * Alacritty
 
-Some of the above may not be fully supported at any time as I change tools.
-
 ### Operating Environments
 
-These are environments I've successfully used
-these dot files with.
+Environments I've successfully used with these dot files.
 
 * Linux.  Fedora, Ubuntu, Alpine, Arch.
 * WSL 1  (WSL 2 not tested)
@@ -118,10 +123,26 @@ these dot files with.
 * Docker containers: alpine, ubuntu, fedora, debian
 * RHEL over ssh (w/o git installed)
 
-### Notable Features
+### Notable Features of my configuration
 
-* Auto-install of plugin managers for Vim, Tmux, Zsh.
-* Integration of Jetbrains IDEs and Vim
+These aren't features of the install, but of my configuration dot files.
+
+* Auto-install of plugin managers for Vim, Tmux, Zsh, on first use
+* `.zshrc` also serves as a `.bashrc`
+* `init.vim` also serves as a `.vimrc`
+* Mouseless usage is a goal
+* [True color](https://gist.github.com/andersevenrud/015e61af2fd264371032763d4ed965b6) support across alacritty, tmux, (n)vim
+* Similar keybindings for tmux, i3, neovim
+* Supplies files for `/etc`
+* Integration of Jetbrains IDEs and gVim
+
+### Various high level To-Dos
+
+* Configure firefox with sync
+* Install script for packages, including Google Drive and Keepass
+* Better integrate i3, vim, tmux, firefox
+* Switch to Vim Coc, with fallback to tags
+* git-crypt for `.gitconfig`, `.ssh`
 
 ## FAQ
 
@@ -146,7 +167,8 @@ Q: How did you create the shortened vanity URL?  Is it safe?
 A: `git.io` is [run by github](https://github.blog/2011-11-10-git-io-github-url-shortener/).
 This command allocated the URL:
 
-```
-curl https://git.io/ -i -F "url=https://raw.githubusercontent.com/mikeslattery/dotfiles/master/.local/bin/dotfiles" -F "code=msdot"
+```sh
+url="https://raw.githubusercontent.com/mikeslattery/dotfiles/master/.local/bin/dotfiles"
+curl https://git.io/ -i -F "url=$url" -F "code=msdot"
 ```
 

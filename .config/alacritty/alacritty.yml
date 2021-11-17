@@ -159,9 +159,15 @@
 # If `true`, bold text is drawn using the bright color variants.
 #draw_bold_text_with_bright_colors: false
 
+env:
+  TERM: xterm-256color
+
 colors:
   primary:
     background: '#000000'
+
+window:
+  startup_mode: Maximized
 
 # Colors (Tomorrow Night)
 #colors:

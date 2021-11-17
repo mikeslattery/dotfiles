@@ -1,0 +1,732 @@
+#compdef _hasura hasura
+
+
+function _hasura {
+  local -a commands
+
+  _arguments -C \
+    '--envfile[.env filename to load ENV vars from]:' \
+    '--log-level[log level (DEBUG, INFO, WARN, ERROR, FATAL)]:' \
+    '--no-color[do not colorize output (default: false)]' \
+    '--project[directory where commands are executed (default: current dir)]:' \
+    '--skip-update-check[Skip automatic update check on command execution]' \
+    "1: :->cmnds" \
+    "*::arg:->args"
+
+  case $state in
+  cmnds)
+    commands=(
+      "actions:Manage actions on hasura"
+      "completion:Generate auto completion code"
+      "console:Open console to manage database and try out APIs"
+      "help:Help about any command"
+      "init:Initialize directory for Hasura GraphQL Engine migrations"
+      "metadata:Manage Hasura GraphQL Engine metadata saved in the database"
+      "migrate:Manage migrations on the database"
+      "plugins:Manage plugins for the cli"
+      "scripts:Execute helper scripts to manage Hasura Projects"
+      "seeds:Manage seed data"
+      "update-cli:Update the CLI to latest or a specific version"
+      "version:Print the CLI version"
+    )
+    _describe "command" commands
+    ;;
+  esac
+
+  case "$words[1]" in
+  actions)
+    _hasura_actions
+    ;;
+  completion)
+    _hasura_completion
+    ;;
+  console)
+    _hasura_console
+    ;;
+  help)
+    _hasura_help
+    ;;
+  init)
+    _hasura_init
+    ;;
+  metadata)
+    _hasura_metadata
+    ;;
+  migrate)
+    _hasura_migrate
+    ;;
+  plugins)
+    _hasura_plugins
+    ;;
+  scripts)
+    _hasura_scripts
+    ;;
+  seeds)
+    _hasura_seeds
+    ;;
+  update-cli)
+    _hasura_update-cli
+    ;;
+  version)
+    _hasura_version
+    ;;
+  esac
+}
+
+
+function _hasura_actions {
+  local -a commands
+
+  _arguments -C \
+    '--admin-secret[admin secret for Hasura GraphQL Engine (env "HASURA_GRAPHQL_ADMIN_SECRET")]:' \
+    '--certificate-authority[path to a cert file for the certificate authority (env "HASURA_GRAPHQL_CERTIFICATE_AUTHORITY")]:' \
+    '--endpoint[http(s) endpoint for Hasura GraphQL Engine (env "HASURA_GRAPHQL_ENDPOINT")]:' \
+    '--insecure-skip-tls-verify[skip TLS verification and disable cert checking (default: false) (env "HASURA_GRAPHQL_INSECURE_SKIP_TLS_VERIFY")]' \
+    '--envfile[.env filename to load ENV vars from]:' \
+    '--log-level[log level (DEBUG, INFO, WARN, ERROR, FATAL)]:' \
+    '--no-color[do not colorize output (default: false)]' \
+    '--project[directory where commands are executed (default: current dir)]:' \
+    '--skip-update-check[Skip automatic update check on command execution]' \
+    "1: :->cmnds" \
+    "*::arg:->args"
+
+  case $state in
+  cmnds)
+    commands=(
+      "codegen:Generate code for actions"
+      "create:Create an action"
+      "use-codegen:Configure the codegen module"
+    )
+    _describe "command" commands
+    ;;
+  esac
+
+  case "$words[1]" in
+  codegen)
+    _hasura_actions_codegen
+    ;;
+  create)
+    _hasura_actions_create
+    ;;
+  use-codegen)
+    _hasura_actions_use-codegen
+    ;;
+  esac
+}
+
+function _hasura_actions_codegen {
+  _arguments \
+    '--derive-from[derive action from a hasura operation]:' \
+    '--admin-secret[admin secret for Hasura GraphQL Engine (env "HASURA_GRAPHQL_ADMIN_SECRET")]:' \
+    '--certificate-authority[path to a cert file for the certificate authority (env "HASURA_GRAPHQL_CERTIFICATE_AUTHORITY")]:' \
+    '--endpoint[http(s) endpoint for Hasura GraphQL Engine (env "HASURA_GRAPHQL_ENDPOINT")]:' \
+    '--envfile[.env filename to load ENV vars from]:' \
+    '--insecure-skip-tls-verify[skip TLS verification and disable cert checking (default: false) (env "HASURA_GRAPHQL_INSECURE_SKIP_TLS_VERIFY")]' \
+    '--log-level[log level (DEBUG, INFO, WARN, ERROR, FATAL)]:' \
+    '--no-color[do not colorize output (default: false)]' \
+    '--project[directory where commands are executed (default: current dir)]:' \
+    '--skip-update-check[Skip automatic update check on command execution]'
+}
+
+function _hasura_actions_create {
+  _arguments \
+    '--derive-from[derive action from a Hasura operation]:' \
+    '--kind[kind to use in action (env "HASURA_GRAPHQL_ACTIONS_KIND")]:' \
+    '--webhook[webhook to use in action (env "HASURA_GRAPHQL_ACTIONS_HANDLER_WEBHOOK_BASEURL")]:' \
+    '--with-codegen[create action along with codegen]' \
+    '--admin-secret[admin secret for Hasura GraphQL Engine (env "HASURA_GRAPHQL_ADMIN_SECRET")]:' \
+    '--certificate-authority[path to a cert file for the certificate authority (env "HASURA_GRAPHQL_CERTIFICATE_AUTHORITY")]:' \
+    '--endpoint[http(s) endpoint for Hasura GraphQL Engine (env "HASURA_GRAPHQL_ENDPOINT")]:' \
+    '--envfile[.env filename to load ENV vars from]:' \
+    '--insecure-skip-tls-verify[skip TLS verification and disable cert checking (default: false) (env "HASURA_GRAPHQL_INSECURE_SKIP_TLS_VERIFY")]' \
+    '--log-level[log level (DEBUG, INFO, WARN, ERROR, FATAL)]:' \
+    '--no-color[do not colorize output (default: false)]' \
+    '--project[directory where commands are executed (default: current dir)]:' \
+    '--skip-update-check[Skip automatic update check on command execution]'
+}
+
+function _hasura_actions_use-codegen {
+  _arguments \
+    '--framework[framework to be used by codegen]:' \
+    '--output-dir[directory to create the codegen files]:' \
+    '--with-starter-kit[clone starter kit for a framework]' \
+    '--admin-secret[admin secret for Hasura GraphQL Engine (env "HASURA_GRAPHQL_ADMIN_SECRET")]:' \
+    '--certificate-authority[path to a cert file for the certificate authority (env "HASURA_GRAPHQL_CERTIFICATE_AUTHORITY")]:' \
+    '--endpoint[http(s) endpoint for Hasura GraphQL Engine (env "HASURA_GRAPHQL_ENDPOINT")]:' \
+    '--envfile[.env filename to load ENV vars from]:' \
+    '--insecure-skip-tls-verify[skip TLS verification and disable cert checking (default: false) (env "HASURA_GRAPHQL_INSECURE_SKIP_TLS_VERIFY")]' \
+    '--log-level[log level (DEBUG, INFO, WARN, ERROR, FATAL)]:' \
+    '--no-color[do not colorize output (default: false)]' \
+    '--project[directory where commands are executed (default: current dir)]:' \
+    '--skip-update-check[Skip automatic update check on command execution]'
+}
+
+function _hasura_completion {
+  _arguments \
+    '--file[file to which output has to be written]:filename:_files' \
+    '(-h --help)'{-h,--help}'[help for completion]' \
+    '--envfile[.env filename to load ENV vars from]:' \
+    '--log-level[log level (DEBUG, INFO, WARN, ERROR, FATAL)]:' \
+    '--no-color[do not colorize output (default: false)]' \
+    '--project[directory where commands are executed (default: current dir)]:' \
+    '--skip-update-check[Skip automatic update check on command execution]'
+}
+
+function _hasura_console {
+  _arguments \
+    '--address[address to serve console and migration API from]:' \
+    '--admin-secret[admin secret for Hasura GraphQL Engine (env "HASURA_GRAPHQL_ADMIN_SECRET")]:' \
+    '--api-port[port for serving migrate api]:' \
+    '--browser[open console in a specific browser]:' \
+    '--certificate-authority[path to a cert file for the certificate authority (env "HASURA_GRAPHQL_CERTIFICATE_AUTHORITY")]:' \
+    '--console-port[port for serving console]:' \
+    '--endpoint[http(s) endpoint for Hasura GraphQL Engine (env "HASURA_GRAPHQL_ENDPOINT")]:' \
+    '--insecure-skip-tls-verify[skip TLS verification and disable cert checking (default: false) (env "HASURA_GRAPHQL_INSECURE_SKIP_TLS_VERIFY")]' \
+    '--no-browser[do not automatically open console in browser]' \
+    '--static-dir[directory where static assets mentioned in the console html template can be served from]:' \
+    '--use-server-assets[when rendering console, use assets provided by HGE server]' \
+    '--envfile[.env filename to load ENV vars from]:' \
+    '--log-level[log level (DEBUG, INFO, WARN, ERROR, FATAL)]:' \
+    '--no-color[do not colorize output (default: false)]' \
+    '--project[directory where commands are executed (default: current dir)]:' \
+    '--skip-update-check[Skip automatic update check on command execution]'
+}
+
+function _hasura_help {
+  _arguments \
+    '--envfile[.env filename to load ENV vars from]:' \
+    '--log-level[log level (DEBUG, INFO, WARN, ERROR, FATAL)]:' \
+    '--no-color[do not colorize output (default: false)]' \
+    '--project[directory where commands are executed (default: current dir)]:' \
+    '--skip-update-check[Skip automatic update check on command execution]'
+}
+
+function _hasura_init {
+  _arguments \
+    '--admin-secret[admin secret for Hasura GraphQL Engine]:' \
+    '--endpoint[http(s) endpoint for Hasura GraphQL Engine]:' \
+    '--install-manifest[install manifest to be cloned]:' \
+    '--version[config version to be used]:' \
+    '--envfile[.env filename to load ENV vars from]:' \
+    '--log-level[log level (DEBUG, INFO, WARN, ERROR, FATAL)]:' \
+    '--no-color[do not colorize output (default: false)]' \
+    '--project[directory where commands are executed (default: current dir)]:' \
+    '--skip-update-check[Skip automatic update check on command execution]'
+}
+
+
+function _hasura_metadata {
+  local -a commands
+
+  _arguments -C \
+    '--admin-secret[admin secret for Hasura GraphQL Engine (env "HASURA_GRAPHQL_ADMIN_SECRET")]:' \
+    '--certificate-authority[path to a cert file for the certificate authority (env "HASURA_GRAPHQL_CERTIFICATE_AUTHORITY")]:' \
+    '--endpoint[http(s) endpoint for Hasura GraphQL Engine (env "HASURA_GRAPHQL_ENDPOINT")]:' \
+    '--insecure-skip-tls-verify[skip TLS verification and disable cert checking (default: false) (env "HASURA_GRAPHQL_INSECURE_SKIP_TLS_VERIFY")]' \
+    '--envfile[.env filename to load ENV vars from]:' \
+    '--log-level[log level (DEBUG, INFO, WARN, ERROR, FATAL)]:' \
+    '--no-color[do not colorize output (default: false)]' \
+    '--project[directory where commands are executed (default: current dir)]:' \
+    '--skip-update-check[Skip automatic update check on command execution]' \
+    "1: :->cmnds" \
+    "*::arg:->args"
+
+  case $state in
+  cmnds)
+    commands=(
+      "apply:Apply Hasura metadata on a database"
+      "clear:Clear Hasura GraphQL Engine metadata on the database"
+      "diff:(PREVIEW) Show a highlighted diff of Hasura metadata"
+      "export:Export Hasura GraphQL Engine metadata from the database"
+      "inconsistency:Manage inconsistent objects in Hasura Metadata"
+      "reload:Reload Hasura GraphQL Engine metadata on the database"
+    )
+    _describe "command" commands
+    ;;
+  esac
+
+  case "$words[1]" in
+  apply)
+    _hasura_metadata_apply
+    ;;
+  clear)
+    _hasura_metadata_clear
+    ;;
+  diff)
+    _hasura_metadata_diff
+    ;;
+  export)
+    _hasura_metadata_export
+    ;;
+  inconsistency)
+    _hasura_metadata_inconsistency
+    ;;
+  reload)
+    _hasura_metadata_reload
+    ;;
+  esac
+}
+
+function _hasura_metadata_apply {
+  _arguments \
+    '--dry-run[show a diff instead of applying the metadata]' \
+    '--from-file[apply metadata from migrations/metadata.[yaml|json]]' \
+    '--admin-secret[admin secret for Hasura GraphQL Engine (env "HASURA_GRAPHQL_ADMIN_SECRET")]:' \
+    '--certificate-authority[path to a cert file for the certificate authority (env "HASURA_GRAPHQL_CERTIFICATE_AUTHORITY")]:' \
+    '--endpoint[http(s) endpoint for Hasura GraphQL Engine (env "HASURA_GRAPHQL_ENDPOINT")]:' \
+    '--envfile[.env filename to load ENV vars from]:' \
+    '--insecure-skip-tls-verify[skip TLS verification and disable cert checking (default: false) (env "HASURA_GRAPHQL_INSECURE_SKIP_TLS_VERIFY")]' \
+    '--log-level[log level (DEBUG, INFO, WARN, ERROR, FATAL)]:' \
+    '--no-color[do not colorize output (default: false)]' \
+    '--project[directory where commands are executed (default: current dir)]:' \
+    '--skip-update-check[Skip automatic update check on command execution]'
+}
+
+function _hasura_metadata_clear {
+  _arguments \
+    '--admin-secret[admin secret for Hasura GraphQL Engine (env "HASURA_GRAPHQL_ADMIN_SECRET")]:' \
+    '--certificate-authority[path to a cert file for the certificate authority (env "HASURA_GRAPHQL_CERTIFICATE_AUTHORITY")]:' \
+    '--endpoint[http(s) endpoint for Hasura GraphQL Engine (env "HASURA_GRAPHQL_ENDPOINT")]:' \
+    '--envfile[.env filename to load ENV vars from]:' \
+    '--insecure-skip-tls-verify[skip TLS verification and disable cert checking (default: false) (env "HASURA_GRAPHQL_INSECURE_SKIP_TLS_VERIFY")]' \
+    '--log-level[log level (DEBUG, INFO, WARN, ERROR, FATAL)]:' \
+    '--no-color[do not colorize output (default: false)]' \
+    '--project[directory where commands are executed (default: current dir)]:' \
+    '--skip-update-check[Skip automatic update check on command execution]'
+}
+
+function _hasura_metadata_diff {
+  _arguments \
+    '--admin-secret[admin secret for Hasura GraphQL Engine (env "HASURA_GRAPHQL_ADMIN_SECRET")]:' \
+    '--certificate-authority[path to a cert file for the certificate authority (env "HASURA_GRAPHQL_CERTIFICATE_AUTHORITY")]:' \
+    '--endpoint[http(s) endpoint for Hasura GraphQL Engine (env "HASURA_GRAPHQL_ENDPOINT")]:' \
+    '--envfile[.env filename to load ENV vars from]:' \
+    '--insecure-skip-tls-verify[skip TLS verification and disable cert checking (default: false) (env "HASURA_GRAPHQL_INSECURE_SKIP_TLS_VERIFY")]' \
+    '--log-level[log level (DEBUG, INFO, WARN, ERROR, FATAL)]:' \
+    '--no-color[do not colorize output (default: false)]' \
+    '--project[directory where commands are executed (default: current dir)]:' \
+    '--skip-update-check[Skip automatic update check on command execution]'
+}
+
+function _hasura_metadata_export {
+  _arguments \
+    '--admin-secret[admin secret for Hasura GraphQL Engine (env "HASURA_GRAPHQL_ADMIN_SECRET")]:' \
+    '--certificate-authority[path to a cert file for the certificate authority (env "HASURA_GRAPHQL_CERTIFICATE_AUTHORITY")]:' \
+    '--endpoint[http(s) endpoint for Hasura GraphQL Engine (env "HASURA_GRAPHQL_ENDPOINT")]:' \
+    '--envfile[.env filename to load ENV vars from]:' \
+    '--insecure-skip-tls-verify[skip TLS verification and disable cert checking (default: false) (env "HASURA_GRAPHQL_INSECURE_SKIP_TLS_VERIFY")]' \
+    '--log-level[log level (DEBUG, INFO, WARN, ERROR, FATAL)]:' \
+    '--no-color[do not colorize output (default: false)]' \
+    '--project[directory where commands are executed (default: current dir)]:' \
+    '--skip-update-check[Skip automatic update check on command execution]'
+}
+
+
+function _hasura_metadata_inconsistency {
+  local -a commands
+
+  _arguments -C \
+    '--admin-secret[admin secret for Hasura GraphQL Engine (env "HASURA_GRAPHQL_ADMIN_SECRET")]:' \
+    '--certificate-authority[path to a cert file for the certificate authority (env "HASURA_GRAPHQL_CERTIFICATE_AUTHORITY")]:' \
+    '--endpoint[http(s) endpoint for Hasura GraphQL Engine (env "HASURA_GRAPHQL_ENDPOINT")]:' \
+    '--envfile[.env filename to load ENV vars from]:' \
+    '--insecure-skip-tls-verify[skip TLS verification and disable cert checking (default: false) (env "HASURA_GRAPHQL_INSECURE_SKIP_TLS_VERIFY")]' \
+    '--log-level[log level (DEBUG, INFO, WARN, ERROR, FATAL)]:' \
+    '--no-color[do not colorize output (default: false)]' \
+    '--project[directory where commands are executed (default: current dir)]:' \
+    '--skip-update-check[Skip automatic update check on command execution]' \
+    "1: :->cmnds" \
+    "*::arg:->args"
+
+  case $state in
+  cmnds)
+    commands=(
+      "drop:Drop inconsistent objects from the metadata"
+      "list:List all inconsistent objects from the metadata"
+      "status:Check if the metadata is inconsistent or not"
+    )
+    _describe "command" commands
+    ;;
+  esac
+
+  case "$words[1]" in
+  drop)
+    _hasura_metadata_inconsistency_drop
+    ;;
+  list)
+    _hasura_metadata_inconsistency_list
+    ;;
+  status)
+    _hasura_metadata_inconsistency_status
+    ;;
+  esac
+}
+
+function _hasura_metadata_inconsistency_drop {
+  _arguments \
+    '--admin-secret[admin secret for Hasura GraphQL Engine (env "HASURA_GRAPHQL_ADMIN_SECRET")]:' \
+    '--certificate-authority[path to a cert file for the certificate authority (env "HASURA_GRAPHQL_CERTIFICATE_AUTHORITY")]:' \
+    '--endpoint[http(s) endpoint for Hasura GraphQL Engine (env "HASURA_GRAPHQL_ENDPOINT")]:' \
+    '--envfile[.env filename to load ENV vars from]:' \
+    '--insecure-skip-tls-verify[skip TLS verification and disable cert checking (default: false) (env "HASURA_GRAPHQL_INSECURE_SKIP_TLS_VERIFY")]' \
+    '--log-level[log level (DEBUG, INFO, WARN, ERROR, FATAL)]:' \
+    '--no-color[do not colorize output (default: false)]' \
+    '--project[directory where commands are executed (default: current dir)]:' \
+    '--skip-update-check[Skip automatic update check on command execution]'
+}
+
+function _hasura_metadata_inconsistency_list {
+  _arguments \
+    '--admin-secret[admin secret for Hasura GraphQL Engine (env "HASURA_GRAPHQL_ADMIN_SECRET")]:' \
+    '--certificate-authority[path to a cert file for the certificate authority (env "HASURA_GRAPHQL_CERTIFICATE_AUTHORITY")]:' \
+    '--endpoint[http(s) endpoint for Hasura GraphQL Engine (env "HASURA_GRAPHQL_ENDPOINT")]:' \
+    '--envfile[.env filename to load ENV vars from]:' \
+    '--insecure-skip-tls-verify[skip TLS verification and disable cert checking (default: false) (env "HASURA_GRAPHQL_INSECURE_SKIP_TLS_VERIFY")]' \
+    '--log-level[log level (DEBUG, INFO, WARN, ERROR, FATAL)]:' \
+    '--no-color[do not colorize output (default: false)]' \
+    '--project[directory where commands are executed (default: current dir)]:' \
+    '--skip-update-check[Skip automatic update check on command execution]'
+}
+
+function _hasura_metadata_inconsistency_status {
+  _arguments \
+    '--admin-secret[admin secret for Hasura GraphQL Engine (env "HASURA_GRAPHQL_ADMIN_SECRET")]:' \
+    '--certificate-authority[path to a cert file for the certificate authority (env "HASURA_GRAPHQL_CERTIFICATE_AUTHORITY")]:' \
+    '--endpoint[http(s) endpoint for Hasura GraphQL Engine (env "HASURA_GRAPHQL_ENDPOINT")]:' \
+    '--envfile[.env filename to load ENV vars from]:' \
+    '--insecure-skip-tls-verify[skip TLS verification and disable cert checking (default: false) (env "HASURA_GRAPHQL_INSECURE_SKIP_TLS_VERIFY")]' \
+    '--log-level[log level (DEBUG, INFO, WARN, ERROR, FATAL)]:' \
+    '--no-color[do not colorize output (default: false)]' \
+    '--project[directory where commands are executed (default: current dir)]:' \
+    '--skip-update-check[Skip automatic update check on command execution]'
+}
+
+function _hasura_metadata_reload {
+  _arguments \
+    '--admin-secret[admin secret for Hasura GraphQL Engine (env "HASURA_GRAPHQL_ADMIN_SECRET")]:' \
+    '--certificate-authority[path to a cert file for the certificate authority (env "HASURA_GRAPHQL_CERTIFICATE_AUTHORITY")]:' \
+    '--endpoint[http(s) endpoint for Hasura GraphQL Engine (env "HASURA_GRAPHQL_ENDPOINT")]:' \
+    '--envfile[.env filename to load ENV vars from]:' \
+    '--insecure-skip-tls-verify[skip TLS verification and disable cert checking (default: false) (env "HASURA_GRAPHQL_INSECURE_SKIP_TLS_VERIFY")]' \
+    '--log-level[log level (DEBUG, INFO, WARN, ERROR, FATAL)]:' \
+    '--no-color[do not colorize output (default: false)]' \
+    '--project[directory where commands are executed (default: current dir)]:' \
+    '--skip-update-check[Skip automatic update check on command execution]'
+}
+
+
+function _hasura_migrate {
+  local -a commands
+
+  _arguments -C \
+    '--admin-secret[admin secret for Hasura GraphQL Engine (env "HASURA_GRAPHQL_ADMIN_SECRET")]:' \
+    '--certificate-authority[path to a cert file for the certificate authority (env "HASURA_GRAPHQL_CERTIFICATE_AUTHORITY")]:' \
+    '--endpoint[http(s) endpoint for Hasura GraphQL Engine (env "HASURA_GRAPHQL_ENDPOINT")]:' \
+    '--insecure-skip-tls-verify[skip TLS verification and disable cert checking (default: false) (env "HASURA_GRAPHQL_INSECURE_SKIP_TLS_VERIFY")]' \
+    '--envfile[.env filename to load ENV vars from]:' \
+    '--log-level[log level (DEBUG, INFO, WARN, ERROR, FATAL)]:' \
+    '--no-color[do not colorize output (default: false)]' \
+    '--project[directory where commands are executed (default: current dir)]:' \
+    '--skip-update-check[Skip automatic update check on command execution]' \
+    "1: :->cmnds" \
+    "*::arg:->args"
+
+  case $state in
+  cmnds)
+    commands=(
+      "apply:Apply migrations on the database"
+      "create:Create files required for a migration"
+      "squash:(PREVIEW) Squash multiple migrations into a single one"
+      "status:Display current status of migrations on a database"
+    )
+    _describe "command" commands
+    ;;
+  esac
+
+  case "$words[1]" in
+  apply)
+    _hasura_migrate_apply
+    ;;
+  create)
+    _hasura_migrate_create
+    ;;
+  squash)
+    _hasura_migrate_squash
+    ;;
+  status)
+    _hasura_migrate_status
+    ;;
+  esac
+}
+
+function _hasura_migrate_apply {
+  _arguments \
+    '--up[apply all or N up migration steps]:' \
+    '--down[apply all or N down migration steps]:' \
+    '--goto[apply migration chain up to to the version specified]:' \
+    '--version[only apply this particular migration]:' \
+    '--skip-execution[skip executing the migration action, but mark them as applied]' \
+    '--type[type of migration (up, down) to be used with version flag]:' \
+    '--dry-run[print the names of migrations which are going to be applied]' \
+    '--admin-secret[admin secret for Hasura GraphQL Engine (env "HASURA_GRAPHQL_ADMIN_SECRET")]:' \
+    '--certificate-authority[path to a cert file for the certificate authority (env "HASURA_GRAPHQL_CERTIFICATE_AUTHORITY")]:' \
+    '--endpoint[http(s) endpoint for Hasura GraphQL Engine (env "HASURA_GRAPHQL_ENDPOINT")]:' \
+    '--envfile[.env filename to load ENV vars from]:' \
+    '--insecure-skip-tls-verify[skip TLS verification and disable cert checking (default: false) (env "HASURA_GRAPHQL_INSECURE_SKIP_TLS_VERIFY")]' \
+    '--log-level[log level (DEBUG, INFO, WARN, ERROR, FATAL)]:' \
+    '--no-color[do not colorize output (default: false)]' \
+    '--project[directory where commands are executed (default: current dir)]:' \
+    '--skip-update-check[Skip automatic update check on command execution]'
+}
+
+function _hasura_migrate_create {
+  _arguments \
+    '--down-sql[sql string/query that is to be used to create a down migration]:' \
+    '--from-server[take pg_dump of schema (default: public) and Hasura metadata from the server]' \
+    '--metadata-from-file[path to a hasura metadata file to be used for up actions]:filename:_files' \
+    '--metadata-from-server[take metadata from the server and write it as an up migration file]' \
+    '*--schema[name of Postgres schema to export as a migration. provide multiple schemas with a comma separated list e.g. --schema public,user]:' \
+    '--sql-from-file[path to an sql file which contains the SQL statements]:filename:_files' \
+    '--sql-from-server[take pg_dump from server (default: public) and save it as a migration]' \
+    '--up-sql[sql string/query that is to be used to create an up migration]:' \
+    '--admin-secret[admin secret for Hasura GraphQL Engine (env "HASURA_GRAPHQL_ADMIN_SECRET")]:' \
+    '--certificate-authority[path to a cert file for the certificate authority (env "HASURA_GRAPHQL_CERTIFICATE_AUTHORITY")]:' \
+    '--endpoint[http(s) endpoint for Hasura GraphQL Engine (env "HASURA_GRAPHQL_ENDPOINT")]:' \
+    '--envfile[.env filename to load ENV vars from]:' \
+    '--insecure-skip-tls-verify[skip TLS verification and disable cert checking (default: false) (env "HASURA_GRAPHQL_INSECURE_SKIP_TLS_VERIFY")]' \
+    '--log-level[log level (DEBUG, INFO, WARN, ERROR, FATAL)]:' \
+    '--no-color[do not colorize output (default: false)]' \
+    '--project[directory where commands are executed (default: current dir)]:' \
+    '--skip-update-check[Skip automatic update check on command execution]'
+}
+
+function _hasura_migrate_squash {
+  _arguments \
+    '--delete-source[delete the source files after squashing without any confirmation]' \
+    '--from[start squashing from this version]:' \
+    '--name[name for the new squashed migration]:' \
+    '--admin-secret[admin secret for Hasura GraphQL Engine (env "HASURA_GRAPHQL_ADMIN_SECRET")]:' \
+    '--certificate-authority[path to a cert file for the certificate authority (env "HASURA_GRAPHQL_CERTIFICATE_AUTHORITY")]:' \
+    '--endpoint[http(s) endpoint for Hasura GraphQL Engine (env "HASURA_GRAPHQL_ENDPOINT")]:' \
+    '--envfile[.env filename to load ENV vars from]:' \
+    '--insecure-skip-tls-verify[skip TLS verification and disable cert checking (default: false) (env "HASURA_GRAPHQL_INSECURE_SKIP_TLS_VERIFY")]' \
+    '--log-level[log level (DEBUG, INFO, WARN, ERROR, FATAL)]:' \
+    '--no-color[do not colorize output (default: false)]' \
+    '--project[directory where commands are executed (default: current dir)]:' \
+    '--skip-update-check[Skip automatic update check on command execution]'
+}
+
+function _hasura_migrate_status {
+  _arguments \
+    '--admin-secret[admin secret for Hasura GraphQL Engine (env "HASURA_GRAPHQL_ADMIN_SECRET")]:' \
+    '--certificate-authority[path to a cert file for the certificate authority (env "HASURA_GRAPHQL_CERTIFICATE_AUTHORITY")]:' \
+    '--endpoint[http(s) endpoint for Hasura GraphQL Engine (env "HASURA_GRAPHQL_ENDPOINT")]:' \
+    '--envfile[.env filename to load ENV vars from]:' \
+    '--insecure-skip-tls-verify[skip TLS verification and disable cert checking (default: false) (env "HASURA_GRAPHQL_INSECURE_SKIP_TLS_VERIFY")]' \
+    '--log-level[log level (DEBUG, INFO, WARN, ERROR, FATAL)]:' \
+    '--no-color[do not colorize output (default: false)]' \
+    '--project[directory where commands are executed (default: current dir)]:' \
+    '--skip-update-check[Skip automatic update check on command execution]'
+}
+
+
+function _hasura_plugins {
+  local -a commands
+
+  _arguments -C \
+    '--envfile[.env filename to load ENV vars from]:' \
+    '--log-level[log level (DEBUG, INFO, WARN, ERROR, FATAL)]:' \
+    '--no-color[do not colorize output (default: false)]' \
+    '--project[directory where commands are executed (default: current dir)]:' \
+    '--skip-update-check[Skip automatic update check on command execution]' \
+    "1: :->cmnds" \
+    "*::arg:->args"
+
+  case $state in
+  cmnds)
+    commands=(
+      "install:Install a plugin from the index"
+      "list:List all available plugins from index, versions and installation status"
+      "uninstall:Uninstall a plugin"
+      "upgrade:Upgrade a plugin to a newer version"
+    )
+    _describe "command" commands
+    ;;
+  esac
+
+  case "$words[1]" in
+  install)
+    _hasura_plugins_install
+    ;;
+  list)
+    _hasura_plugins_list
+    ;;
+  uninstall)
+    _hasura_plugins_uninstall
+    ;;
+  upgrade)
+    _hasura_plugins_upgrade
+    ;;
+  esac
+}
+
+function _hasura_plugins_install {
+  _arguments \
+    '--version[version to be installed]:' \
+    '--envfile[.env filename to load ENV vars from]:' \
+    '--log-level[log level (DEBUG, INFO, WARN, ERROR, FATAL)]:' \
+    '--no-color[do not colorize output (default: false)]' \
+    '--project[directory where commands are executed (default: current dir)]:' \
+    '--skip-update-check[Skip automatic update check on command execution]'
+}
+
+function _hasura_plugins_list {
+  _arguments \
+    '--dont-update-index[don'\''t update the plugin index local cache, only show the list]' \
+    '--envfile[.env filename to load ENV vars from]:' \
+    '--log-level[log level (DEBUG, INFO, WARN, ERROR, FATAL)]:' \
+    '--no-color[do not colorize output (default: false)]' \
+    '--project[directory where commands are executed (default: current dir)]:' \
+    '--skip-update-check[Skip automatic update check on command execution]'
+}
+
+function _hasura_plugins_uninstall {
+  _arguments \
+    '--envfile[.env filename to load ENV vars from]:' \
+    '--log-level[log level (DEBUG, INFO, WARN, ERROR, FATAL)]:' \
+    '--no-color[do not colorize output (default: false)]' \
+    '--project[directory where commands are executed (default: current dir)]:' \
+    '--skip-update-check[Skip automatic update check on command execution]'
+}
+
+function _hasura_plugins_upgrade {
+  _arguments \
+    '--version[version to be upgraded]:' \
+    '--envfile[.env filename to load ENV vars from]:' \
+    '--log-level[log level (DEBUG, INFO, WARN, ERROR, FATAL)]:' \
+    '--no-color[do not colorize output (default: false)]' \
+    '--project[directory where commands are executed (default: current dir)]:' \
+    '--skip-update-check[Skip automatic update check on command execution]'
+}
+
+
+function _hasura_scripts {
+  local -a commands
+
+  _arguments -C \
+    '--envfile[.env filename to load ENV vars from]:' \
+    '--log-level[log level (DEBUG, INFO, WARN, ERROR, FATAL)]:' \
+    '--no-color[do not colorize output (default: false)]' \
+    '--project[directory where commands are executed (default: current dir)]:' \
+    '--skip-update-check[Skip automatic update check on command execution]' \
+    "1: :->cmnds" \
+    "*::arg:->args"
+
+  case $state in
+  cmnds)
+    commands=(
+      "update-project-v2:Update the Hasura Project from v1 to v2"
+    )
+    _describe "command" commands
+    ;;
+  esac
+
+  case "$words[1]" in
+  update-project-v2)
+    _hasura_scripts_update-project-v2
+    ;;
+  esac
+}
+
+function _hasura_scripts_update-project-v2 {
+  _arguments \
+    '--admin-secret[admin secret for Hasura GraphQL Engine (env "HASURA_GRAPHQL_ADMIN_SECRET")]:' \
+    '--certificate-authority[path to a cert file for the certificate authority (env "HASURA_GRAPHQL_CERTIFICATE_AUTHORITY")]:' \
+    '--endpoint[http(s) endpoint for Hasura GraphQL Engine (env "HASURA_GRAPHQL_ENDPOINT")]:' \
+    '--insecure-skip-tls-verify[skip TLS verification and disable cert checking (default: false) (env "HASURA_GRAPHQL_INSECURE_SKIP_TLS_VERIFY")]' \
+    '--metadata-dir[]:' \
+    '--envfile[.env filename to load ENV vars from]:' \
+    '--log-level[log level (DEBUG, INFO, WARN, ERROR, FATAL)]:' \
+    '--no-color[do not colorize output (default: false)]' \
+    '--project[directory where commands are executed (default: current dir)]:' \
+    '--skip-update-check[Skip automatic update check on command execution]'
+}
+
+
+function _hasura_seeds {
+  local -a commands
+
+  _arguments -C \
+    '--admin-secret[admin secret for Hasura GraphQL Engine]:' \
+    '--endpoint[http(s) endpoint for Hasura GraphQL Engine]:' \
+    '--envfile[.env filename to load ENV vars from]:' \
+    '--log-level[log level (DEBUG, INFO, WARN, ERROR, FATAL)]:' \
+    '--no-color[do not colorize output (default: false)]' \
+    '--project[directory where commands are executed (default: current dir)]:' \
+    '--skip-update-check[Skip automatic update check on command execution]' \
+    "1: :->cmnds" \
+    "*::arg:->args"
+
+  case $state in
+  cmnds)
+    commands=(
+      "apply:Apply seed data"
+      "create:create a new seed file"
+    )
+    _describe "command" commands
+    ;;
+  esac
+
+  case "$words[1]" in
+  apply)
+    _hasura_seeds_apply
+    ;;
+  create)
+    _hasura_seeds_create
+    ;;
+  esac
+}
+
+function _hasura_seeds_apply {
+  _arguments \
+    '(*-f *--file)'{\*-f,\*--file}'[seed file to apply]:' \
+    '--admin-secret[admin secret for Hasura GraphQL Engine]:' \
+    '--endpoint[http(s) endpoint for Hasura GraphQL Engine]:' \
+    '--envfile[.env filename to load ENV vars from]:' \
+    '--log-level[log level (DEBUG, INFO, WARN, ERROR, FATAL)]:' \
+    '--no-color[do not colorize output (default: false)]' \
+    '--project[directory where commands are executed (default: current dir)]:' \
+    '--skip-update-check[Skip automatic update check on command execution]'
+}
+
+function _hasura_seeds_create {
+  _arguments \
+    '*--from-table[name of table from which seed file has to be initialized]:' \
+    '--admin-secret[admin secret for Hasura GraphQL Engine]:' \
+    '--endpoint[http(s) endpoint for Hasura GraphQL Engine]:' \
+    '--envfile[.env filename to load ENV vars from]:' \
+    '--log-level[log level (DEBUG, INFO, WARN, ERROR, FATAL)]:' \
+    '--no-color[do not colorize output (default: false)]' \
+    '--project[directory where commands are executed (default: current dir)]:' \
+    '--skip-update-check[Skip automatic update check on command execution]'
+}
+
+function _hasura_update-cli {
+  _arguments \
+    '--version[a specific version to install]:' \
+    '--envfile[.env filename to load ENV vars from]:' \
+    '--log-level[log level (DEBUG, INFO, WARN, ERROR, FATAL)]:' \
+    '--no-color[do not colorize output (default: false)]' \
+    '--project[directory where commands are executed (default: current dir)]:' \
+    '--skip-update-check[Skip automatic update check on command execution]'
+}
+
+function _hasura_version {
+  _arguments \
+    '--envfile[.env filename to load ENV vars from]:' \
+    '--log-level[log level (DEBUG, INFO, WARN, ERROR, FATAL)]:' \
+    '--no-color[do not colorize output (default: false)]' \
+    '--project[directory where commands are executed (default: current dir)]:' \
+    '--skip-update-check[Skip automatic update check on command execution]'
+}
+

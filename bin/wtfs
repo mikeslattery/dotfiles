@@ -1,0 +1,214 @@
+#!/bin/bash
+
+set -euo pipefail
+
+_usage() {
+  echo "Usage: $0 <subcommand>"
+  echo ''
+  echo 'Subcommands:'
+  sed -nr 's/^([a-z][a-zA-Z0-9_]*)\(.*/\1/p' < "$0"
+}
+
+_main() {
+  if [[ "$#" == "0" ]]; then
+    _usage
+  else
+    "$@"
+  fi
+}
+
+# Production monitoring
+
+# TODO: aggregate total charges today.  count, amount, earliest, latest
+charges() {
+  stripe charges list --limit 4 | jq '.data[] | [(.created | strftime("%F %T")), (.amount / 100.00), .status] | @tsv' -r
+}
+
+disputes() {
+  stripe disputes list --limit 4 | jq '.data[] | [(.created | strftime("%F %T")), (.amount / 100.00), .status] | @tsv' -r
+}
+
+health() {
+  echo "GQL:  $(curl -fs https://data.equityrisingscholarships.org/healthz || echo ERROR)"
+  # TODO: full run: auth as a user, graphql query, fetch CDN file
+  echo "Func: $(curl -fs https://equityrisingscholarships.org/.netlify/functions/health || echo ERROR)"
+  echo "Auth: $(curl -fs https://equityrisingscholarships.org/.netlify/identity/health &>/dev/null && echo "OK" || echo "ERROR")"
+  echo "Pay:  $(stripe status --format json | jq '.message' -r)"
+  echo "Mail: $(curl -s https://3tgl2vf85cht.statuspage.io/api/v2/status.json | jq '.status.description' -r)"
+}
+
+
+# Development and CI/CD
+
+builds() {
+  now="$(date +%s)"
+  gptime="$(git -C ~/src/nuxt/newstart log -1 --format=%at origin/master)"
+  ftime="$(stat /tmp/builds.txt --format=%Y 2>/dev/null || echo 0)"
+  thmin="$(( 60 * 20 ))"
+
+  # if push in last 20 minutes, or no updates in last 20 minutes
+  if [[ $(( "$now" - "$gptime" )) -le "$thmin" ]] || [[ $(( "$now" - "$ftime" )) -ge "$thmin" ]]; then
+    netlify api listSiteDeploys \
+        -d '{"site_id": "equityrisingscholarships.org", "page": 1, "per_page": 2}' \
+      | jq  '.[] | [.state, .created_at, .title] | @tsv' -r \
+      | sed -r 's/202[1-9]-([0-9\-]+)T/\1 /; s/:[0-9][0-9]\....Z//; s/\t/   /g' \
+      | tee /tmp/builds.txt
+    echo 'updated'
+  else
+    cat /tmp/builds.txt
+  fi
+  echo "push    $(date -d "@$gptime" '+%m-%d %H:%M' --utc)"
+}
+
+gss() {
+  git -C ~/src/nuxt/newstart status -sb --show-stash | sed -r '0,/^(\?\? )/s//\n\1/'
+  # Also can add: --ignored
+  echo ''
+  git -C ~/src/nuxt/newstart stash list
+}
+
+servers() {
+  netstat -ltnp 2>/dev/null | sed -rn '/:(53|5355|631) /d; /\/java  *$/d; s/^.* ([0-9\.]+:[0-9]+) .*$/\1/p;'
+}
+
+# Local environment
+
+todos() {
+  rg '^ +\* \[[- ]\]' ~/src/ven/doc/.todo.md -m 3 | sed -r 's/^ +\* \[(.)\]/\1/'
+}
+
+pomodoro() {
+  date -d "0 + $(( $(date +%s) - $(cat ~/.local/state/pomodoro) )) seconds" "+%-H  %M:%S"
+}
+
+processes() {
+  LINES=12 top -bn1 | sed '/ top$/d; / jq$/d; / wtfutil$/d;' | sed -n '7,10p' | cut -c51-
+}
+
+tmux() {
+  #TODO: turn red if CPU is high, or pomodoro is almost due
+  #TODO: cpu="$(LINES=12 top -bn1 -w | sed -r '1,/PID/d; / wtfutil$/d; s/^.{51}(.{10}).{10}/\1/; ' | head -1)"
+  #TODO: remove hawaii time when back home
+  echo -n "$(pomodoro) | $(date +%T --date='now + 5 hours') | $(date +%T)"
+}
+
+# Personal
+
+weather() {
+  curl -sf 'https://wttr.in/Indianapolis?format=2'
+}
+
+recycling() {
+  # Every other friday morning is recycling
+  [[ "$(( $(date -d "+5 days" +%s) / 3600 / 24 / 7 % 2 ))" == 1 ]] && echo "Recycling" || echo "Trash"
+}
+
+
+_main "$@"
+
+#      args: ["/home/mike/bin/notifies"]
+#      args: ["-c", "while true; do sleep 1; date; done"]
+#TODO:
+# netstat -ltn4 | sed -rn '/:(53|5355|631) /d; s/^.* ([0-9\.]+:[0-9]+) .*$/\1/p'
+# bat .todo.md --color=always --style=plain --line-range=:10
+# uptime | sed 's/^.*: //'
+# inxi ... # current temp
+# 
+# Done:
+# pretty weather
+# resource usage
+# pomodoro (cheap)
+# clocks
+# notifications
+# builds
+# processes
+# recycling
+#
+# Existing:
+# google calendar
+# DigitalOcean droplets info
+# gitlab: open PRs, merge PRs
+# have i been pwned
+#
+# Unwritten:
+# rss status feeds: status.gitlab.com, www.netlifystatus.com, status.digitalocean.com
+# health: hasura /healthz, id site/.netlify/identity/health
+# load factor for droplets  (ssh + uptime)
+# cpu,io % of DO managed db
+# netlify identity logs
+# check services running: list down sites in red .wrong: xargs -r -n1 -d$'\n' < sites.txt | bash -c -- 'curl -fsS "$1" | grep -sq || echo "$1 down"'
+# pomodoro scripts: start, pause, stop, alarms
+# top -bn1 ... only show CPU%, SMEM%, Process name.  top 2 processes but not "top"
+# slack channels: 1on1, linux
+# gitlab CI failures
+# latest emails from gmail
+# latest emails from owa
+# next 2 calendar events from all calendars.  Red if next 15 min.  OWA, Gmail personal + business
+# stale gitlab PRs
+# gitlab tickets: open + mine, (recently) closed
+# DigitalOcean droplets' stats. CPU, free disk, mem use, load
+# error logs
+# payments: netlify, digitalocean
+# Multiple merged, sorted sub-reddits:  hasura, nuxt, vuejs, graphql, linux
+# curl -Lfs 'https://www.reddit.com/r/Hasura/new.json?limit=3' -H 'User-Agent: Mozilla/5.0' | jq '.data.children[].data | {created: .created, title: .title}'
+#
+# Possible?:
+# git log most recent commits over all branches, but not mine
+# new service tickets
+#
+# Integrations
+# https://gsuite.google.com/marketplace/app/jitsi_meet_for_google_calendar/421935948107
+# https://support.zoom.us/hc/en-us/articles/360020187492-Zoom-for-GSuite-add-on
+# Forward invites from OWA to google
+# Forward emails from Roland, Joe, Ben to gmail
+# Hacker UI: https://github.com/GitSquared/edex-ui
+# Netlify status
+
+# Slack
+# https://api.slack.com/apps?new_app=1
+# https://api.slack.com/methods/conversations.history
+# channels:read, channels:history, chat:write, im:history
+# lilly_android G013AHCA022
+# linux CFRGGN11B
+# joe   D016D4P8FDM
+# ben D011NQNG15F
+# me D1KKJDZMY
+# ss G91M8GX24
+# miso C1XGVAXHB
+# | jq '.messages[] | {ts: .ts, text:.text}' --raw-output
+#
+# TODOs
+# rg --no-heading --no-line-number --no-filename --fixed-strings '* [ ] ' ~/src/ven/doc/{.todo,meeting}.md | sed -n 's/^ *[\*\-] \[ \] //p'
+#
+#
+# Notifications
+# dbus-monitor "interface='org.freedesktop.Notifications'" | sed -nr 's/^   string "([^"]+)"/\1/p'
+# https://play.google.com/store/apps/details?id=kiwi.root.an2linuxclient&hl=en_US&gl=US
+
+#    feedreader:
+#      enabled: true
+#      feeds:
+#        #      - http://wtfutil.com/blog/index.xml
+#      feedLimit: 10
+#      position:
+#        top: 1
+#        left: 1
+#        width: 2
+#        height: 1
+#      updateInterval: 14400
+# await fetch("wss://socketeer.services.netlify.com/function/logs", {
+#     "credentials": "include",
+#     "headers": {
+#         "User-Agent": "Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:86.0) Gecko/20100101 Firefox/86.0",
+#         "Accept": "*/*",
+#         "Accept-Language": "en-US,en;q=0.5",
+#         "Sec-WebSocket-Version": "13",
+#         "Sec-WebSocket-Extensions": "permessage-deflate",
+#         "Sec-WebSocket-Key": "aao4u7RXQY9+qsR+OzkcRg==",
+#         "Pragma": "no-cache",
+#         "Cache-Control": "no-cache"
+#     },
+#     "method": "GET",
+#     "mode": "cors"
+# });
+# wscat -c 'wss://socketeer.services.netlify.com/function/logs' -H 'User-Agent: Mozilla/5.0 (X11; Fedora; Linux x86_64; rv:86.0) Gecko/20100101 Firefox/86.0' -H 'Accept: */*' -H 'Accept-Language: en-US,en;q=0.5' -H 'Sec-WebSocket-Version: 13' -H 'Origin: https://app.netlify.com' -H 'Sec-WebSocket-Extensions: permessage-deflate' -H 'Connection: keep-alive, Upgrade' -H 'Cookie: _ga=GA1.2.413200287.1607543149' -H 'Pragma: no-cache' -H 'Cache-Control: no-cache' -H 'Upgrade: websocket' --no-check
