@@ -2,39 +2,40 @@
 " Optional: git, fzf, rg, nodejs
 " Windows gVim not supported
 
+"TODO:
+" see how to get ale and coc to live together
+" deal with netrwhist
+" put autoinstall stuff into plugin/
+" remove anything here that's also in ~/.vimrc
+"   including directories
+"   remove g:data_dir stuff.  we are all-in for neovim
+" use s: for let vars here
+
+if has('nvim')
+  function! Stdpath(id)
+    return stdpath(a:id)
+  endfunction
+endif
+
 " Autoinstall plugin manager
-let g:data_dir = has('nvim') ? stdpath('data') . '/site' : $HOME . '/.vim'
-let g:plugged = '~/.vim/plugged'
-if empty(glob(g:data_dir . '/autoload/plug.vim'))
-  call  mkdir(g:data_dir . '/autoload', 'p')
+let s:data_dir     = Stdpath('data')
+let g:plug_home    = s:data_dir . '/plugged'
+let s:autoload_dir = s:data_dir . '/site/autoload'
+let s:plugvim_file = s:autoload_dir . '/plug.vim'
+if empty(glob(s:plugvim_file))
+  call  mkdir(s:autoload_dir, 'p')
   let s:plugurl= 'https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
-  silent execute '!curl -fsLo '.g:data_dir.'/autoload/plug.vim '.s:plugurl
-    \ .' ||        wget -q -O '.g:data_dir.'/autoload/plug.vim '.s:plugurl
+  silent execute '!curl -fsLo '.s:plugvim_file.' '.s:plugurl
+    \ .' ||        wget -q -O '.s:plugvim_file.' '.s:plugurl
 endif
 " Install missing plugins
 autocmd VimEnter * if getcwd() != $HOME && len(filter(values(g:plugs), '!isdirectory(v:val.dir)'))
-    \| PlugClean | PlugUpdate --sync | source $MYVIMRC
+    \| PlugUpdate --sync | source $MYVIMRC
   \| endif
 
-"TODO:
-"" Install missing apps, if possible
-"if ! executable('neovim-node-host') && executable('npm')
-"  silent !npm install -g neovim
-"endif
-"if ! executable('neovim-ruby-host') && executable('gem')
-"  silent !gem install neovim
-"endif
-"if executable('python3')
-"  silent !python3 -m pip uninstall neovim
-"  silent !python3 -m pip install --user --upgrade pynvim
-"endif
+call plug#begin()
 
-call plug#begin(g:plugged)
-
-if !has('nvim')
-  Plug 'noahfrederick/vim-neovim-defaults'
-endif
-Plug 'tpope/vim-sensible'
+"Plug 'tpope/vim-sensible'
 if executable('fzf')
   Plug 'junegunn/fzf.vim'
 else
@@ -42,7 +43,11 @@ else
 endif
 " Required for tmux-continuum
 Plug 'tpope/vim-obsession'
-Plug 'dense-analysis/ale'
+if has('nvim') && executable('node') && isdirectory('.git')
+  Plug 'neoclide/coc.nvim', {'branch': 'release'}
+else
+  Plug 'dense-analysis/ale'
+endif
 Plug 'bling/vim-airline'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-commentary'
@@ -67,9 +72,10 @@ nnoremap ,,m :update\|Silent pandoc % -o /tmp/vim.pdf<cr>
 nnoremap ,v  :execute getline('.')<CR>
 nnoremap ,,v :source $MYVIMRC<CR>
 nnoremap ,,u :PlugClean\|PlugUpdate --sync\|PlugUpgrade<cr>
-call mkdir(g:data_dir.'/sessions', 'p')
-noremap ,,s :execute 'mksession! '.g:data_dir.'/sessions/'<left>
-nnoremap ,,r :execute 'so '.g:data_dir.'/sessions/'<left>
+let s:session_dir = s:data_dir . '/sessions/'
+call mkdir(s:session_dir, 'p')
+execute 'nnoremap ,,s :mksession! '.s:session_dir
+execute 'nnoremap ,,r :source '.s:session_dir
 nnoremap ,,w :update\|silent! make -s\|redraw!\|cc<cr>
 nnoremap ,,q :execute 'silent !tmux send-keys -t 1 "'.escape(getline('.'), '"#').'" Enter'<cr>:redraw!<cr>
 "TODO: vnoremap ,,q :<c-U>execute '!tmux send-keys -t 1 "'.escape(join(getline(getpos("'<")[1],getpos("'>")[1]), "\n"), '"#').'" Enter'<cr>
@@ -81,14 +87,11 @@ set tabstop=2
 set softtabstop=2
 set shiftwidth=2
 set expandtab
-set autoindent
-set backspace=indent,eol,start
 
 " SEARCHING FOR FILES
 set showmatch
 nnoremap ,/ :noh<cr>
 set incsearch
-"set hlsearch
 set ignorecase
 set smartcase
 nnoremap ,i :execute "update\|silent !curl -fs 'http://localhost:63342/api/file/".expand("%")."?line=".line(".")."&column=".col(".")."'"\|redraw!<cr>
@@ -104,8 +107,8 @@ if executable('fzf')
   else
     nnoremap ,g :grep<space>
   endif
-  nnoremap <leader>j :Jumps<cr>
-  nnoremap <leader>c :Changes<cr>
+  nnoremap ,j :Jumps<cr>
+  nnoremap ,c :Changes<cr>
 else
   nnoremap ,b :CtrlPBuffer<cr>
   nnoremap ,m :CtrlPMRU<cr>
@@ -113,8 +116,8 @@ else
   nnoremap ,k :marks<cr>
   nnoremap ,l /
   nnoremap ,g :grep<space>
-  nnoremap <leader>j :jumps<cr>
-  nnoremap <leader>c :changes<cr>
+  nnoremap ,j :jumps<cr>
+  nnoremap ,c :changes<cr>
 endif
 "TODO: what? vnoremap ,c :I#<ESC><C-i>
 "   close current buffer
@@ -132,6 +135,7 @@ set path+=**
 "TODO: execute 'set wildignore+='.substitute(g:netrw_list_hide.',**/.git/*','/,','/*,','g')
 "TODO: execute 'set path+='.system('git ls-files | xargs -r dirname | sort -u | sed "s|/\\?$|/\\*|;" | paste -sd , -')
 " Toggle banner with: I
+let g:netrw_home=s:data_dir
 let g:netrw_banner=0
 let g:netrw_liststyle=4
 let g:netrw_bufsettings='relativenumber nomodifiable nomodified readonly nobuflisted'
@@ -197,12 +201,9 @@ nnoremap ,w :up<CR>
 set autoread
 set hidden
 set undofile
-call mkdir(g:data_dir.'/undo', 'p')
-let &undodir=g:data_dir.'/undo//'
-set backup
-call mkdir(g:data_dir.'/backup', 'p')
-let &backupdir=g:data_dir.'/backup//'
 set noswapfile
+set backup
+let &backupdir = s:data_dir . '/backup//'
 
 " BROWSING TEXT
 set nofoldenable
@@ -361,4 +362,18 @@ command! Changes call Changes()
 "TODO: check for 1:1 g:plugs to plugged directly match.  need to filter g:plugs on dirs in plugged
 " another strategy, is to look for dirs in plugged not in g:plugs, and separately for dirs not in plugged
 " if sort(split(globpath('~/.vim/plugged', '*'), "\n")) == sort(map(copy(values(g:plugs)), 'v:val.dir'))
+" apps: tig, ranger
+
+"TODO: put at top
+"" Install missing apps, if possible
+"if ! executable('neovim-node-host') && executable('npm')
+"  silent !npm install -g neovim
+"endif
+"if ! executable('neovim-ruby-host') && executable('gem')
+"  silent !gem install neovim
+"endif
+"if executable('python3')
+"  silent !python3 -m pip uninstall neovim
+"  silent !python3 -m pip install --user --upgrade pynvim
+"endif
 

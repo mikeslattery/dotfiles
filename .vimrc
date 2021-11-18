@@ -5,13 +5,21 @@
 
 " OPTIONS
 
-" Sane defaults.
-" If you use Vim 7, install vim-sensible
+" Vim 7 options that differ
 
-if filereadable($VIMRUNTIME . '/defaults.vim')
-  source $VIMRUNTIME/defaults.vim
-  unmap Q
+set nocompatible
+if has('autocmd')
+  filetype plugin indent on
 endif
+
+set backspace=indent,eol,start
+set encoding=utf-8
+set incsearch
+set nolangremap
+let &nrformats="bin,hex"
+set showcmd
+set ruler
+set wildmenu
 
 " Vim 8 options that differ
 
@@ -21,6 +29,7 @@ set background=dark
 set belloff=all
 set cdpath=,.,~/src,~/
 set clipboard=
+set cmdheight=1
 set complete=.,w,b,u,t
 set cscopeverbose
 set diffopt=internal,filler
@@ -35,7 +44,7 @@ set hlsearch
 set laststatus=2
 set listchars=tab:>\ ,trail:-,nbsp:+
 set maxcombine=6
-set scroll=28
+set scroll=13
 set scrolloff=0
 set sessionoptions-=options
 set shortmess=filnxtToOF
@@ -45,6 +54,7 @@ set tabpagemax=50
 set tags=./tags;,tags
 set notitle
 set titleold=
+set ttimeout
 set ttimeoutlen=50
 set ttyfast
 set viminfo+=!
@@ -118,12 +128,20 @@ inoremap <C-W> <C-G>u<C-W>
 
 " DEFAULT PLUGINS
 
-packadd! matchit
-runtime! ftplugin/man.vim
+if has('syntax') && !exists('g:syntax_on')
+  syntax enable
+endif
+if !exists('g:loaded_matchit') && findfile('plugin/matchit.vim', &rtp) ==# ''
+  runtime! macros/matchit.vim
+endif
+if exists(":Man") != 2
+  runtime! ftplugin/man.vim
+endif
 
 " LOAD init.vim
 
 let $MYVIMRC = $XDG_CONFIG_HOME . '/nvim/init.vim'
+"set noloadplugins   "uncomment for testing purposes
 source $MYVIMRC
 
 " See also:
