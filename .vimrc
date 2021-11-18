@@ -140,9 +140,12 @@ endif
 
 " LOAD init.vim
 
-let $MYVIMRC = $XDG_CONFIG_HOME . '/nvim/init.vim'
-"set noloadplugins   "uncomment for testing purposes
-source $MYVIMRC
+" If this is the .vimrc, not a plugin, then load init.vim
+if $MYVIMRC == expand('<sfile>:p')
+  let $MYVIMRC = $XDG_CONFIG_HOME . '/nvim/init.vim'
+  "set noloadplugins   "uncomment for testing purposes
+  source $MYVIMRC
+endif
 
 " See also:
 " https://github.com/noahfrederick/vim-neovim-defaults/blob/master/plugin/neovim_defaults.vim
