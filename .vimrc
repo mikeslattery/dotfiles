@@ -3,6 +3,10 @@
 
 " Windows gVim is not supported.
 
+if has('nvim')
+  finish
+endif
+
 " OPTIONS
 
 " Vim 7 options that differ
@@ -100,11 +104,11 @@ function! Stdpath(id)
   endif
 endfunction
 
-let datadir    = Stdpath('data')
-let &backupdir = datadir . '/backup//'
-let &directory = datadir . '/swap//'
-let &undodir   = datadir . '/undo//'
-let &viewdir   = datadir . '/view//'
+let s:datadir    = Stdpath('data')
+let &backupdir = s:datadir . '/backup//'
+let &directory = s:datadir . '/swap//'
+let &undodir   = s:datadir . '/undo//'
+let &viewdir   = s:datadir . '/view//'
 
 function! MakeDirs()
   for dir in [&backupdir, &directory, &undodir, &viewdir]
@@ -113,9 +117,13 @@ function! MakeDirs()
 endfunction
 autocmd VimEnter * call MakeDirs()
 
-let configdir    = Stdpath('config')
-let &packpath    = configdir . ',' . configdir . '/after,' . &packpath
-let &runtimepath = configdir . ',' . configdir . '/after,' . &runtimepath
+let s:configdir   = Stdpath('config')
+let s:pathprefix  = s:configdir . ',' . s:datadir . '/site,'
+let s:pathpostfix = ',' . s:configdir . '/after,' . s:datadir . '/site/after'
+let &packpath     = s:pathprefix . &packpath .    s:pathpostfix
+let &runtimepath  = s:pathprefix . &runtimepath . s:pathpostfix
+
+let &viminfo.=',n' . s:datadir . '/viminfo'
 
 " DEFAULT-MAPPINGS
 
@@ -137,8 +145,6 @@ endif
 if exists(":Man") != 2
   runtime! ftplugin/man.vim
 endif
-
-" LOAD init.vim
 
 " If this is the .vimrc, not a plugin, then load init.vim
 if $MYVIMRC == expand('<sfile>:p')

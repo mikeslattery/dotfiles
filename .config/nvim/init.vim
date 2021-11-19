@@ -32,6 +32,7 @@ endif
 autocmd VimEnter * if getcwd() != $HOME && len(filter(values(g:plugs), '!isdirectory(v:val.dir)'))
     \| PlugUpdate --sync | source $MYVIMRC
   \| endif
+let g:plugs={}
 
 call plug#begin()
 
