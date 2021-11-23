@@ -130,6 +130,7 @@ These aren't features of the install, but of my configuration dot files.
 * Auto-install of plugin managers for Vim, Tmux, Zsh, on first use
 * `.zshrc` also serves as a `.bashrc`
 * `init.vim` also serves as a `.vimrc`
+* Dracula theme for Vim, Tmux, Alacritty (but not Zsh)
 * Mouseless usage is a goal
 * [True color](https://gist.github.com/andersevenrud/015e61af2fd264371032763d4ed965b6) support across alacritty, tmux, (n)vim
 * Similar keybindings for tmux, i3, neovim

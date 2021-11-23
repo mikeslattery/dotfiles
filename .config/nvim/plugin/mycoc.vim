@@ -15,7 +15,6 @@ autocmd FileType scss setl iskeyword+=@-@
 let g:coc_global_extensions = [
   \'coc-tsserver',
   \'coc-vetur',
-  \'coc-git',
   \'coc-lists',
   \'coc-eslint',
   \'coc-html',
@@ -27,6 +26,7 @@ let g:coc_global_extensions = [
   \'coc-graphql',
   \'coc-pairs',
   \ ]
+"  \'coc-git',
 "  \'coc-snippets',
 "  \'coc-sh',
 "  \'coc-markdownlint',

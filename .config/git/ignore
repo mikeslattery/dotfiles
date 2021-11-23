@@ -20,6 +20,9 @@ hs_err_pid*
 # Windows
 Thumbs.db
 
+# Linux
+nohup.out
+
 # Sandbox files
 /junk
 junk*

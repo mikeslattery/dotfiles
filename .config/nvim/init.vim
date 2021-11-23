@@ -1,6 +1,16 @@
+"set" -xe
+"export" nvim="$HOME/.local/bin/nvim"
+"export" nvimurl=https://github.com/neovim/neovim/releases/download/nightly/nvim.appimage
+"curl" -L "$nvimurl" -o "$nvim" -z "$nvim"
+"chmod" u+x "$nvim"
+"exit" 0
+
 " Requires: vim or neovim, curl or wget
 " Optional: git, fzf, rg, nodejs
 " Windows gVim not supported
+
+" To update: bash ~/.config/nvim/nvim.init
+" nvim can't be in use during this.
 
 "TODO:
 " see how to get ale and coc to live together
@@ -36,19 +46,28 @@ let g:plugs={}
 
 call plug#begin()
 
-"Plug 'tpope/vim-sensible'
-if executable('fzf')
-  Plug 'junegunn/fzf.vim'
+if has('nvim')
+  Plug 'nvim-lua/plenary.nvim'
+  Plug 'nvim-telescope/telescope.nvim'
+  Plug 'phaazon/hop.nvim'
+  Plug 'folke/which-key.nvim'
 else
-  Plug 'ctrlpvim/ctrlp.vim'
+  if executable('fzf')
+    Plug 'junegunn/fzf.vim'
+  else
+    Plug 'ctrlpvim/ctrlp.vim'
+  endif
+  Plug 'liuchengxu/vim-which-key'
 endif
 " Required for tmux-continuum
 Plug 'tpope/vim-obsession'
 if has('nvim') && executable('node') && isdirectory('.git')
   Plug 'neoclide/coc.nvim', {'branch': 'release'}
+  Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 else
   Plug 'dense-analysis/ale'
 endif
+Plug 'dracula/vim', { 'as': 'dracula' }
 Plug 'bling/vim-airline'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-commentary'
@@ -97,29 +116,6 @@ set ignorecase
 set smartcase
 nnoremap ,i :execute "update\|silent !curl -fs 'http://localhost:63342/api/file/".expand("%")."?line=".line(".")."&column=".col(".")."'"\|redraw!<cr>
 
-if executable('fzf')
-  nnoremap ,b :Buffers<CR>
-  nnoremap ,m :History<CR>
-  nnoremap ,p :GFiles<CR>
-  nnoremap ,k :Marks<CR>
-  nnoremap ,l :BLines<CR>
-  if executable('rg')
-    nnoremap ,g :Rg<space>
-  else
-    nnoremap ,g :grep<space>
-  endif
-  nnoremap ,j :Jumps<cr>
-  nnoremap ,c :Changes<cr>
-else
-  nnoremap ,b :CtrlPBuffer<cr>
-  nnoremap ,m :CtrlPMRU<cr>
-  nnoremap ,p :CtrlP<cr>
-  nnoremap ,k :marks<cr>
-  nnoremap ,l /
-  nnoremap ,g :grep<space>
-  nnoremap ,j :jumps<cr>
-  nnoremap ,c :changes<cr>
-endif
 "TODO: what? vnoremap ,c :I#<ESC><C-i>
 "   close current buffer
 nnoremap ,x :bd<CR>
@@ -242,79 +238,44 @@ nnoremap <expr> k (v:count > 5 ? "m'" . v:count . "k" : "k")
 let g:ale_linters={'java': []}
 
 " L&F
-if has("win32unix")
-  " block cursor in cygwin
-  " https://github.com/mintty/mintty/wiki/Tips
-  let &t_ti.="\e[1 q"
-  let &t_SI.="\e[5 q"
-  let &t_EI.="\e[1 q"
-  let &t_te.="\e[0 q"
-endif
-let g:airline_powerline_fonts=1
-set noshowmode
-set cmdheight=1
-if has('gui_running')
-  highlight Normal guifg=white guibg=black
-endif
-
-" Functions
-
-function GoTo(jumpline)
-  let values = split(a:jumpline, ":")
-  echo "e ".values[0]
-  call cursor(str2nr(values[1]), str2nr(values[2]))
-  execute "normal! zvzz"
-endfunction
-
-function GetLine(bufnr, lnum)
-  let lines = getbufline(a:bufnr, a:lnum)
-  if len(lines)>0
-    return trim(lines[0])
-  else
-    return ''
-  endif
-endfunction
-
-function! Jumps()
-  " Get jumps with filename added
-  let jumps = map(reverse(copy(getjumplist()[0])), 
-    \ { key, val -> extend(val, {'name': expand('#'.(val.bufnr)) }) })
-
-  let jumptext = map(copy(jumps), { index, val -> 
-      \ (val.name).':'.(val.lnum).':'.(val.col+1).': '.GetLine(val.bufnr, val.lnum) })
-
-  call fzf#run(fzf#vim#with_preview(fzf#wrap({
-        \ 'source': jumptext,
-        \ 'column': 1,
-        \ 'options': ['--delimiter', ':', '--bind', 'alt-a:select-all,alt-d:deselect-all', '--preview-window', '+{2}-/2'],
-        \ 'sink': function('GoTo')})))
-endfunction
-
-command! Jumps call Jumps()
-
-function! Changes()
-  let changes  = reverse(copy(getchangelist()[0]))
-
-  let offset = &lines / 2 - 3
-  let changetext = map(copy(changes), { index, val -> 
-      \ expand('%').':'.(val.lnum).':'.(val.col+1).': '.GetLine(bufnr('%'), val.lnum) })
-
-  call fzf#run(fzf#vim#with_preview(fzf#wrap({
-        \ 'source': changetext,
-        \ 'column': 1,
-        \ 'options': ['--delimiter', ':', '--bind', 'alt-a:select-all,alt-d:deselect-all', '--preview-window', '+{2}-/2'],
-        \ 'sink': function('GoTo')})))
-endfunction
-
-command! Changes call Changes()
-
-
 "TODO
+" next
+"   telescope, hop
+"   telescope, hop
+"   treesitter and modules
+"   refactoring plugins in src/research/nvim
+"   refactoring.nvim
+" learn
+"   y/<search>/e
+"   C-x C-n   (insert mode)
+"   gv - re-highlight
+" vimrc
+"   execute 'silent !fzf > /tmp/file.txt'| if v:shell_error !=0 | echo readfile('/tmp/file.txt')[0] | endif
+" neovim/coc
+"   telescope (replace fzf)
+"     remap like fzf
+"   hop (vs easymotion)
+" packaged
+"   NvChad
+"   Doom.nvim
+"   lunarvim
+" Refactoring
+"   https://github.com/ThePrimeagen/refactoring.nvim
+"   https://www.youtube.com/watch?v=Qb7v1MZSrFc
+"   https://github.com/LucHermitte/vim-refactor
+" Debugging
+"   https://github.com/mfussenegger/nvim-dap
+"   https://github.com/puremourning/vimspector
 " Tabs
-"   help tab
-"   tabs: code, tdd
+"   tabs: help, code, tdd, page
+"   page tab:
+"     left: component.vue
+"     right top: page.vue
+"     right bottom: model
 "   tdd tab: keep windows in sync
-"     left: test, right: code, bottom: quickfix
+"     left: test
+"     right: code
+"     bottom: quickfix
 "     keybinding to sync other tab.
 "      when not in this tab, it will jump to it and then sync
 "   fzf tabs

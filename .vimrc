@@ -4,6 +4,11 @@
 " Windows gVim is not supported.
 
 if has('nvim')
+  " Put this in your init.vim,
+  " in case you stop using this plugin, but still need it
+  function! Stdpath(id)
+    return stdpath(a:id)
+  endfunction
   finish
 endif
 
@@ -81,24 +86,17 @@ if ! exists('$XDG_DATA_HOME')
   let $XDG_DATA_HOME=$HOME . '/.local/share'
 endif
 
-"" Put this in your init.vim to standardize on the name:
-" if has('nvim')
-"   function! Stdpath(id) | return stdpath(id) | endfunction
-" endif
-
 function! Stdpath(id)
-  "let progname = v:progname
-  let progname = 'nvim'
   if a:id == 'data'
-    return $XDG_DATA_HOME . '/' . progname
+    return $XDG_DATA_HOME . '/nvim'
   elseif a:id == 'data_dirs'
     return []
   elseif a:id == 'config'
-    return $XDG_CONFIG_HOME . '/' . progname
+    return $XDG_CONFIG_HOME . '/nvim'
   elseif a:id == 'config_dirs'
     return []
   elseif a:id == 'cache'
-    return $XDG_CACHE_HOME . '/' . progname
+    return $XDG_CACHE_HOME . '/nvim'
   else
     throw '"' . a:id . '" is not a valid stdpath'
   endif

@@ -149,12 +149,6 @@ fi
 
 # export LANG=en_US.UTF-8
 
-# if [[ -n $SSH_CONNECTION ]]; then
-#   export EDITOR='vim'
-# else
-#   export EDITOR='mvim'
-# fi
-
 export HISTSIZE=999000
 export HISTFILESIZE=$HISTSIZE
 export SAVEHIST=$HISTSIZE
@@ -335,7 +329,7 @@ export ANDROID_SDK_ROOT=$HOME/Android/Sdk
 #export PERL_MB_OPT="--install_base \"$HOME/perl5\""; export PERL_MB_OPT;
 #export PERL_MM_OPT="INSTALL_BASE=$HOME/perl5"; export PERL_MM_OPT;
 
-EDITOR="$(which vim)"
+EDITOR="$(which nvim 2>/dev/null || which vim)"
 export EDITOR
 
 # Container package manager
@@ -417,7 +411,9 @@ faketty() {
 # bash and vim without logging
 incognito() {
   bash -c '
-    vim() { command vim -i NONE +"set noswapfile" +"set nobackup" "$@"; }
+    nvim() { command nvim -i NONE +"set noswapfile" +"set nobackup" "$@"; }
+    vim() { nvim "$@"; }
+    export -f nvim
     export -f vim
     exec bash +o history
   '
