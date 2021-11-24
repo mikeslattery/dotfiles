@@ -1,5 +1,6 @@
 colorscheme dracula
 
+" darker background
 " https://vim.fandom.com/wiki/Xterm256_color_names_for_console_Vim
 highlight Normal cterm=NONE ctermbg=233 gui=NONE guibg=#121212
 

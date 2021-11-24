@@ -82,5 +82,15 @@ elseif has_key(g:plugs, 'ctrlp.vim')
   noremap <leader>fg :grep<space>
   noremap <leader>fj :jumps<cr>
   noremap <leader>fc :changes<cr>
+else
+  " no git or internet?
+  noremap <leader>fb :ls<cr>:b<tab>
+  noremap <leader>m :browse old<cr>
+  noremap <leader>fp :find **<left>
+  noremap <leader>fk :marks<cr>
+  noremap <leader>fl /
+  noremap <leader>fg :grep<space>
+  noremap <leader>fj :jumps<cr>
+  noremap <leader>fc :changes<cr>
 endif
 

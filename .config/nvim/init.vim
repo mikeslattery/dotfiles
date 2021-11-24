@@ -118,14 +118,18 @@ nnoremap ,,e :Explore .<cr>
 nnoremap ,,,e :checktime<CR>
 nnoremap ,,rm :call delete(expand('%'))\|bdelete!<CR>
 nnoremap ,,grm :silent !git rm %\|bdelete!<CR>
-set wildignore+=.git/*,*/target/*,*/node_modules/*,dist/*,.nuxt/*
+set wildignore+=**/.git/*
 set path+=**
-"TODO: let g:netrw_list_hide=netrw_gitignore#Hide()
-"TODO: execute 'set wildignore+='.substitute(g:netrw_list_hide.',**/.git/*','/,','/*,','g')
-"TODO: execute 'set path+='.system('git ls-files | xargs -r dirname | sort -u | sed "s|/\\?$|/\\*|;" | paste -sd , -')
-" Toggle banner with: I
+if executable('git') && isdirectory('.git')
+  let g:netrw_list_hide=substitute(netrw_gitignore#Hide(), '.env,', 'package-lock.json,', '')
+  let &wildignore=substitute(g:netrw_list_hide . ',' . &wildignore, '/,', '/*,' ,'g')
+  let &path=system('git ls-files | xargs -r dirname | sort -u | sed "s|/\\?$|/\\*|;" | paste -sd , -')
+endif
+
 let g:netrw_home=s:data_dir
+" Toggle banner with: I
 let g:netrw_banner=0
+" Toggle style with: i
 let g:netrw_liststyle=4
 let g:netrw_bufsettings='relativenumber nomodifiable nomodified readonly nobuflisted'
 
