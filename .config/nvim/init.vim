@@ -1,25 +1,17 @@
 "set" -xe
 "export" nvim="$HOME/.local/bin/nvim"
-"export" nvimurl=https://github.com/neovim/neovim/releases/download/nightly/nvim.appimage
-"curl" -L "$nvimurl" -o "$nvim" -z "$nvim"
+"export" nvimurl="https://github.com/neovim/neovim/releases/download/nightly/nvim.appimage"
+"curl" -fL "$nvimurl" -o "$nvim" -z "$nvim"
 "chmod" u+x "$nvim"
+"$nvim" +qa
 "exit" 0
 
 " Requires: vim or neovim, curl or wget
 " Optional: git, fzf, rg, nodejs
 " Windows gVim not supported
 
-" To update: bash ~/.config/nvim/nvim.init
+" To update nvim: bash ~/.config/nvim/nvim.init
 " nvim can't be in use during this.
-
-"TODO:
-" see how to get ale and coc to live together
-" deal with netrwhist
-" put autoinstall stuff into plugin/
-" remove anything here that's also in ~/.vimrc
-"   including directories
-"   remove g:data_dir stuff.  we are all-in for neovim
-" use s: for let vars here
 
 if has('nvim')
   function! Stdpath(id)
@@ -245,6 +237,14 @@ let g:ale_linters={'java': []}
 "   treesitter and modules
 "   refactoring plugins in src/research/nvim
 "   refactoring.nvim
+" next - coc
+"   see how to get ale and coc to live together
+"   put autoinstall stuff into plugin/
+"   remove anything here that's also in ~/.vimrc
+"     including directories
+"     remove g:data_dir stuff.  we are all-in for neovim
+"   use s: for let vars here
+
 " learn
 "   y/<search>/e
 "   C-x C-n   (insert mode)

@@ -153,7 +153,7 @@ export HISTSIZE=999000
 export HISTFILESIZE=$HISTSIZE
 export SAVEHIST=$HISTSIZE
 setopt hist_ignore_space
-PROMPT="${PROMPT/$/%h$}"
+export PROMPT="!%h$PROMPT"
 export CDPATH=".:$HOME/src:$HOME"
 export LESS=-iRj3
 setopt cdablevars
@@ -459,12 +459,30 @@ stt-clip() {
 
 alias config="git -C $HOME --git-dir=$HOME/.dotfiles --work-tree=$HOME"
 
+11() {
+  local phistcmd="${1:-$(( HISTCMD - 1 ))}"
+  if [[ "$phistcmd" -lt 0 ]]; then
+    phistcmd=$(( HISTCMD + phistcmd ))
+  fi
+  local chistcmd=$(( phistcmd + 1 ))
+
+  tmux capture-pane -p -S - | sed -n "/^!${phistcmd} /,/^!${chistcmd} /{//!p;}"
+}
+
+11fz() {
+  (
+    local histcmd="$(tmux capture-pane -p -S - | sed -nr 's/^!([0-9]+ ).*\xEE\x82\xB0.*\xEE\x82\xB0/\1/p;' | sort -u | fzf | sed -nr 's/^!([0-9]+) .*$/\1/p;')"
+    [[ -n "$line" ]] || 11 $histcmd
+  )
+}
+
+
 # cleanup
 unset -f pathmunge
 unset -f addpath
 
 # https://unix.stackexchange.com/questions/41274/having-tmux-load-by-default-when-a-zsh-terminal-is-launched
-if iszsh && [[ -z "$TMUX" ]] && [[ -z "$SSH_CLIENT" ]]; then
-  # exec tmux
-fi
+#if iszsh && [[ -z "$TMUX" ]] && [[ -z "$SSH_CLIENT" ]]; then
+#   exec tmux
+#fi
 

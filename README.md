@@ -30,13 +30,13 @@ config reset --hard
 - for install:  `git` or `unzip`, `curl` or `wget`
 - for pushes:   `git`, `openssh`, and keys registered with github
 - In [.zshrc](.zshrc):    `alias config="git -C $HOME --git-dir=$HOME/.dotfiles --work-tree=$HOME"`
-- In .zshrc:    `export "PATH=$HOME/.local/bin"`
+- In .zshrc:    `export "PATH=$PATH:$HOME/.local/bin:$HOME/bin"`
 
 ### What install does
 
 - Create a bare git repo at `~/.dotfiles`
-- Checkout files to `~`
-- Configure to not show untracked files
+- Checkout files to `$HOME`
+- Git configured to not show untracked files
 - Backup original files to a branch, `backup-master-$HOSTNAME`. (requires `git` be installed beforehand)
 - if git user.email isn't set, download `.gitconfig` or input interactively.
 - if git+ssh isn't set up or installed, fall back to https
@@ -80,10 +80,10 @@ To make your own new empty dotfiles project, based on this script.
 
 1. Match the requirements section.
 2. Create an empty dotfiles repo on <https://github.com>
-3. Run: `export DOTFILES_NAME=<github-username>/dotfiles`
-4. Run: `sh -c "$(curl https://git.io/msdot -L)"`
+3. Run: `DOTFILES_NAME=<github-username>/dotfiles sh -c "$(curl https://git.io/msdot -L)"`
 
-The only file from this repo you'll inherit is `dotfiles`.
+The only file from this repo you'll inherit is `dotfiles`,
+but it will be modified with your defaults.
 
 ### Environmental override variables
 
@@ -105,34 +105,36 @@ Some of the following may not be fully supported at any time as I change tools.
 
 ### Software
 
-* Vim, NeoVim, IDEAVim
-* Zsh, Oh-My-Zsh with Agnoster theme
-* Tmux
-* npm, yarn
+* NeoVim, IDEAVim, Vim
+* Zsh, Oh-My-Zsh
+* Tmux, Alacritty
+* npm, yarn, node
 * i3, sway
-* Alacritty
+* `fzf`, `rg`, `fd`, `bat`, `exa`
+* Podman
 
 ### Operating Environments
 
 Environments I've successfully used with these dot files.
 
-* Linux.  Fedora, Ubuntu, Alpine, Arch.
+* Linux distros.  Fedora, Ubuntu, Alpine, Arch.
+* Docker containers: alpine, ubuntu, fedora, debian
+* Termux Android app
+* RHEL over ssh (w/o git installed)
 * WSL 1  (WSL 2 not tested)
 * Cygwin, Msys2
 * Git for Windows (striped down Msys2)
-* Docker containers: alpine, ubuntu, fedora, debian
-* RHEL over ssh (w/o git installed)
 
 ### Notable Features of my configuration
 
 These aren't features of the install, but of my configuration dot files.
 
-* Auto-install of plugin managers for Vim, Tmux, Zsh, on first use
+* Auto-install of plugin managers for NeoVim, Tmux, Zsh, on first use
 * `.zshrc` also serves as a `.bashrc`
 * `init.vim` also serves as a `.vimrc`
-* Dracula theme for Vim, Tmux, Alacritty (but not Zsh)
+* Dracula theme for NeoVim, Tmux, Alacritty
 * Mouseless usage is a goal
-* [True color](https://gist.github.com/andersevenrud/015e61af2fd264371032763d4ed965b6) support across alacritty, tmux, (n)vim
+* [True color](https://gist.github.com/andersevenrud/015e61af2fd264371032763d4ed965b6) support across alacritty, tmux, NeoVim 
 * Similar keybindings for tmux, i3, neovim
 * Supplies files for `/etc`
 * Integration of Jetbrains IDEs and gVim
@@ -141,8 +143,8 @@ These aren't features of the install, but of my configuration dot files.
 
 * Configure firefox with sync
 * Install script for packages, including Google Drive and Keepass
-* Better integrate i3, vim, tmux, firefox
-* Switch to Vim Coc, with fallback to tags
+* Better integrate i3, Neovim, tmux, firefox
+* Switch to NeoVim Coc, with fallback to tags
 * git-crypt for `.gitconfig`, `.ssh`
 
 ## FAQ
@@ -160,12 +162,13 @@ but it handles several special cases.
 Q: Why not use symlinks to all the files?
 
 A: I used to, but they don't track with file deletions or moves, 
-adding a file required 2 steps (`git add` + `ln -s`,
+adding a file required more steps,
 and uninstalling or moving the repo was a mess.
 
 Q: How did you create the shortened vanity URL?  Is it safe?
 
 A: `git.io` is [run by github](https://github.blog/2011-11-10-git-io-github-url-shortener/).
+
 This command allocated the URL:
 
 ```sh

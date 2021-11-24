@@ -2,7 +2,7 @@
 
 if has_key(g:plugs, 'telescope.nvim')
   noremap <leader>fb <cmd>Telescope buffers<cr>
-  noremap <leader>fm <cmd>Telescope oldfiles<cr>
+  noremap <leader>m <cmd>Telescope oldfiles<cr>
   noremap <leader>fp <cmd>Telescope git_files<cr>
   noremap <leader>ff <cmd>Telescope find_files<cr>
   noremap <leader>fh <cmd>Telescope help_tags<cr>
@@ -12,7 +12,7 @@ if has_key(g:plugs, 'telescope.nvim')
   noremap <leader>fc :changes<cr>
 elseif has_key(g:plugs, 'fzf.vim')
   noremap <leader>fb :Buffers<CR>
-  noremap <leader>fm :History<CR>
+  noremap <leader>m :History<CR>
   noremap <leader>fp :GFiles<CR>
   noremap <leader>fk :Marks<CR>
   noremap <leader>fl :BLines<CR>
@@ -75,7 +75,7 @@ elseif has_key(g:plugs, 'fzf.vim')
 
 elseif has_key(g:plugs, 'ctrlp.vim')
   noremap <leader>fb :CtrlPBuffer<cr>
-  noremap <leader>fm :CtrlPMRU<cr>
+  noremap <leader>m :CtrlPMRU<cr>
   noremap <leader>fp :CtrlP<cr>
   noremap <leader>fk :marks<cr>
   noremap <leader>fl /
