@@ -1,7 +1,6 @@
 # For more info see ~/.oh-my-zsh/templates/zshrc.zsh-template and ~/.bashrc
 
 export ZSH="$HOME/.oh-my-zsh"
-# moved from $ZSH/custom
 export ZSH_CUSTOM="$HOME/.config/zsh/custom"
 
 if [[ "$1" == "install" ]]; then
@@ -458,24 +457,6 @@ stt-clip() {
 }
 
 alias config="git -C $HOME --git-dir=$HOME/.dotfiles --work-tree=$HOME"
-
-11() {
-  local phistcmd="${1:-$(( HISTCMD - 1 ))}"
-  if [[ "$phistcmd" -lt 0 ]]; then
-    phistcmd=$(( HISTCMD + phistcmd ))
-  fi
-  local chistcmd=$(( phistcmd + 1 ))
-
-  tmux capture-pane -p -S - | sed -n "/^!${phistcmd} /,/^!${chistcmd} /{//!p;}"
-}
-
-11fz() {
-  (
-    local histcmd="$(tmux capture-pane -p -S - | sed -nr 's/^!([0-9]+ ).*\xEE\x82\xB0.*\xEE\x82\xB0/\1/p;' | sort -u | fzf | sed -nr 's/^!([0-9]+) .*$/\1/p;')"
-    [[ -n "$line" ]] || 11 $histcmd
-  )
-}
-
 
 # cleanup
 unset -f pathmunge
