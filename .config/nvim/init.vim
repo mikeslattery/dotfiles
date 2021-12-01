@@ -83,6 +83,9 @@ let maplocalleader=mapleader
 " silently run a command, and only show output on error
 command! -nargs=1 Silent execute 'silent !(' . <q-args> .') || (echo Hit enter:; read)' | execute 'redraw!'
 nnoremap <leader><leader>m :update\|Silent pandoc % -o /tmp/vim.pdf<cr>
+"TODO: vnoremap <leader><leader>q :<c-U>execute '!tmux send-keys -t 1 "'.escape(join(getline(getpos("'<")[1],getpos("'>")[1]), "\n"), '"#').'" Enter'<cr>
+" ignore any further error formats.  (hopefully this doesn't break any plugins)
+set errorformat+=%-G%.%#
 
 " SESSION AND CONFIG MANAGEMENT
 nnoremap <leader>v  :execute getline('.')<CR>
@@ -116,9 +119,6 @@ execute 'nnoremap <leader><leader>r :source '     . s:session_dir
 autocmd VimEnter * if ObsessionStatus('on', 'off') == 'off' | Obsession | endif
 nnoremap <leader><leader>w :update\|silent! make -s\|redraw!\|cc<cr>
 nnoremap <leader><leader>q :execute 'silent !tmux send-keys -t 1 "'.escape(getline('.'), '"#').'" Enter'<cr>:redraw!<cr>
-"TODO: vnoremap <leader><leader>q :<c-U>execute '!tmux send-keys -t 1 "'.escape(join(getline(getpos("'<")[1],getpos("'>")[1]), "\n"), '"#').'" Enter'<cr>
-" ignore any further error formats.  (hopefully this doesn't break any plugins)
-set errorformat+=%-G%.%#
 
 " WHITESPACE
 set tabstop=2
