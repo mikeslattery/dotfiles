@@ -1,5 +1,7 @@
 " COC AND ALE CUSTOM CONFIGURATION
 
+let g:ale_linters={'java': []}
+
 if !has_key(g:plugs, 'coc.nvim')
   finish
 endif
@@ -23,9 +25,9 @@ let g:coc_global_extensions = [
   \'coc-json',
   \'coc-prettier',
   \'coc-yaml',
-  \'coc-graphql',
   \'coc-pairs',
   \ ]
+"  \'coc-graphql',
 "  \'coc-git',
 "  \'coc-snippets',
 "  \'coc-sh',
@@ -48,6 +50,7 @@ let g:coc_global_extensions = [
 "  \'coc-translator',
 "  \'coc-docker',
 "  \'coc-kotlin',
+
 
 "TODO: coc-snippets
 "TODO: coc-list working like fzf

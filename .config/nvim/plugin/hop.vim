@@ -3,17 +3,21 @@
 if has_key(g:plugs, 'hop.nvim')
   lua require'hop'.setup()
 
-  noremap <leader>1 :HopChar1AC<cr>
-  noremap <leader>2 :HopChar2<cr>
-  noremap <leader>ft :HopChar1BC<cr>
-  noremap <leader>fw :HopWord<cr>
-  noremap <leader>f/ :HopPattern<cr>
+  noremap f :HopChar1AC<cr>
+  noremap t :HopChar1BC<cr>
+
+  noremap <leader>g2 :HopChar2<cr>
+  noremap <leader>gw :HopWord<cr>
+  noremap <leader>g/ :HopPattern<cr>
+
+  noremap <leader>gf f
+  noremap <leader>gt t
 else
   " Just for muscle memory.  Not very useful
-  noremap <leader>1 f
-  noremap <leader>2 f
-  noremap <leader>ft t
-  noremap <leader>fw /
-  noremap <leader>f/ /
+  noremap <leader>g2 f
+  noremap <leader>gf f
+  noremap <leader>gt t
+  noremap <leader>gw /
+  noremap <leader>g/ /
 endif
 

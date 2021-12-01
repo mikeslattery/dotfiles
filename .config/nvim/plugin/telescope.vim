@@ -1,28 +1,35 @@
 " https://github.com/nvim-telescope/telescope.nvim
 
 if has_key(g:plugs, 'telescope.nvim')
-  noremap <leader>fb <cmd>Telescope buffers<cr>
+  noremap <leader>b <cmd>Telescope buffers<cr>
+  if executable('fd')
+    noremap <leader>ff <cmd>Telescope fd<cr>
+  else
+    noremap <leader>ff <cmd>Telescope find_files<cr>
+  endif
   noremap <leader>m <cmd>Telescope oldfiles<cr>
   noremap <leader>fp <cmd>Telescope git_files<cr>
-  noremap <leader>ff <cmd>Telescope find_files<cr>
   noremap <leader>fh <cmd>Telescope help_tags<cr>
-  noremap <leader>fk <cmd>Telescope marks<cr>
+  noremap <leader>fm <cmd>Telescope marks<cr>
   noremap <leader>fg <cmd>Telescope live_grep<cr>
-  noremap <leader>fj <cmd>Telescope jumplist<cr>
-  noremap <leader>fc :changes<cr>
+  noremap <leader>gj <cmd>Telescope jumplist<cr>
+  noremap <leader>gc :changes<cr>
+  noremap <leader>gl <cmd>Telescope current_buffer_fuzzy_find<cr>
+
+  lua require('telescope').load_extension('coc')
 elseif has_key(g:plugs, 'fzf.vim')
-  noremap <leader>fb :Buffers<CR>
+  noremap <leader>b :Buffers<CR>
   noremap <leader>m :History<CR>
   noremap <leader>fp :GFiles<CR>
   noremap <leader>fk :Marks<CR>
-  noremap <leader>fl :BLines<CR>
+  noremap <leader>gl :BLines<CR>
   if executable('rg')
     noremap <leader>fg :Rg<space>
   else
     noremap <leader>fg :grep<space>
   endif
-  noremap <leader>fj :Jumps<cr>
-  noremap <leader>fc :Changes<cr>
+  noremap <leader>gj :Jumps<cr>
+  noremap <leader>gc :Changes<cr>
 
   function GoTo(jumpline)
     let values = split(a:jumpline, ":")
@@ -74,23 +81,23 @@ elseif has_key(g:plugs, 'fzf.vim')
   command! Changes call Changes()
 
 elseif has_key(g:plugs, 'ctrlp.vim')
-  noremap <leader>fb :CtrlPBuffer<cr>
+  noremap <leader>b :CtrlPBuffer<cr>
   noremap <leader>m :CtrlPMRU<cr>
   noremap <leader>fp :CtrlP<cr>
   noremap <leader>fk :marks<cr>
-  noremap <leader>fl /
+  noremap <leader>gl /
   noremap <leader>fg :grep<space>
-  noremap <leader>fj :jumps<cr>
-  noremap <leader>fc :changes<cr>
+  noremap <leader>gj :jumps<cr>
+  noremap <leader>gc :changes<cr>
 else
   " no git or internet?
-  noremap <leader>fb :ls<cr>:b<tab>
+  noremap <leader>b :ls<cr>:b<space>
   noremap <leader>m :browse old<cr>
-  noremap <leader>fp :find **<left>
+  noremap <leader>fp :find<space>
   noremap <leader>fk :marks<cr>
-  noremap <leader>fl /
+  noremap <leader>gl /
   noremap <leader>fg :grep<space>
-  noremap <leader>fj :jumps<cr>
-  noremap <leader>fc :changes<cr>
+  noremap <leader>gj :jumps<cr>
+  noremap <leader>gc :changes<cr>
 endif
 

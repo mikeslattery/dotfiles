@@ -1,4 +1,4 @@
-"set" -xe
+"set" -xeu
 "export" nvim="$HOME/.local/bin/nvim"
 "export" nvimurl="https://github.com/neovim/neovim/releases/download/nightly/nvim.appimage"
 "curl" -fL "$nvimurl" -o "$nvim" -z "$nvim"
@@ -41,6 +41,7 @@ call plug#begin()
 if has('nvim')
   Plug 'nvim-lua/plenary.nvim'
   Plug 'nvim-telescope/telescope.nvim'
+  Plug 'fannheyward/telescope-coc.nvim'
   Plug 'phaazon/hop.nvim'
   Plug 'folke/which-key.nvim'
 else
@@ -53,6 +54,7 @@ else
 endif
 " Required for tmux-continuum
 Plug 'tpope/vim-obsession'
+
 if has('nvim') && executable('node') && isdirectory('.git')
   Plug 'neoclide/coc.nvim', {'branch': 'release'}
   Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
@@ -63,7 +65,7 @@ Plug 'dracula/vim', { 'as': 'dracula' }
 Plug 'bling/vim-airline'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-commentary'
-if isdirectory('.git') && executable('git')
+if isdirectory('.git')
   Plug 'airblade/vim-gitgutter'
   Plug 'tpope/vim-fugitive'
 endif
@@ -88,6 +90,7 @@ let s:session_dir = s:data_dir . '/sessions/'
 call mkdir(s:session_dir, 'p')
 execute 'nnoremap ,,s :mksession! '.s:session_dir
 execute 'nnoremap ,,r :source '.s:session_dir
+autocmd VimEnter * if !empty(v:this_session) && ObsessionStatus('on', 'off') == 'off' | Obsession | endif
 nnoremap ,,w :update\|silent! make -s\|redraw!\|cc<cr>
 nnoremap ,,q :execute 'silent !tmux send-keys -t 1 "'.escape(getline('.'), '"#').'" Enter'<cr>:redraw!<cr>
 "TODO: vnoremap ,,q :<c-U>execute '!tmux send-keys -t 1 "'.escape(join(getline(getpos("'<")[1],getpos("'>")[1]), "\n"), '"#').'" Enter'<cr>
@@ -118,12 +121,16 @@ nnoremap ,,e :Explore .<cr>
 nnoremap ,,,e :checktime<CR>
 nnoremap ,,rm :call delete(expand('%'))\|bdelete!<CR>
 nnoremap ,,grm :silent !git rm %\|bdelete!<CR>
-set wildignore+=**/.git/*
-set path+=**
 if executable('git') && isdirectory('.git')
-  let g:netrw_list_hide=substitute(netrw_gitignore#Hide(), '.env,', 'package-lock.json,', '')
-  let &wildignore=substitute(g:netrw_list_hide . ',' . &wildignore, '/,', '/*,' ,'g')
+  let s:hide=netrw_gitignore#Hide()
+  let s:hide.=',.git/,yarn.lock,package-lock.json'
+  let s:hide=substitute(s:hide, '.env,', '', '')
+  let g:netrw_list_hide=s:hide
+  let &wildignore=substitute(g:netrw_list_hide, '/,', '/*,' ,'g')
   let &path=system('git ls-files | xargs -r dirname | sort -u | sed "s|/\\?$|/\\*|;" | paste -sd , -')
+else
+  set wildignore=**/.git/*
+  set path=**
 endif
 
 let g:netrw_home=s:data_dir
@@ -149,13 +156,12 @@ augroup END
 " EDITING
 "nnoremap <cr> o<esc>
 "nnoremap <space> i<space><esc>l
-map <C-j> <C-W>j
-map <C-k> <C-W>k
-map <C-h> <C-W>h
-map <C-l> <C-W>l
-nnoremap ,d "_d
-vnoremap ,d "_d
-nnoremap ,q @q
+noremap <C-j> <C-W>j
+noremap <C-k> <C-W>k
+noremap <C-h> <C-W>h
+noremap <C-l> <C-W>l
+noremap <leader>d "-d
+nnoremap <leader>q @q
 
 set clipboard=unnamed,unnamedplus
 " ctrl-backspace to delete previous word
@@ -206,6 +212,7 @@ set foldlevelstart=99
 set foldnestmax=10
 set foldlevel=2
 let g:markdown_folding=1
+set scrolloff=3
 set mouse=a
 " double click check box
 "TODO: uncheck.  only check if brackets.  single click
@@ -218,8 +225,12 @@ inoremap <C-Space> <Esc>
 inoremap <C-@> <Esc>
 inoremap <C-c> <esc>
 
-nnoremap ,n :set relativenumber!<CR>
-set number
+nnoremap ,zn :set relativenumber!<CR>
+nnoremap ,zs :set spell!<CR>
+nnoremap ,zm :set showmatch!<CR>
+nnoremap ,zw :set wrap!<CR>
+nnoremap ,zl :set list!<CR>
+set number  
 set relativenumber
 set wrap linebreak nolist
 set tw=480
@@ -230,25 +241,45 @@ nnoremap N Nzzzv
 nnoremap <expr> j (v:count > 5 ? "m'" . v:count . "j" : "j")
 nnoremap <expr> k (v:count > 5 ? "m'" . v:count . "k" : "k")
 
-" SOURCE CODE
-let g:ale_linters={'java': []}
-
-" L&F
 "TODO
 " next
-"   telescope, hop
 "   telescope, hop
 "   treesitter and modules
 "   refactoring plugins in src/research/nvim
 "   refactoring.nvim
-" next - coc
+"   better plan out leader mappings
+"     f - files
+"     g - movements
+"       see telecope.vim
+"       j,c  - jumps, changes
+"     z - display
+"     c-w - windows
+"     a - around
+"     [] - forward/backward
+" markdown
+"   on paste, convert github urls to links
+"   on paste of link, get title
+" hop config
+"   hop.lua
+"   F, T
+"   consistent keys
+"   never autojump
+" ec, fixme/todo search pre-commit hook
+" next - telescope extension or PR
+"   changes, based off jumps
+"   buffers in mru order - look at fzf.vim
+" next - coc/ale
 "   see how to get ale and coc to live together
 "   put autoinstall stuff into plugin/
 "   remove anything here that's also in ~/.vimrc
 "     including directories
 "     remove g:data_dir stuff.  we are all-in for neovim
 "   use s: for let vars here
-
+"   ale example: https://github.com/mantoni/dotfiles/blob/master/.vimrc
+" native lsp
+"   ALE? NeoVim?
+"   nvim-lspconfig
+"   eslint_d
 " learn
 "   y/<search>/e
 "   C-x C-n   (insert mode)

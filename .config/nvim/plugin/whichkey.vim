@@ -1,5 +1,5 @@
 set timeout
-set timeoutlen=500
+set timeoutlen=1000
 
 if has_key(g:plugs, 'vim-which-key')
   noremap <silent> <leader> :execute('WhichKey ","')<CR>
@@ -13,9 +13,9 @@ if has_key(g:plugs, 'vim-which-key')
   noremap <silent> g :<c-u>WhichKey "g"<CR>
   noremap <silent> c :<c-u>WhichKey "c"<CR>
   noremap <silent> [ :<c-u>WhichKey "["<CR>
-
   noremap <silent> ] :<c-u>WhichKey "]"<CR>
   noremap <silent> y :<c-u>WhichKey "y"<CR>
+  noremap <silent> z :<c-u>WhichKey "z"<CR>
 
 elseif has_key(g:plugs, 'which-key.nvim')
   lua << EOF
@@ -25,6 +25,9 @@ elseif has_key(g:plugs, 'which-key.nvim')
       -- refer to the configuration section below
     }
 EOF
+  " workaround for missing mappings
+  nnoremap <c-w>p <c-w>p
+  nnoremap <c-w><c-p> <c-w><c-p>
 
 endif
 
