@@ -82,12 +82,12 @@ let maplocalleader=mapleader
 " EXECUTION
 " silently run a command, and only show output on error
 command! -nargs=1 Silent execute 'silent !(' . <q-args> .') || (echo Hit enter:; read)' | execute 'redraw!'
-nnoremap ,,m :update\|Silent pandoc % -o /tmp/vim.pdf<cr>
+nnoremap <leader><leader>m :update\|Silent pandoc % -o /tmp/vim.pdf<cr>
 
 " SESSION AND CONFIG MANAGEMENT
-nnoremap ,v  :execute getline('.')<CR>
-nnoremap ,,v :source $MYVIMRC<CR>
-nnoremap ,,u :PlugClean\|PlugUpdate --sync\|PlugUpgrade<cr>
+nnoremap <leader>v  :execute getline('.')<CR>
+nnoremap <leader><leader>v :source $MYVIMRC<CR>
+nnoremap <leader><leader>u :PlugClean\|PlugUpdate --sync\|PlugUpgrade<cr>
 function! s:Source(file)
   if !empty(v:this_session)
     mksession! v:this_session
@@ -111,12 +111,12 @@ if isdirectory('.git')
   endif
 endif
 call mkdir(s:session_dir, 'p')
-execute 'nnoremap ,,s :mksession! ' . s:session_dir
-execute 'nnoremap ,,r :source '     . s:session_dir
+execute 'nnoremap <leader><leader>s :mksession! ' . s:session_dir
+execute 'nnoremap <leader><leader>r :source '     . s:session_dir
 autocmd VimEnter * if ObsessionStatus('on', 'off') == 'off' | Obsession | endif
-nnoremap ,,w :update\|silent! make -s\|redraw!\|cc<cr>
-nnoremap ,,q :execute 'silent !tmux send-keys -t 1 "'.escape(getline('.'), '"#').'" Enter'<cr>:redraw!<cr>
-"TODO: vnoremap ,,q :<c-U>execute '!tmux send-keys -t 1 "'.escape(join(getline(getpos("'<")[1],getpos("'>")[1]), "\n"), '"#').'" Enter'<cr>
+nnoremap <leader><leader>w :update\|silent! make -s\|redraw!\|cc<cr>
+nnoremap <leader><leader>q :execute 'silent !tmux send-keys -t 1 "'.escape(getline('.'), '"#').'" Enter'<cr>:redraw!<cr>
+"TODO: vnoremap <leader><leader>q :<c-U>execute '!tmux send-keys -t 1 "'.escape(join(getline(getpos("'<")[1],getpos("'>")[1]), "\n"), '"#').'" Enter'<cr>
 " ignore any further error formats.  (hopefully this doesn't break any plugins)
 set errorformat+=%-G%.%#
 
@@ -128,22 +128,22 @@ set expandtab
 
 " SEARCHING FOR FILES
 set showmatch
-nnoremap ,/ :noh<cr>
+nnoremap <leader>/ :noh<cr>
 set incsearch
 set ignorecase
 set smartcase
-nnoremap ,i :execute "update\|silent !curl -fs 'http://localhost:63342/api/file/".expand("%")."?line=".line(".")."&column=".col(".")."'"\|redraw!<cr>
+nnoremap <leader>i :execute "update\|silent !curl -fs 'http://localhost:63342/api/file/".expand("%")."?line=".line(".")."&column=".col(".")."'"\|redraw!<cr>
 
-"TODO: what? vnoremap ,c :I#<ESC><C-i>
+"TODO: what? vnoremap <leader>c :I#<ESC><C-i>
 "   close current buffer
-nnoremap ,x :bd<CR>
+nnoremap <leader>x :bd<CR>
 "   browse files in same dir as current file
-nnoremap ,e :let @/=expand('%:t')<cr>:Explore<cr>
+nnoremap <leader>e :let @/=expand('%:t')<cr>:Explore<cr>
 "   browse files in project dir
-nnoremap ,,e :Explore .<cr>
-nnoremap ,,,e :checktime<CR>
-nnoremap ,,rm :call delete(expand('%'))\|bdelete!<CR>
-nnoremap ,,grm :silent !git rm %\|bdelete!<CR>
+nnoremap <leader><leader>e :Explore .<cr>
+nnoremap <leader><leader>,e :checktime<CR>
+nnoremap <leader><leader>rm :call delete(expand('%'))\|bdelete!<CR>
+nnoremap <leader><leader>grm :silent !git rm %\|bdelete!<CR>
 if executable('git') && isdirectory('.git')
   let s:hide=netrw_gitignore#Hide()
   let s:hide.=',.git/,yarn.lock,package-lock.json'
@@ -214,12 +214,12 @@ inoremap <C-k> <C-o>d$
 " TERMINAL
 nnoremap <c-w>% :rightbelow vertical terminal<cr>
 nnoremap <c-w>" :below terminal<cr>
-nnoremap ,h :rightbelow vertical help<space>
-nnoremap ,,l :call term_sendkeys(bufnr($SHELL),getline('.') . "\n")<cr>
+nnoremap <leader>h :rightbelow vertical help<space>
+nnoremap <leader><leader>l :call term_sendkeys(bufnr($SHELL),getline('.') . "\n")<cr>
 
 " CREATE/SAVE FILES
-nnoremap ,,t :exec "e ".system('mktemp -p /var/tmp')<cr>
-nnoremap ,w :up<CR>
+nnoremap <leader><leader>t :exec "e ".system('mktemp -p /var/tmp')<cr>
+nnoremap <leader>w :up<CR>
 set autoread
 set hidden
 set undofile
@@ -248,11 +248,11 @@ inoremap <C-Space> <Esc>
 inoremap <C-@> <Esc>
 inoremap <C-c> <esc>
 
-nnoremap ,zn :set relativenumber!<CR>
-nnoremap ,zs :set spell!<CR>
-nnoremap ,zm :set showmatch!<CR>
-nnoremap ,zw :set wrap!<CR>
-nnoremap ,zl :set list!<CR>
+nnoremap <leader>zn :set relativenumber!<CR>
+nnoremap <leader>zs :set spell!<CR>
+nnoremap <leader>zm :set showmatch!<CR>
+nnoremap <leader>zw :set wrap!<CR>
+nnoremap <leader>zl :set list!<CR>
 set number  
 set relativenumber
 set wrap linebreak nolist
@@ -266,10 +266,8 @@ nnoremap <expr> k (v:count > 5 ? "m'" . v:count . "k" : "k")
 
 "TODO
 " next
-"   telescope, hop
-"   treesitter and modules
+"   harpoon
 "   refactoring plugins in src/research/nvim
-"   refactoring.nvim
 "   better plan out leader mappings
 "     f - files
 "     g - movements
@@ -285,7 +283,7 @@ nnoremap <expr> k (v:count > 5 ? "m'" . v:count . "k" : "k")
 " hop config
 "   hop.lua
 "   F, T
-"   consistent keys
+"   consistent keys?
 "   never autojump
 " ec, fixme/todo search pre-commit hook
 " next - telescope extension or PR

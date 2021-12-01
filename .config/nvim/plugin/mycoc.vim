@@ -12,7 +12,7 @@ let g:ale_disable_lsp = 1
 " coc-css
 autocmd FileType scss setl iskeyword+=@-@
 
-"TODO: nnoremap ,l :CocList<cr>
+"TODO: nnoremap <leader>fl :CocList<cr>
 
 let g:coc_global_extensions = [
   \'coc-tsserver',
