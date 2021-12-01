@@ -8,6 +8,7 @@
 
 # Vim
 tags
+.vim/
 Session.vim
 Sessionx.vim
 

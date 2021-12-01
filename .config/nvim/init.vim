@@ -83,14 +83,37 @@ let maplocalleader=mapleader
 " silently run a command, and only show output on error
 command! -nargs=1 Silent execute 'silent !(' . <q-args> .') || (echo Hit enter:; read)' | execute 'redraw!'
 nnoremap ,,m :update\|Silent pandoc % -o /tmp/vim.pdf<cr>
+
+" SESSION AND CONFIG MANAGEMENT
 nnoremap ,v  :execute getline('.')<CR>
 nnoremap ,,v :source $MYVIMRC<CR>
 nnoremap ,,u :PlugClean\|PlugUpdate --sync\|PlugUpgrade<cr>
+function! s:Source(file)
+  if !empty(v:this_session)
+    mksession! v:this_session
+  endif
+  execute 'source ' . a:file
+  let v:this_session = a:file
+  let v:this_obsession = a:file
+endfunction
+command! Source -complete=file -nargs=1 execute s:Source(<f-args>)
 let s:session_dir = s:data_dir . '/sessions/'
+if isdirectory('.git')
+  let s:session_dir = '.vim/sessions/'
+  let v:this_session=s:session_dir . 'Session.vim'
+  if has('nvim')
+    set shadafile=.vim/main.shada
+  else
+    set viminfofile=.vim/.viminfo
+  endif
+  if filereadable(v:this_session)
+    execute 'source ' . v:this_session
+  endif
+endif
 call mkdir(s:session_dir, 'p')
-execute 'nnoremap ,,s :mksession! '.s:session_dir
-execute 'nnoremap ,,r :source '.s:session_dir
-autocmd VimEnter * if !empty(v:this_session) && ObsessionStatus('on', 'off') == 'off' | Obsession | endif
+execute 'nnoremap ,,s :mksession! ' . s:session_dir
+execute 'nnoremap ,,r :source '     . s:session_dir
+autocmd VimEnter * if ObsessionStatus('on', 'off') == 'off' | Obsession | endif
 nnoremap ,,w :update\|silent! make -s\|redraw!\|cc<cr>
 nnoremap ,,q :execute 'silent !tmux send-keys -t 1 "'.escape(getline('.'), '"#').'" Enter'<cr>:redraw!<cr>
 "TODO: vnoremap ,,q :<c-U>execute '!tmux send-keys -t 1 "'.escape(join(getline(getpos("'<")[1],getpos("'>")[1]), "\n"), '"#').'" Enter'<cr>
