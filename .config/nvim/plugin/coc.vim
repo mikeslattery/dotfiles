@@ -1,5 +1,33 @@
 " COC DEFAULT CONFIGURATION
 
+if has_key(g:plugs, 'ale')
+  set completeopt=menu,menuone,preview,noselect,noinsert
+  let g:ale_completion_enabled = 1
+
+  " These are based on coc default settings
+
+  " Use `[g` and `]g` to navigate diagnostics
+  " Use `:CocDiagnostics` to get all diagnostics of current buffer in location list.
+  nnoremap <silent> [g :ALEPrevious<cr>
+  nnoremap <silent> ]g :ALENext<cr>
+
+  " GoTo code navigation.
+  nnoremap gd :ALEGoToDefinition<cr>
+  nnoremap gy :ALEGoToTypeDefinition<cr>
+  nnoremap gr :ALEFindReferences<cr>
+
+  noremap <leader>rn :ALERename<cr>
+  " Formatting selected code.
+  noremap K :ALEHover<cr>
+
+  " Remap keys for applying codeAction to the current buffer.
+  nmap <leader>ac  :ALECodeAction<cr>
+  " Apply AutoFix to problem on the current line.
+  nmap <leader>qf  :ALEFix<cr>
+
+  finish
+endif
+
 if !has_key(g:plugs, 'coc.nvim')
   finish
 endif
@@ -98,8 +126,8 @@ autocmd CursorHold * silent call CocActionAsync('highlight')
 nmap <leader>rn <Plug>(coc-rename)
 
 " Formatting selected code.
-xmap <leader>f  <Plug>(coc-format-selected)
-nmap <leader>f  <Plug>(coc-format-selected)
+" EDIT: changed ,f to ,cf.  noremap instead of x/nmap
+noremap <leader>cf  <Plug>(coc-format-selected)
 
 augroup mygroup
   autocmd!

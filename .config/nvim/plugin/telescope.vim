@@ -10,8 +10,8 @@ if has_key(g:plugs, 'telescope.nvim')
   noremap <leader>m <cmd>Telescope oldfiles<cr>
   noremap <leader>fp <cmd>Telescope git_files<cr>
   noremap <leader>fh <cmd>Telescope help_tags<cr>
-  noremap <leader>fm <cmd>Telescope marks<cr>
   noremap <leader>fg <cmd>Telescope live_grep<cr>
+  noremap <leader>g' <cmd>Telescope marks<cr>
   noremap <leader>gj <cmd>Telescope jumplist<cr>
   noremap <leader>gc :changes<cr>
   noremap <leader>gl <cmd>Telescope current_buffer_fuzzy_find<cr>
@@ -21,14 +21,14 @@ elseif has_key(g:plugs, 'fzf.vim')
   noremap <leader>b :Buffers<CR>
   noremap <leader>m :History<CR>
   noremap <leader>fp :GFiles<CR>
-  noremap <leader>fk :Marks<CR>
+  noremap <leader>g' :Marks<CR>
   noremap <leader>gl :BLines<CR>
+  noremap <leader>gj :Jumps<cr>
   if executable('rg')
     noremap <leader>fg :Rg<space>
   else
     noremap <leader>fg :grep<space>
   endif
-  noremap <leader>gj :Jumps<cr>
   noremap <leader>gc :Changes<cr>
 
   function GoTo(jumpline)
@@ -84,8 +84,8 @@ elseif has_key(g:plugs, 'ctrlp.vim')
   noremap <leader>b :CtrlPBuffer<cr>
   noremap <leader>m :CtrlPMRU<cr>
   noremap <leader>fp :CtrlP<cr>
-  noremap <leader>fk :marks<cr>
   noremap <leader>gl /
+  noremap <leader>g' :marks<cr>
   noremap <leader>fg :grep<space>
   noremap <leader>gj :jumps<cr>
   noremap <leader>gc :changes<cr>
@@ -94,9 +94,9 @@ else
   noremap <leader>b :ls<cr>:b<space>
   noremap <leader>m :browse old<cr>
   noremap <leader>fp :find<space>
-  noremap <leader>fk :marks<cr>
   noremap <leader>gl /
   noremap <leader>fg :grep<space>
+  noremap <leader>g' :marks<cr>
   noremap <leader>gj :jumps<cr>
   noremap <leader>gc :changes<cr>
 endif

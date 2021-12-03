@@ -104,9 +104,15 @@ endfunction
 
 let s:datadir    = Stdpath('data')
 let &backupdir = s:datadir . '/backup//'
-let &directory = s:datadir . '/swap//'
-let &undodir   = s:datadir . '/undo//'
 let &viewdir   = s:datadir . '/view//'
+if has('nvim') || ! executable('nvim')
+  let &directory = s:datadir . '/swap//'
+  let &undodir   = s:datadir . '/undo//'
+else
+  " Vim/NeoVim have different file formats
+  let &directory = s:datadir . '/vimswap//'
+  let &undodir   = s:datadir . '/vimundo//'
+endif
 
 function! MakeDirs()
   for dir in [&backupdir, &directory, &undodir, &viewdir]

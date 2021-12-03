@@ -1,12 +1,13 @@
 " COC AND ALE CUSTOM CONFIGURATION
 
-let g:ale_linters={'java': []}
 
 if !has_key(g:plugs, 'coc.nvim')
   finish
 endif
 
 " Avoid conflicts with ALE
+" it might be better to disable for coc file types
+" see https://github.com/dense-analysis/ale#faq-coc-nvim
 let g:ale_disable_lsp = 1
 
 " coc-css

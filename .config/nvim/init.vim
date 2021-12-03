@@ -39,10 +39,10 @@ let g:plugs={}
 call plug#begin()
 
 if has('nvim')
+  Plug 'nvim-lua/popup.nvim'
   Plug 'nvim-lua/plenary.nvim'
   Plug 'nvim-telescope/telescope.nvim'
   Plug 'fannheyward/telescope-coc.nvim'
-  Plug 'phaazon/hop.nvim'
   Plug 'folke/which-key.nvim'
 else
   if executable('fzf')
@@ -54,6 +54,7 @@ else
 endif
 " Required for tmux-continuum
 Plug 'tpope/vim-obsession'
+Plug 'easymotion/vim-easymotion'
 
 if has('nvim') && executable('node') && isdirectory('.git')
   Plug 'neoclide/coc.nvim', {'branch': 'release'}
@@ -90,7 +91,8 @@ set errorformat+=%-G%.%#
 " SESSION AND CONFIG MANAGEMENT
 nnoremap <leader>v  :execute getline('.')<CR>
 nnoremap <leader><leader>v :source $MYVIMRC<CR>
-nnoremap <leader><leader>u :PlugClean\|PlugUpdate --sync\|PlugUpgrade<cr>
+nnoremap <leader><leader>u :PlugUpdate --sync\|PlugUpgrade\|CocUpdateSync<cr>
+" load source.  Save current first, and remember the filename for Obsession
 function! s:Source(file)
   if !empty(v:this_session)
     mksession! v:this_session
@@ -100,8 +102,8 @@ function! s:Source(file)
   let v:this_obsession = a:file
 endfunction
 command! Source -complete=file -nargs=1 execute s:Source(<f-args>)
-let s:session_dir = s:data_dir . '/sessions/'
 if isdirectory('.git')
+  " save session and state locally
   let s:session_dir = '.vim/sessions/'
   let v:this_session=s:session_dir . 'Session.vim'
   if has('nvim')
@@ -112,10 +114,13 @@ if isdirectory('.git')
   if filereadable(v:this_session)
     execute 'source ' . v:this_session
   endif
+else
+  let s:session_dir = s:data_dir . '/sessions/'
 endif
 call mkdir(s:session_dir, 'p')
+" use alternate session file
 execute 'nnoremap <leader><leader>s :mksession! ' . s:session_dir
-execute 'nnoremap <leader><leader>r :source '     . s:session_dir
+execute 'nnoremap <leader><leader>r :Source '     . s:session_dir
 autocmd VimEnter * if ObsessionStatus('on', 'off') == 'off' | Obsession | endif
 nnoremap <leader><leader>w :update\|silent! make -s\|redraw!\|cc<cr>
 nnoremap <leader><leader>q :execute 'silent !tmux send-keys -t 1 "'.escape(getline('.'), '"#').'" Enter'<cr>:redraw!<cr>
@@ -270,6 +275,7 @@ nnoremap <expr> k (v:count > 5 ? "m'" . v:count . "k" : "k")
 "   refactoring plugins in src/research/nvim
 "   better plan out leader mappings
 "     f - files
+"     c - change text
 "     g - movements
 "       see telecope.vim
 "       j,c  - jumps, changes
@@ -281,6 +287,8 @@ nnoremap <expr> k (v:count > 5 ? "m'" . v:count . "k" : "k")
 "   on paste, convert github urls to links
 "   on paste of link, get title
 " hop config
+"   Plug 'phaazon/hop.nvim'
+"   https://github.com/phaazon/hop.nvim/issues/198
 "   hop.lua
 "   F, T
 "   consistent keys?

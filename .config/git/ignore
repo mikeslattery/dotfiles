@@ -10,7 +10,6 @@
 tags
 .vim/
 Session.vim
-Sessionx.vim
 
 # JVM
 hs_err_pid*
