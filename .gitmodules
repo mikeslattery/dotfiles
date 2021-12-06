@@ -4,3 +4,6 @@
 [submodule ".config/alacritty/dracula"]
 	path = .config/alacritty/dracula
 	url = https://github.com/dracula/alacritty
+[submodule ".config/i3/dracula"]
+	path = .config/i3/dracula
+	url = https://github.com/dracula/i3
