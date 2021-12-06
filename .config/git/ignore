@@ -24,10 +24,11 @@ Thumbs.db
 nohup.out
 
 # Sandbox files
-/junk
+junk/
 junk*
 
 # Nuxt sandbox
+# TODO: move to pages/junk and remove this section
 pages/box.vue
 pages/mockups.vue
 

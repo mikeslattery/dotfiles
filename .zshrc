@@ -153,9 +153,10 @@ export HISTFILESIZE=$HISTSIZE
 export SAVEHIST=$HISTSIZE
 setopt hist_ignore_space
 export PROMPT="!%h$PROMPT"
-export CDPATH=".:$HOME/src:$HOME"
+export CDPATH="$HOME/src"
 export LESS=-iRj3
 setopt cdablevars
+unsetopt autocd
 
 if [[ -d /usr/lib/jvm/default-java ]] && [[ -z "$JAVA_HOME" ]]; then
     export JAVA_HOME=/usr/lib/jvm/default-java
