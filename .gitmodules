@@ -1,0 +1,9 @@
+[submodule "/home/mike/.themes"]
+	path = /home/mike/.themes
+	url = https://github.com/dracula/gtk
+[submodule "/home/mike/.config/alacritty/dracula"]
+	path = /home/mike/.config/alacritty/dracula
+	url = https://github.com/dracula/alacritty
+[submodule "/home/mike/.config/i3/dracula"]
+	path = /home/mike/.config/i3/dracula
+	url = https://github.com/dracula/i3

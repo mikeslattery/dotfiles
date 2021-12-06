@@ -145,7 +145,7 @@ These aren't features of the install, but of my configuration dot files.
 * Auto-install of plugin managers for NeoVim, Tmux, Zsh, on first use
 * `.zshrc` also serves as a `.bashrc`
 * `init.vim` also serves as a `.vimrc`
-* Dracula theme for NeoVim, Tmux, Alacritty, but with darker background
+* Dracula theme for NeoVim, Tmux, Alacritty, i3/sway, Gtk, Slack, but with darker background
 * [True color](https://gist.github.com/andersevenrud/015e61af2fd264371032763d4ed965b6) support across alacritty, tmux, NeoVim 
 * Powerline fonts across alacritty, tmux, neovim
 * Mouseless usage as a goal, with vi-bindings when possible

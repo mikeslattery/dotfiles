@@ -215,3 +215,7 @@ bar {
 }
 
 include /etc/sway/config.d/*
+
+# theme
+include ~/.config/i3/dracula/.config/i3/config
+

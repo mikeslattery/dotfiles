@@ -195,6 +195,9 @@ bindsym $mod+Shift+w exec firejail firefox
 bindsym $mod+Shift+f [class="Firefox"] focus
 bindsym $mod+q exec i3lock
 
+# theme
+include ~/.config/i3/dracula/.config/i3/config
+
 #TODO:
 # Default saved session
 # Install playerctl

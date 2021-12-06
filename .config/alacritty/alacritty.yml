@@ -7,7 +7,7 @@ env:
 
 # source: https://github.com/dracula/alacritty/blob/master/dracula.yml
 import:
-  - ~/.config/alacritty/dracula.yml
+  - ~/.config/alacritty/dracula/dracula.yml
 
 colors:
   primary:

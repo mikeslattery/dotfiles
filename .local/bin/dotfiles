@@ -52,6 +52,8 @@ dl() {
     curl -sLf "$1" -o "$2"
 }
 
+has() { command -v "$1" >/dev/null 2>&1; }
+
 main() {
   cmd="${1:-helporinstall}"
   [ "$#" -eq 0 ] || shift
@@ -107,6 +109,7 @@ main() {
             git clone --bare --branch "$branch" "$git_http_url" "$GIT_DIR"
           git config --local status.showUntrackedFiles no
           git config --local core.excludesFile ~/.config/dotfiles/gitignore
+          git config --local submodule.recurse true
           git config --local "branch.${branch}.remote" "origin"
           git config --local "branch.${branch}.merge" "refs/heads/${branch}"
           git reset
@@ -114,6 +117,12 @@ main() {
           git add -u
           git commit -m "backup of $HOSTNAME for $USER"
           git checkout -
+
+          if has gsettings; then
+            gsettings set org.gnome.desktop.interface gtk-theme "Dracula"
+            gsettings set org.gnome.desktop.wm.preferences theme "Dracula"
+            # TODO: remove. was 'Adwaita'
+          fi
         )
         # if this is a new project
         if [ ! -f ~/.local/bin/dotfiles ]; then
