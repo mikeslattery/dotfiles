@@ -1,8 +1,8 @@
 # Dotfiles project
 
-This is my personal dotfiles and dotfiles installer project on github.
+[This](https://github.com/mikeslattery/dotfiles) is my personal dotfiles and dotfiles installer project on github.
 
-The first two sections are about the install script.  See farther down to read about the dot files themselves.
+The first two sections are about the install script.  See [farther down](#supported-environment) to read about the dot files themselves.
 
 ## Getting started
 
@@ -25,7 +25,10 @@ cd ~
 git clone --bare https://github.com/mikeslattery/dotfiles .dotfiles
 alias config="git -C $HOME --git-dir=$HOME/.dotfiles --work-tree=$HOME"
 config config --local status.showUntrackedFiles no
+config config --local core.excludesFile ~/.config/dotfiles/gitignore
+config config --local submodule.recurse true
 config reset --hard
+config pull
 ```
 
 ### Requirements
@@ -51,7 +54,7 @@ The script handles a lot of use cases to ensure success in all environments.
 
 For more information see the [.local/bin/dotfiles](.local/bin/dotfiles) script.
 
-## Managing the dot files
+### Managing the dot files
 
 After installation, the `config` alias will act like `git`
 but only for your dot files in `$HOME`.
@@ -159,10 +162,11 @@ These aren't features of the install, but of my configuration dot files.
 
 ### Various high level To-Dos
 
+* Submodules for OMZ, tmux tpm
 * Configure firefox with sync
 * Install script for packages, including Google Drive and Keepass
 * Better integrate i3, Neovim, tmux, firefox, zathura
-* Switch to NeoVim native LSP.  Fallback to Ale
+* Switch to NeoVim native LSP.  Fallback to Ale and/or tags
 * git-crypt for `.gitconfig`, `.ssh`, netlify, stripe, keypassxc.ini
 * dconf as a text file
 
@@ -186,7 +190,7 @@ and uninstalling or moving the repo was a mess.
 
 Q: How did you create the shortened vanity URL?  Is it safe?
 
-A: `git.io` is [run by github](https://github.blog/2011-11-10-git-io-github-url-shortener/).
+A: [git.io](https://git.io) is [run by github](https://github.blog/2011-11-10-git-io-github-url-shortener/).
 
 This command allocated the URL:
 
