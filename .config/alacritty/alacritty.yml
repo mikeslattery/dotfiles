@@ -2,10 +2,10 @@
 
 # Template: https://github.com/alacritty/alacritty/blob/master/alacritty.yml
 
+# https://gist.github.com/andersevenrud/015e61af2fd264371032763d4ed965b6
 env:
   TERM: xterm-256color
 
-# source: https://github.com/dracula/alacritty/blob/master/dracula.yml
 import:
   - ~/.config/alacritty/dracula/dracula.yml
 
@@ -14,5 +14,8 @@ colors:
     background: '#121212'
 
 window:
-  startup_mode: Maximized
+  startup_mode: Fullscreen
+
+key_bindings:
+  - { key: F11, action: ToggleFullscreen }
 

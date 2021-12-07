@@ -67,6 +67,8 @@ but only for your dot files in `$HOME`.
 - If you installed without `git` and then decide to install `git` later,
   you can then run `dotfiles install` to create the `~/.dotfiles` bare repo.
 - `config` works best if run from home directory.
+- `uninstall` may remove some git submodule directories
+  which may break original functionality (e.g. OMZ, tpm, .themes)
 
 ## Install Script Details
 
@@ -162,7 +164,7 @@ These aren't features of the install, but of my configuration dot files.
 
 ### Various high level To-Dos
 
-* Submodules for OMZ, tmux tpm
+* Submodules for OMZ, tmux tpm, qt.
 * Configure firefox with sync
 * Install script for packages, including Google Drive and Keepass
 * Better integrate i3, Neovim, tmux, firefox, zathura

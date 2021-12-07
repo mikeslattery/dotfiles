@@ -93,6 +93,15 @@ main() {
         unzip -o "${branch}.zip"
         rm "${branch}.zip" "dotfiles-${branch}"
 
+        # install modules
+        _module() {
+          dl "$2/archive/master.zip" /tmp/master.zip
+          unzip master.zip -d "$1"
+          rm /tmp/master.zip
+        }
+
+        eval "$(sed -nr 's/^\s*(path|url) = //p' ~/.gitmodules | xargs -n2 echo _module)"
+
         echo 'W: git is not installed.'
       else
         [ ! -d "$GIT_DIR" ] || die "E: $GIT_DIR already exists."
@@ -110,6 +119,7 @@ main() {
           git config --local status.showUntrackedFiles no
           git config --local core.excludesFile ~/.config/dotfiles/gitignore
           git config --local submodule.recurse true
+          git config --local submodule.fetchJobs 4
           git config --local "branch.${branch}.remote" "origin"
           git config --local "branch.${branch}.merge" "refs/heads/${branch}"
           git reset
@@ -117,14 +127,16 @@ main() {
           git add -u
           git commit -m "backup of $HOSTNAME for $USER"
           git checkout -
+          # Fetch submodules
+          git pull
 
           if has gsettings; then
             gsettings set org.gnome.desktop.interface gtk-theme "Dracula"
             gsettings set org.gnome.desktop.wm.preferences theme "Dracula"
-            # TODO: remove. was 'Adwaita'
+            # TODO: remove above lines. was 'Adwaita'
           fi
         )
-        # if this is a new project
+        # if this is a new empty project, add the script
         if [ ! -f ~/.local/bin/dotfiles ]; then
           dl https://raw.githubusercontent.com/mikeslattery/dotfiles/master/.local/bin/dotfiles \
             ~/.local/bin/dotfiles
@@ -145,6 +157,7 @@ main() {
       echo 'To reinstall: dotfiles install'
       set -x
 
+      git submodule foreach -q pwd | xargs -r rm -rf
       git checkout "backup-$branch-$HOSTNAME"
       rm -rf "$GIT_DIR" ~/.config/dotfiles
       ;;
