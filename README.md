@@ -171,6 +171,7 @@ These aren't features of the install, but of my configuration dot files.
 * Switch to NeoVim native LSP.  Fallback to Ale and/or tags
 * git-crypt for `.gitconfig`, `.ssh`, netlify, stripe, keypassxc.ini
 * dconf as a text file
+* Support for in-container development.  `c-b c` starts in same container.  Shared clipboard.
 
 ## FAQ
 

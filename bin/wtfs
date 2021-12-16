@@ -88,8 +88,8 @@ processes() {
 tmux() {
   #TODO: turn red if CPU is high, or pomodoro is almost due
   #TODO: cpu="$(LINES=12 top -bn1 -w | sed -r '1,/PID/d; / wtfutil$/d; s/^.{51}(.{10}).{10}/\1/; ' | head -1)"
-  #TODO: remove hawaii time when back home
-  echo -n "$(pomodoro) | $(date +%T --date='now + 5 hours') | $(date +%T)"
+  #In hawaii, EST time: | $(date +%T --date='now + 5 hours')
+  echo -n "$(pomodoro) | $(date +%T)"
 }
 
 # Personal
@@ -113,7 +113,7 @@ _main "$@"
 # bat .todo.md --color=always --style=plain --line-range=:10
 # uptime | sed 's/^.*: //'
 # inxi ... # current temp
-# 
+#
 # Done:
 # pretty weather
 # resource usage

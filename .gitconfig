@@ -1,3 +1,14 @@
 [user]
 	email = m2slattery@gmail.com
 	name = Michael Slattery
+
+[core]
+#    pager = delta
+
+[interactive]
+    diffFilter = delta --color-only --features=interactive
+
+[delta]
+    features = Github
+    syntax-theme = Github
+

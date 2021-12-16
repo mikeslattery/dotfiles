@@ -1,10 +1,8 @@
 " This .vimrc sets NeoVim's defaults for Vim
 " then it loads NeoVim's init.vim
 
-" Windows gVim is not supported.
-
 if has('nvim')
-  " Put this in your init.vim,
+  " Put this function in your init.vim,
   " in case you stop using this plugin, but still need it
   function! Stdpath(id)
     return stdpath(a:id)
@@ -13,6 +11,7 @@ if has('nvim')
 endif
 
 " OPTIONS
+" :help nvim-defaults
 
 " Vim 7 options that differ
 
@@ -30,7 +29,7 @@ set showcmd
 set ruler
 set wildmenu
 
-" Vim 8 options that differ
+" Vim 7, 8 options that differ
 
 set autoindent
 set autoread
@@ -69,26 +68,50 @@ set ttyfast
 set viminfo+=!
 let &wildoptions="tagfile"
 
+let g:vimsyn_embed='l'
+
+if exists('$TMUX')
+  set ttymouse=xterm2
+endif
+
 " DIRECTORIES
 
-" These don't necessarily exist in neovim,
+" These don't always necessarily exist in neovim,
 " but are convenient to have for Stdpath()
 
 if ! exists('$XDG_CACHE_HOME')
-  let $XDG_CACHE_HOME=$HOME . '/.cache'
+  if has('win32')
+    let $XDG_CACHE_HOME=$TEMP
+  else
+    let $XDG_CACHE_HOME=$HOME . '/.cache'
+  endif
 endif
 
 if ! exists('$XDG_CONFIG_HOME')
-  let $XDG_CONFIG_HOME=$HOME . '/.config'
+  if has('win32')
+    let $XDG_CONFIG_HOME=$LOCALAPPDATA
+  else
+    let $XDG_CONFIG_HOME=$HOME . '/.config'
+  endif
 endif
 
 if ! exists('$XDG_DATA_HOME')
-  let $XDG_DATA_HOME=$HOME . '/.local/share'
+  if has('win32')
+    let $XDG_DATA_HOME=$LOCALAPPDATA
+  else
+    let $XDG_DATA_HOME=$HOME . '/.local/share'
+  endif
 endif
 
+" Similar to nvim's stdpath(id)
+" Unfortunately, user functions can't use lowercase
 function! Stdpath(id)
   if a:id == 'data'
-    return $XDG_DATA_HOME . '/nvim'
+    if has('win32')
+      return $XDG_DATA_HOME . '/nvim-data'
+    else
+      return $XDG_DATA_HOME . '/nvim'
+    endif
   elseif a:id == 'data_dirs'
     return []
   elseif a:id == 'config'
@@ -105,7 +128,7 @@ endfunction
 let s:datadir    = Stdpath('data')
 let &backupdir = s:datadir . '/backup//'
 let &viewdir   = s:datadir . '/view//'
-if has('nvim') || ! executable('nvim')
+if ! executable('nvim')
   let &directory = s:datadir . '/swap//'
   let &undodir   = s:datadir . '/undo//'
 else
@@ -114,29 +137,30 @@ else
   let &undodir   = s:datadir . '/vimundo//'
 endif
 
-function! MakeDirs()
+let &viminfo.=',n' . s:datadir . '/viminfo'
+
+" NeoVim creates directories if they don't exist
+function! s:MakeDirs()
   for dir in [&backupdir, &directory, &undodir, &viewdir]
     call mkdir(dir, "p")
   endfor
 endfunction
-autocmd VimEnter * call MakeDirs()
+autocmd VimEnter * call s:MakeDirs()
 
+" Add user config dirs to search paths
 let s:configdir   = Stdpath('config')
 let s:pathprefix  = s:configdir . ',' . s:datadir . '/site,'
 let s:pathpostfix = ',' . s:configdir . '/after,' . s:datadir . '/site/after'
 let &packpath     = s:pathprefix . &packpath .    s:pathpostfix
 let &runtimepath  = s:pathprefix . &runtimepath . s:pathpostfix
 
-let &viminfo.=',n' . s:datadir . '/viminfo'
-
 " DEFAULT-MAPPINGS
+" :help default-mappings
 
 nnoremap Y y$
 nnoremap <C-L> <Cmd>nohlsearch<Bar>diffupdate<CR><C-L>
 inoremap <C-U> <C-G>u<C-U>
 inoremap <C-W> <C-G>u<C-W>
-
-" DEFAULT-AUTOCMDS - won't implement
 
 " DEFAULT PLUGINS
 
@@ -152,8 +176,7 @@ endif
 
 " If this is the .vimrc, not a plugin, then load init.vim
 if $MYVIMRC == expand('<sfile>:p')
-  let $MYVIMRC = $XDG_CONFIG_HOME . '/nvim/init.vim'
-  "set noloadplugins   "uncomment for testing purposes
+  let $MYVIMRC = s:configdir . '/init.vim'
   source $MYVIMRC
 endif
 
@@ -162,6 +185,9 @@ endif
 " https://neovim.io/doc/user/starting.html#startup
 " https://neovim.io/doc/user/vim_diff.html
 " https://github.com/vim/vim/blob/master/runtime/defaults.vim
-
-" These settings were determined by running ~/bin/nvim-diff.sh
+" https://github.com/neovim/neovim/blob/master/src/nvim/os/stdpaths.c
+" Options were partially determined by running ~/.config/dotfiles/nvim-diff.sh
+" TODO:
+" default-autocmds
+" partial lua support (hard)
 

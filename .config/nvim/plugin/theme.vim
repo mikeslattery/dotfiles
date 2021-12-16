@@ -1,6 +1,9 @@
 
 " https://gist.github.com/andersevenrud/015e61af2fd264371032763d4ed965b6
-set termguicolors
+if has('nvim')
+  " I don't know why this doesn't work in Vim, but meh
+  set termguicolors
+endif
 colorscheme dracula
 
 " darker background

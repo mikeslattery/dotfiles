@@ -146,7 +146,7 @@ nnoremap <leader>x :bd<CR>
 nnoremap <leader>e :let @/=expand('%:t')<cr>:Explore<cr>
 "   browse files in project dir
 nnoremap <leader><leader>e :Explore .<cr>
-nnoremap <leader><leader>,e :checktime<CR>
+nnoremap <leader><leader><leader>e :checktime<CR>
 nnoremap <leader><leader>rm :call delete(expand('%'))\|bdelete!<CR>
 nnoremap <leader><leader>grm :silent !git rm %\|bdelete!<CR>
 if executable('git') && isdirectory('.git')
@@ -258,7 +258,7 @@ nnoremap <leader>zs :set spell!<CR>
 nnoremap <leader>zm :set showmatch!<CR>
 nnoremap <leader>zw :set wrap!<CR>
 nnoremap <leader>zl :set list!<CR>
-set number  
+set number
 set relativenumber
 set wrap linebreak nolist
 set tw=480
@@ -271,7 +271,7 @@ nnoremap <expr> k (v:count > 5 ? "m'" . v:count . "k" : "k")
 
 "TODO
 " next
-"   harpoon
+"   harpoon, lightspeed
 "   refactoring plugins in src/research/nvim
 "   better plan out leader mappings
 "     f - files
@@ -286,7 +286,7 @@ nnoremap <expr> k (v:count > 5 ? "m'" . v:count . "k" : "k")
 " markdown
 "   on paste, convert github urls to links
 "   on paste of link, get title
-" hop config
+" hop config (or lightspeed)
 "   Plug 'phaazon/hop.nvim'
 "   https://github.com/phaazon/hop.nvim/issues/198
 "   hop.lua
@@ -305,6 +305,7 @@ nnoremap <expr> k (v:count > 5 ? "m'" . v:count . "k" : "k")
 "     remove g:data_dir stuff.  we are all-in for neovim
 "   use s: for let vars here
 "   ale example: https://github.com/mantoni/dotfiles/blob/master/.vimrc
+"   vim-airline - Green/Red on success/failure of ec,lint,tests
 " native lsp
 "   ALE? NeoVim?
 "   nvim-lspconfig
@@ -365,7 +366,7 @@ nnoremap <expr> k (v:count > 5 ? "m'" . v:count . "k" : "k")
 " diy
 "  vim-sensible, fzf, vim-airline
 " put vim-sensible and/or defaults.vim settings in this file.
-"Plug 'unblevable/quick-scope' 
+"Plug 'unblevable/quick-scope'
 "Plug 'tpope/vim-fugitive'
 "Plug 'tfnico/vim-gradle'
 "Plug 'tpope/vim-dispatch'
@@ -383,7 +384,7 @@ nnoremap <expr> k (v:count > 5 ? "m'" . v:count . "k" : "k")
 "   endif
 " endif
 " tags
-"   https://tbaggery.com/2011/08/08/effortless-ctags-with-git.html  
+"   https://tbaggery.com/2011/08/08/effortless-ctags-with-git.html
 "   https://github.com/ludovicchabant/vim-gutentags
 "TODO: check for 1:1 g:plugs to plugged directly match.  need to filter g:plugs on dirs in plugged
 " another strategy, is to look for dirs in plugged not in g:plugs, and separately for dirs not in plugged

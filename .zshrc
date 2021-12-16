@@ -177,19 +177,35 @@ alias nogrep='rg -v " rg | grep "'
 # Pipe to this to make something immediately executable
 # usage: curl .../ec | xble ~/bin/ec
 xble() { set -eu; cat > "$1"; chmod u+x "$1"; }
-if ! iszsh; then
-    command_not_found_handler() {
-        if grep -sq "^Host $1\$" ~/.ssh/config; then
-            ssh "$@"
-        elif [[ -x /usr/lib/command-not-found ]]; then
-            # Copied from /etc/zsh_command_not_found
-            /usr/lib/command-not-found --no-failure-msg -- ${1+"$1"} && :
-        else
-            echo "Command not found: $1"
-            return 127
-        fi
+unalias md &>/dev/null || true
+md() { set -eu; mkdir -p "$1"; cd "$1"; }
+command_not_found_handler() {
+    _log() {
+      echo "$*" >&2
+      "$@"
     }
-fi
+    if grep -sq "^Host $1\$" ~/.ssh/config; then
+        _log ssh "$@"
+    elif [[ -f yarn.lock ]] && [[ -f package.json ]] && has yarn && grep -sq "\"$1\":" package.json; then
+        _log yarn run "$@"
+    elif [[ -f package-lock.json ]] && [[ -f package.json ]] && has npm && grep -sq "\"$1\":" package.json; then
+        _log npm run "$@"
+    elif [[ -x node_modules/.bin/"$1" ]] && [[ -f package.json ]] && [[ -d .git ]]; then
+        PATH="node_modules/.bin:$PATH"
+        "$@"
+    elif git --help | grep -Esq "^   $1 .*$"; then
+        _log git "$@"
+    # handle failure
+    elif command -v command_not_found_handle &>/dev/null; then
+        command_not_found_handle "$@"
+    elif [[ -x /usr/lib/command-not-found ]]; then
+        # Copied from /etc/zsh_command_not_found
+        /usr/lib/command-not-found --no-failure-msg -- ${1+"$1"} && :
+    else
+        echo "Command not found: $*" >&2
+        return 127
+    fi
+}
 
 alias lzsh='source $HOME/.zshrc'
 
@@ -369,7 +385,7 @@ git-foresta() { ~/src/git-foresta/git-foresta --style=10 "$@" | less -RSX; }
 # Make shell script
 mksh() {
 echo '#!/bin/bash
-     
+
 set -euo pipefail
 ' > "$1"
 chmod +x "$1"
