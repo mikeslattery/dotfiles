@@ -1,0 +1,35 @@
+#!/usr/bin/perl
+
+# Color highlights color codes in input
+# of form #RRGGBB hex values
+
+# Usage:
+# cat file.css | showcolors
+
+# Requirments:
+#   perl
+#   true-color terminal
+#   terminal with dark theme
+
+# More info:
+# https://stackoverflow.com/questions/596216
+
+while(<>) {
+  if( /^(.*)#(([a-f\d]{2})([a-f\d]{2})([a-f\d]{2}))(.*)$/ ) {
+    my $r = hex($3);
+    my $g = hex($4);
+    my $b = hex($5);
+    my $t;
+    # Calculate luma and to see if we set back or foreground
+    my $y = 0.299 * $r + 0.587 * $g  + 0.114 * $b;
+    $t = ( $y < 128 ) ? 48 : 38;
+
+    # set text color
+    print "$1\x1b[$t;2;".$r.";".$g.";".$b."m";
+    # print text and reset color
+    print "#${2}\x1b[0m${6}\n";
+  } else {
+    print $_;
+  }
+}
+
