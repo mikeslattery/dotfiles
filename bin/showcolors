@@ -13,6 +13,7 @@
 
 # More info:
 # https://stackoverflow.com/questions/596216
+# https://gist.github.com/XVilka/8346728
 
 while(<>) {
   if( /^(.*)#(([a-f\d]{2})([a-f\d]{2})([a-f\d]{2}))(.*)$/ ) {
