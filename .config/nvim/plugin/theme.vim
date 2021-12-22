@@ -1,9 +1,7 @@
 
 " https://gist.github.com/andersevenrud/015e61af2fd264371032763d4ed965b6
-if has('nvim')
-  " I don't know why this doesn't work in Vim, but meh
-  set termguicolors
-endif
+" https://vimhelp.org/term.txt.html#xterm-true-color
+set termguicolors
 colorscheme dracula
 
 " darker background
@@ -12,7 +10,7 @@ highlight Normal cterm=NONE ctermbg=233 gui=NONE guibg=#121212
 
 if has("win32unix")
   " block cursor in cygwin
-  " https://github.com/mintty/mintty/wiki/Tips
+  " https://github.com/mintty/mintty/wiki/Tips#mode-dependent-cursor-in-vim
   let &t_ti.="\e[1 q"
   let &t_SI.="\e[5 q"
   let &t_EI.="\e[1 q"

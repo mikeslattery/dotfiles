@@ -15,9 +15,67 @@ colors:
   primary:
     background: '#121212'
 
+mouse:
+  hide_when_typing: true
+
 window:
   startup_mode: Fullscreen
 
 key_bindings:
   - { key: F11, action: ToggleFullscreen }
+  # Features not needed because of tmux (except F11)
+  # scrollback
+  - { key: PageUp,   mods: Shift,         mode: ~Alt,        action: ReceiveChar }
+  - { key: PageDown, mods: Shift,         mode: ~Alt,        action: ReceiveChar }
+  - { key: Home,     mods: Shift,         mode: ~Alt,        action: ReceiveChar }
+  - { key: End,      mods: Shift,         mode: ~Alt,        action: ReceiveChar }
+  - { key: K,        mods: Command,       mode: ~Vi|~Search, action: ReceiveChar }
+  # searching
+  - { key: F,        mods: Control|Shift, mode: ~Search,     action: ReceiveChar }
+  - { key: F,        mods: Command,       mode: ~Search,     action: ReceiveChar }
+  - { key: B,        mods: Control|Shift, mode: ~Search,     action: ReceiveChar }
+  - { key: B,        mods: Command,       mode: ~Search,     action: ReceiveChar }
+  # copy/paste
+  - { key: Paste,                                            action: ReceiveChar }
+  - { key: Copy,                                             action: ReceiveChar }
+  - { key: V,        mods: Control|Shift, mode: ~Vi,         action: ReceiveChar }
+  - { key: V,        mods: Command,                          action: ReceiveChar }
+  - { key: C,        mods: Control|Shift,                    action: ReceiveChar }
+  - { key: C,        mods: Command,                          action: ReceiveChar }
+  - { key: C,        mods: Control|Shift, mode: Vi|~Search,  action: ReceiveChar }
+  - { key: C,        mods: Command,       mode: Vi|~Search,  action: ReceiveChar }
+  - { key: Insert,   mods: Shift,                            action: ReceiveChar }
+  # Original
+  #- { key: Paste,                                       action: Paste          }
+  #- { key: Copy,                                        action: Copy           }
+  #- { key: L,         mods: Control,                    action: ClearLogNotice }
+  #- { key: L,         mods: Control, mode: ~Vi|~Search, chars: "\x0c"          }
+  #- { key: PageUp,    mods: Shift,   mode: ~Alt,        action: ScrollPageUp,  }
+  #- { key: PageDown,  mods: Shift,   mode: ~Alt,        action: ScrollPageDown }
+  #- { key: Home,      mods: Shift,   mode: ~Alt,        action: ScrollToTop,   }
+  #- { key: End,       mods: Shift,   mode: ~Alt,        action: ScrollToBottom }
+  #- { key: V,              mods: Control|Shift, mode: ~Vi,        action: Paste            }
+  #- { key: C,              mods: Control|Shift,                   action: Copy             }
+  #- { key: F,              mods: Control|Shift, mode: ~Search,    action: SearchForward    }
+  #- { key: B,              mods: Control|Shift, mode: ~Search,    action: SearchBackward   }
+  #- { key: C,              mods: Control|Shift, mode: Vi|~Search, action: ClearSelection   }
+  #- { key: Insert,         mods: Shift,                           action: PasteSelection   }
+  #- { key: Key0,           mods: Control,                         action: ResetFontSize    }
+  #- { key: Equals,         mods: Control,                         action: IncreaseFontSize }
+  #- { key: Plus,           mods: Control,                         action: IncreaseFontSize }
+  #- { key: NumpadAdd,      mods: Control,                         action: IncreaseFontSize }
+  #- { key: Minus,          mods: Control,                         action: DecreaseFontSize }
+  #- { key: NumpadSubtract, mods: Control,                         action: DecreaseFontSize }
+
+# Features not needed because of tmux
+
+mouse_bindings:
+  - { mouse: Middle, action: ReceiveChar }
+  - { mouse: Right,  action: ReceiveChar }
+
+scrolling:
+  history: 0
+
+selection:
+  save_to_clipboard: false
 

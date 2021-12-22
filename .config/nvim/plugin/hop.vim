@@ -10,6 +10,7 @@ if has_key(g:plugs, 'hop.nvim')
   noremap g/ :HopPattern<cr>
 elseif has_key(g:plugs, 'vim-easymotion')
   let g:EasyMotion_do_mapping = 0
+
   " TODO: tfTF
   map f <Plug>(easymotion-f)
   map F <Plug>(easymotion-F)

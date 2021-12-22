@@ -1,4 +1,5 @@
 -g!package-lock.json
 -g!yarn.lock
 --hidden
+-g!.git
 

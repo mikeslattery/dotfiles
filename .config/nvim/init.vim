@@ -71,6 +71,8 @@ if isdirectory('.git')
   Plug 'tpope/vim-fugitive'
 endif
 
+Plug 'ap/vim-css-color'
+
 call plug#end()
 
 " MY CUSTOM STUFF "
@@ -188,6 +190,7 @@ noremap <C-j> <C-W>j
 noremap <C-k> <C-W>k
 noremap <C-h> <C-W>h
 noremap <C-l> <C-W>l
+noremap <c-w><c-^> <c-w>p
 noremap <leader>d "-d
 nnoremap <leader>q @q
 
@@ -268,10 +271,16 @@ nnoremap N Nzzzv
 " add to jumplist on relative moves
 nnoremap <expr> j (v:count > 5 ? "m'" . v:count . "j" : "j")
 nnoremap <expr> k (v:count > 5 ? "m'" . v:count . "k" : "k")
+nnoremap ]m ]mzz
+nnoremap [m [mzz
+nnoremap [M [Mzz
+nnoremap ]M ]Mzz
 
 "TODO
 " next
 "   harpoon, lightspeed
+"   vista
+"   git-messenger (blame)
 "   refactoring plugins in src/research/nvim
 "   better plan out leader mappings
 "     f - files

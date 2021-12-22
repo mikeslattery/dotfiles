@@ -186,9 +186,9 @@ command_not_found_handler() {
     }
     if grep -sq "^Host $1\$" ~/.ssh/config; then
         _log ssh "$@"
-    elif [[ -f yarn.lock ]] && [[ -f package.json ]] && has yarn && grep -sq "\"$1\":" package.json; then
+    elif [[ -f yarn.lock ]] &&        has yarn && grep -sq "\"$1\":" package.json; then
         _log yarn run "$@"
-    elif [[ -f package-lock.json ]] && [[ -f package.json ]] && has npm && grep -sq "\"$1\":" package.json; then
+    elif [[ -f package-lock.json ]] && has npm && grep -sq "\"$1\":" package.json; then
         _log npm run "$@"
     elif [[ -x node_modules/.bin/"$1" ]] && [[ -f package.json ]] && [[ -d .git ]]; then
         PATH="node_modules/.bin:$PATH"
@@ -472,6 +472,33 @@ tts-clip() {
 stt-clip() {
   ssh phone termux-dialog -m | jq '.text' -r | /usr/bin/xclip -i -selection clipboard
 }
+
+# move directory to /tmp
+# example: lntmp .nuxt
+lntmp() {
+  set -eu
+  dest="/tmp$(readlink -f "$1")"
+  src="$1"
+
+  [[ ! -L "$src" ]] || { echo "Already a symlink"; return 1; }
+  [[ -d "$src" ]] || mkdir "$src"
+
+  mkdir -p "$(dirname "$dest")"
+  mv "$src" "$dest"
+  ln -s "$dest" "$src"
+  echo "$(readlink -f "$src")" > /var/tmp/symlinks.txt
+}
+#TODO: move to systemd user script
+## during boot, remove all symlinks created by lntmp
+#if [[ -f /var/tmp/symlinks.txt ]]; then
+#  for link in $(cat /var/tmp/symlinks.txt); do
+#    if [[ -L "$link" ]] && [[ ! -d "/tmp/$link" ]]; then
+#      rm "$link"
+#    fi
+#  done
+#  rm /var/tmp/symlinks.txt
+#fi
+
 
 alias config="git -C $HOME --git-dir=$HOME/.dotfiles --work-tree=$HOME"
 
