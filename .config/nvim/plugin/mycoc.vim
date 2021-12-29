@@ -27,6 +27,7 @@ let g:coc_global_extensions = [
   \'coc-prettier',
   \'coc-yaml',
   \'coc-pairs',
+  \'coc-explorer',
   \ ]
 "  \'coc-graphql',
 "  \'coc-git',
