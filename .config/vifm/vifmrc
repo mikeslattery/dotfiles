@@ -11,7 +11,7 @@
 " If you would like to use another vi clone such as Elvis or Vile
 " you will need to change this setting.
 
-set vicmd=vim
+set vicmd=nvim
 " set vicmd=elvis\ -G\ termcap
 " set vicmd=vile
 
@@ -59,6 +59,7 @@ set norunexec
 
 " List of color schemes to try (picks the first one supported by the terminal)
 
+" colorscheme dracula
 colorscheme Default-256 Default
 
 " Format for displaying time in file list. For example:
