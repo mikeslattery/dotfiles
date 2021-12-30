@@ -8,19 +8,36 @@ if has_key(g:plugs, 'telescope.nvim')
     noremap <leader>ff <cmd>Telescope find_files<cr>
   endif
   noremap <leader>m <cmd>Telescope oldfiles<cr>
-  noremap <leader>fp <cmd>Telescope git_files<cr>
-  noremap <leader>fh <cmd>Telescope help_tags<cr>
+  if isdirectory('.git')
+    noremap <leader>e :CocCommand explorer<cr>
+    noremap <leader>fp <cmd>Telescope git_files<cr>
+    noremap <leader>fq :Telescope coc workspace_diagnostics<cr>
+  else
+    noremap <leader>e :let @/=expand('%:t')<cr>:Explore<cr>
+    noremap <leader>fp <cmd>Telescope find_files<cr>
+    noremap <leader>fq :copen<cr>
+  endif
   noremap <leader>fg <cmd>Telescope live_grep<cr>
   noremap <leader>g' <cmd>Telescope marks<cr>
   noremap <leader>gj <cmd>Telescope jumplist<cr>
+  noremap <leader>vj <c-w>v<c-w>p:Telescope jumplist<cr>
+  noremap <leader>v' <c-w>v<c-w>p:Telescope marks<cr>
+  noremap <leader>vh :execute 'botright vertical help'\|Telescope help_tags<cr>
   noremap <leader>gc :changes<cr>
   noremap <leader>gl <cmd>Telescope current_buffer_fuzzy_find<cr>
 
   lua require('telescope').load_extension('coc')
 elseif has_key(g:plugs, 'fzf.vim')
+  noremap <leader>e :let @/=expand('%:t')<cr>:Explore<cr>
   noremap <leader>b :Buffers<CR>
+  noremap <leader>fq :copen<cr>
   noremap <leader>m :History<CR>
-  noremap <leader>fp :GFiles<CR>
+  if isdirectory('.git')
+    noremap <leader>fp :GFiles<CR>
+  else
+    noremap <leader>fp :Files<CR>
+  endif
+  noremap <leader>ff :Files<CR>
   noremap <leader>g' :Marks<CR>
   noremap <leader>gl :BLines<CR>
   noremap <leader>gj :Jumps<cr>
@@ -81,9 +98,12 @@ elseif has_key(g:plugs, 'fzf.vim')
   command! Changes call Changes()
 
 elseif has_key(g:plugs, 'ctrlp.vim')
+  noremap <leader>e :let @/=expand('%:t')<cr>:Explore<cr>
   noremap <leader>b :CtrlPBuffer<cr>
   noremap <leader>m :CtrlPMRU<cr>
+  noremap <leader>fq :copen<cr>
   noremap <leader>fp :CtrlP<cr>
+  noremap <leader>ff :CtrlP<cr>
   noremap <leader>gl /
   noremap <leader>g' :marks<cr>
   noremap <leader>fg :grep<space>
@@ -91,13 +111,23 @@ elseif has_key(g:plugs, 'ctrlp.vim')
   noremap <leader>gc :changes<cr>
 else
   " no git or internet?
+  noremap <leader>e :let @/=expand('%:t')<cr>:Explore<cr>
   noremap <leader>b :ls<cr>:b<space>
   noremap <leader>m :browse old<cr>
+  noremap <leader>fq :copen<cr>
   noremap <leader>fp :find<space>
+  noremap <leader>ff :find<space>
   noremap <leader>gl /
   noremap <leader>fg :grep<space>
   noremap <leader>g' :marks<cr>
   noremap <leader>gj :jumps<cr>
   noremap <leader>gc :changes<cr>
 endif
+
+" Universal
+
+"   browse files in project dir
+nnoremap <leader>fe :Explore .<cr>
+nnoremap <leader>ft :checktime<CR>
+nnoremap <leader>vc <c-w>h<c-w>c
 

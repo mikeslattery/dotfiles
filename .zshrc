@@ -499,6 +499,11 @@ lntmp() {
 #  rm /var/tmp/symlinks.txt
 #fi
 
+# to undo run lzsh
+shortprompt() {
+  unset CURRENT_BG
+  export PROMPT='%h$(RETVAL=$?; prompt_status; prompt_segment blue black $(realpath --relative-to=$HOME/src .); prompt_end; ) '
+}
 
 alias config="git -C $HOME --git-dir=$HOME/.dotfiles --work-tree=$HOME"
 

@@ -13,6 +13,9 @@
 " To update nvim: bash ~/.config/nvim/nvim.init
 " nvim can't be in use during this.
 
+" This configuration works best with this software:
+" neovim, curl, fzf, rg, fd, node, watchman
+
 if has('nvim')
   function! Stdpath(id)
     return stdpath(a:id)
@@ -52,9 +55,14 @@ else
   endif
   Plug 'liuchengxu/vim-which-key'
 endif
+Plug 'easymotion/vim-easymotion'
+
+if exists('$TMUX')
+  Plug 'christoomey/vim-tmux-navigator'
+endif
+
 " Required for tmux-continuum
 Plug 'tpope/vim-obsession'
-Plug 'easymotion/vim-easymotion'
 
 if has('nvim') && executable('node') && isdirectory('.git')
   Plug 'neoclide/coc.nvim', {'branch': 'release'}
@@ -91,8 +99,8 @@ nnoremap <leader><leader>m :update\|Silent pandoc % -o /tmp/vim.pdf<cr>
 set errorformat+=%-G%.%#
 
 " SESSION AND CONFIG MANAGEMENT
-nnoremap <leader>v  :execute getline('.')<CR>
-nnoremap <leader><leader>v :source $MYVIMRC<CR>
+nnoremap <leader>r.  :execute getline('.')<CR>
+nnoremap <leader>ra :source $MYVIMRC<CR>
 nnoremap <leader><leader>u :PlugUpdate --sync\|PlugUpgrade\|CocUpdateSync<cr>
 " load source.  Save current first, and remember the filename for Obsession
 function! s:Source(file)
@@ -145,10 +153,6 @@ nnoremap <leader>i :execute "update\|silent !curl -fs 'http://localhost:63342/ap
 "   close current buffer
 nnoremap <leader>x :bd<CR>
 "   browse files in same dir as current file
-nnoremap <leader>e :let @/=expand('%:t')<cr>:Explore<cr>
-"   browse files in project dir
-nnoremap <leader><leader>e :Explore .<cr>
-nnoremap <leader><leader><leader>e :checktime<CR>
 nnoremap <leader><leader>rm :call delete(expand('%'))\|bdelete!<CR>
 nnoremap <leader><leader>grm :silent !git rm %\|bdelete!<CR>
 if executable('git') && isdirectory('.git')
@@ -186,10 +190,6 @@ augroup END
 " EDITING
 "nnoremap <cr> o<esc>
 "nnoremap <space> i<space><esc>l
-noremap <C-j> <C-W>j
-noremap <C-k> <C-W>k
-noremap <C-h> <C-W>h
-noremap <C-l> <C-W>l
 noremap <c-w><c-^> <c-w>p
 noremap <leader>d "-d
 nnoremap <leader>q @q
@@ -246,7 +246,7 @@ let g:markdown_folding=1
 set scrolloff=3
 set mouse=a
 " double click check box
-"TODO: uncheck.  only check if brackets.  single click
+"TODO: uncheck. autocmd md. only check if brackets.  single click
 nnoremap <2-LeftMouse> rx
 "TODO: remove jk
 inoremap jk <esc>
