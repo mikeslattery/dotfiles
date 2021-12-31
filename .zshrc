@@ -431,12 +431,12 @@ incognito() {
     vim() { nvim "$@"; }
     export -f nvim
     export -f vim
-    exec bash +o history
-  '
+    exec bash +o history "$@"
+  ' -- "$@"
 }
 
-# copy clipboard in markdown to text/html
-rt-clip() {
+# copy clipboard in markdown to rich-text (text/html)
+md2rt-clip() {
     {
         echo $'---\ntitle:\nheader-includes: <meta http-equiv="content-type" content="text/html; charset=utf-8"/>\n---'
         /usr/bin/xclip -o -selection clipboard
@@ -446,8 +446,8 @@ rt-clip() {
         /usr/bin/xclip -i -selection clipboard -t text/html
 }
 
-# copy html clipboard to markdown
-md-clip() {
+# copy rich-text (html) clipboard to markdown
+rt2md-clip() {
     /usr/bin/xclip -o -selection clipboard -t text/html | \
         pandoc -f html -t markdown | \
         sed -r 's/^-   /\* /; s/^    -   /  - /;' | \

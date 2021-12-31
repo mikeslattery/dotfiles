@@ -72,7 +72,7 @@ else
 endif
 Plug 'dracula/vim', { 'as': 'dracula' }
 Plug 'bling/vim-airline'
-Plug 'tpope/vim-surround'
+"Plug 'tpope/vim-surround'
 Plug 'tpope/vim-commentary'
 if isdirectory('.git')
   Plug 'airblade/vim-gitgutter'
