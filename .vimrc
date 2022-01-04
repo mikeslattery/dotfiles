@@ -72,13 +72,15 @@ let g:vimsyn_embed='l'
 
 if exists('$TMUX')
   set ttymouse=xterm2
-endif
 
-" https://vimhelp.org/term.txt.html#xterm-true-color
-autocmd VimEnter * if has('termguicolors') && &termguicolors
-    \| let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
-    \| let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
-  \| endif
+  " https://vimhelp.org/term.txt.html#xterm-true-color
+  " https://gist.github.com/andersevenrud/015e61af2fd264371032763d4ed965b6
+  " if tmux and not(gVim) and termguicolors
+  autocmd VimEnter * if !has('gui_running') && has('termguicolors') && &termguicolors
+      \| let &t_8f = "\<Esc>[38;2;%lu;%lu;%lum"
+      \| let &t_8b = "\<Esc>[48;2;%lu;%lu;%lum"
+    \| endif
+endif
 
 " DIRECTORIES
 
@@ -167,6 +169,23 @@ nnoremap Y y$
 nnoremap <C-L> <Cmd>nohlsearch<Bar>diffupdate<CR><C-L>
 inoremap <C-U> <C-G>u<C-U>
 inoremap <C-W> <C-G>u<C-W>
+
+" Implement Q
+let g:qreg='@'
+function! RecordAndStop()
+  if reg_recording() == ''
+    let g:qreg=getcharstr()
+    if g:qreg != "\e"
+      execute 'normal! q'.g:qreg
+    endif
+  else
+    normal! q
+    call setreg(g:qreg, substitute(getreg(g:qreg), "q$", "", ""))
+  endif
+endfunction
+
+noremap q <Cmd>call RecordAndStop()<cr>
+noremap Q <Cmd>execute 'normal! @'.g:qreg<cr>
 
 " DEFAULT PLUGINS
 
