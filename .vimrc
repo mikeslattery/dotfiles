@@ -174,6 +174,7 @@ inoremap <C-W> <C-G>u<C-W>
 let g:qreg='@'
 function! RecordAndStop()
   if reg_recording() == ''
+    echo 'Enter register to record to: '
     let g:qreg=getcharstr()
     if g:qreg != "\e"
       execute 'normal! q'.g:qreg
