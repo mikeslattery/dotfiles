@@ -7,6 +7,12 @@ colorscheme dracula
 " darker background
 " https://vim.fandom.com/wiki/Xterm256_color_names_for_console_Vim
 highlight Normal cterm=NONE ctermbg=233 gui=NONE guibg=#121212
+highlight CursorLine cterm=NONE ctermbg=234 gui=NONE guibg=#1c1c1c
+highlight CursorColumn cterm=NONE ctermbg=234 gui=NONE guibg=#1c1c1c
+
+set cursorline
+
+set colorcolumn=100
 
 if has("win32unix")
   " block cursor in cygwin

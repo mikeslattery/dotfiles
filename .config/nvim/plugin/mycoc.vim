@@ -1,5 +1,6 @@
 " COC AND ALE CUSTOM CONFIGURATION
 
+set wildmode=longest,list,full
 
 if !has_key(g:plugs, 'coc.nvim')
   finish

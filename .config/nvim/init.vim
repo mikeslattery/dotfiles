@@ -235,6 +235,13 @@ set noswapfile
 set backup
 let &backupdir = s:data_dir . '/backup//'
 
+" file type mappings
+autocmd BufRead,BufNewFile Dockerfile set filetype=sh
+autocmd FileType markdown setlocal spell
+
+" remove trailing spaces on save
+autocmd BufWritePre * %s/\s\+$//e
+
 " BROWSING TEXT
 set nofoldenable
 set foldmethod=indent
@@ -278,7 +285,8 @@ nnoremap ]M ]Mzz
 
 "TODO
 " next
-"   harpoon, lightspeed
+"   harpoon, marks.nvim, and/or mark-radar.nvim
+"   lightspeed?
 "   vista
 "   git-messenger (blame)
 "   refactoring plugins in src/research/nvim
@@ -290,8 +298,26 @@ nnoremap ]M ]Mzz
 "       j,c  - jumps, changes
 "     z - display
 "     c-w - windows
-"     a - around
+"     a - actions
+"     r - run
 "     [] - forward/backward
+" Q for vim
+"   let s:lastreg = '@'
+"   let s:recording=''
+"   function! s:MacroToggle()
+"     let s:recording = v:version < 800 ? s:recording : reg_recording()
+"     if s:recording == ''
+"       let s:recording = substitute(getcharstr(), '[^A-Za-z0-9"]', '', 'g')
+"       return s:recording == '' ? '' : 'q'.s:recording
+"     else
+"       let s:lastreg = s:recording
+"       let s:recording = ''
+"       return 'q'
+"     endif
+"   endfunction
+"   
+"   nnoremap q <silent> <expr> s:MacroToggle()
+"   nnoremap Q <silent> <expr> '@'.s:lastreg
 " markdown
 "   on paste, convert github urls to links
 "   on paste of link, get title
@@ -365,11 +391,11 @@ nnoremap ]M ]Mzz
 " https://www.youtube.com/watch?v=hSHATqh8svM
 
 " consider plugins:
-"  CoC.  Jetbrains mappings
 "  quick-scope
 "  terminus, fugitive, surround, tagbar,
-"  repeat, easymotion
-"  coc or neovim lsp-config
+"  indent-blanklines
+"  repeat
+"  neovim lsp-config
 " replacements:
 "  neomake, coc, dispatch
 " diy

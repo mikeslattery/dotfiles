@@ -1,7 +1,7 @@
 " This .vimrc sets NeoVim's defaults for Vim
 " then it loads NeoVim's init.vim
 
-if has('nvim')
+if has('nvim') || exists('g:loaded_nvim_defaults')
   " Put this function in your init.vim,
   " in case you stop using this plugin, but still need it
   function! Stdpath(id)
@@ -9,6 +9,8 @@ if has('nvim')
   endfunction
   finish
 endif
+
+let g:loaded_nvim_defaults = 1
 
 " OPTIONS
 " :help nvim-defaults
@@ -42,16 +44,20 @@ set complete=.,w,b,u,t
 set cscopeverbose
 set diffopt=internal,filler
 set display=lastline
+" TODO: 'fillchars' defaults (in effect) to "vert:│,fold:·,sep:│"
 set fillchars=
 set formatoptions=tcqj
 let &keywordprg=":Man"
 set nofsync
 set guicursor=n-v-c-sm:block,i-ci-ve:ver25,r-cr-o:hor20
+set hidden
 set history=10000
 set hlsearch
+set nojoinspaces
 set laststatus=2
 set listchars=tab:>\ ,trail:-,nbsp:+
 set maxcombine=6
+set mouse=a
 set scroll=13
 set scrolloff=0
 set sessionoptions-=options
@@ -61,10 +67,13 @@ set smarttab
 set tabpagemax=50
 set tags=./tags;,tags
 set notitle
+set switchbuf=uselast
 set titleold=
 set ttimeout
 set ttimeoutlen=50
 set ttyfast
+"TODO: set viewoptions+=unix,slash
+set viewoptions-=options
 set viminfo+=!
 let &wildoptions="tagfile"
 
