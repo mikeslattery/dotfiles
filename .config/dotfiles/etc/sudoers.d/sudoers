@@ -1,3 +1,8 @@
+# Commands that don't require a password with sudo.
+# These should not make new changes to the OS,
+# except for updates or synchronization.
+
+# PACKAGE MANAGEMENT
 %wheel	ALL=(ALL)	NOPASSWD: /usr/bin/dnf history
 %wheel	ALL=(ALL)	NOPASSWD: /usr/bin/dnf history *
 %wheel	ALL=(ALL)	NOPASSWD: /usr/bin/dnf info *
@@ -15,12 +20,29 @@
 %wheel	ALL=(ALL)	NOPASSWD: /usr/bin/flatpak update
 %wheel	ALL=(ALL)	NOPASSWD: /usr/bin/flatpak update *
 
+# SEARCHING FILES
 %wheel	ALL=(ALL)	NOPASSWD: /usr/bin/du *
+%wheel	ALL=(ALL)	NOPASSWD: /usr/bin/exa *
+%wheel	ALL=(ALL)	NOPASSWD: /usr/bin/ls *
 
-%wheel	ALL=(ALL)	NOPASSWD: /usr/sbin/tlp *
+# POWER MANAGEMENT
+%wheel	ALL=(ALL)	NOPASSWD: /usr/sbin/tlp start
+%wheel	ALL=(ALL)	NOPASSWD: /usr/sbin/tlp fullcharge
 %wheel	ALL=(ALL)	NOPASSWD: /usr/bin/tlp-stat *
 
-%wheel	ALL=(ALL)	NOPASSWD: /usr/bin/fd *
-%wheel	ALL=(ALL)	NOPASSWD: /usr/bin/find *
-%wheel	ALL=(ALL)	NOPASSWD: /usr/bin/exa *
-
+# BTRFS
+%wheel	ALL=(ALL)	NOPASSWD: /usr/sbin/btrfs filesystem df *
+%wheel	ALL=(ALL)	NOPASSWD: /usr/sbin/btrfs filesystem usage
+%wheel	ALL=(ALL)	NOPASSWD: /usr/sbin/btrfs filesystem show *
+%wheel	ALL=(ALL)	NOPASSWD: /usr/sbin/btrfs filesystem du *
+%wheel	ALL=(ALL)	NOPASSWD: /usr/sbin/btrfs filesystem df *
+%wheel	ALL=(ALL)	NOPASSWD: /usr/sbin/btrfs filesystem help *
+%wheel	ALL=(ALL)	NOPASSWD: /usr/sbin/btrfs filesystem show *
+%wheel	ALL=(ALL)	NOPASSWD: /usr/sbin/btrfs filesystem sync *
+%wheel	ALL=(ALL)	NOPASSWD: /usr/sbin/btrfs subvolume find-new *
+%wheel	ALL=(ALL)	NOPASSWD: /usr/sbin/btrfs subvolume get-default *
+%wheel	ALL=(ALL)	NOPASSWD: /usr/sbin/btrfs subvolume help *
+%wheel	ALL=(ALL)	NOPASSWD: /usr/sbin/btrfs subvolume list *
+%wheel	ALL=(ALL)	NOPASSWD: /usr/sbin/btrfs subvolume show *
+%wheel	ALL=(ALL)	NOPASSWD: /usr/sbin/btrfs subvolume sync *
+%wheel	ALL=(ALL)	NOPASSWD: /usr/sbin/btrfs subvolume list *
