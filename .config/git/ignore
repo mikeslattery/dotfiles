@@ -8,7 +8,7 @@
 
 # Vim
 tags
-.vim/
+/.vim/
 Session.vim
 
 # JVM
@@ -24,11 +24,13 @@ Thumbs.db
 nohup.out
 
 # Sandbox files
-junk/
 junk*
 
 # Nuxt sandbox
 # TODO: move to pages/junk and remove this section
 pages/box.vue
 pages/mockups.vue
+
+# See header comment for why these aren't ignored globally:
+# *.log
 
