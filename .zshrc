@@ -501,8 +501,7 @@ lntmp() {
 
 # to undo run lzsh
 shortprompt() {
-  unset CURRENT_BG
-  export PROMPT='%h$(RETVAL=$?; prompt_status; prompt_segment blue black $(realpath --relative-to=$HOME/src .); prompt_end; ) '
+  omz theme use bira
 }
 
 alias config="git -C $HOME --git-dir=$HOME/.dotfiles --work-tree=$HOME"
