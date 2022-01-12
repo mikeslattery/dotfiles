@@ -22,6 +22,7 @@ if has_key(g:plugs, 'telescope.nvim')
   noremap <leader>gj <cmd>Telescope jumplist<cr>
   noremap <leader>vj <c-w>v<c-w>p:Telescope jumplist<cr>
   noremap <leader>v' <c-w>v<c-w>p:Telescope marks<cr>
+  noremap <leader>vk <Cmd>Telescope keymaps<cr>
   noremap <leader>vh :execute 'botright vertical help'\|Telescope help_tags<cr>
   noremap <leader>gc :changes<cr>
   noremap <leader>gl <cmd>Telescope current_buffer_fuzzy_find<cr>
@@ -66,10 +67,10 @@ elseif has_key(g:plugs, 'fzf.vim')
 
   function! Jumps()
     " Get jumps with filename added
-    let jumps = map(reverse(copy(getjumplist()[0])), 
+    let jumps = map(reverse(copy(getjumplist()[0])),
       \ { key, val -> extend(val, {'name': expand('#'.(val.bufnr)) }) })
 
-    let jumptext = map(copy(jumps), { index, val -> 
+    let jumptext = map(copy(jumps), { index, val ->
         \ (val.name).':'.(val.lnum).':'.(val.col+1).': '.GetLine(val.bufnr, val.lnum) })
 
     call fzf#run(fzf#vim#with_preview(fzf#wrap({
@@ -85,7 +86,7 @@ elseif has_key(g:plugs, 'fzf.vim')
     let changes  = reverse(copy(getchangelist()[0]))
 
     let offset = &lines / 2 - 3
-    let changetext = map(copy(changes), { index, val -> 
+    let changetext = map(copy(changes), { index, val ->
         \ expand('%').':'.(val.lnum).':'.(val.col+1).': '.GetLine(bufnr('%'), val.lnum) })
 
     call fzf#run(fzf#vim#with_preview(fzf#wrap({

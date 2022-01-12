@@ -47,6 +47,8 @@ if has('nvim')
   Plug 'nvim-telescope/telescope.nvim'
   Plug 'fannheyward/telescope-coc.nvim'
   Plug 'folke/which-key.nvim'
+  Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
+  Plug 'chentau/marks.nvim'
 else
   if executable('fzf')
     Plug 'junegunn/fzf.vim'
@@ -55,7 +57,11 @@ else
   endif
   Plug 'liuchengxu/vim-which-key'
 endif
-Plug 'easymotion/vim-easymotion'
+if has('nvim')
+  Plug 'ggandor/lightspeed.nvim'
+else
+  Plug 'easymotion/vim-easymotion'
+endif
 
 if exists('$TMUX')
   Plug 'christoomey/vim-tmux-navigator'
@@ -66,7 +72,6 @@ Plug 'tpope/vim-obsession'
 
 if has('nvim') && executable('node') && isdirectory('.git')
   Plug 'neoclide/coc.nvim', {'branch': 'release'}
-  Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
 else
   Plug 'dense-analysis/ale'
 endif
@@ -236,11 +241,11 @@ set backup
 let &backupdir = s:data_dir . '/backup//'
 
 " file type mappings
-autocmd BufRead,BufNewFile Dockerfile set filetype=sh
+autocmd BufRead,BufNewFile Dockerfile setlocal filetype=sh
 autocmd FileType markdown setlocal spell
 
 " remove trailing spaces on save
-autocmd BufWritePre * %s/\s\+$//e
+"autocmd BufWritePre * %s/\s\+$//e
 
 " BROWSING TEXT
 set nofoldenable
@@ -286,6 +291,7 @@ nnoremap ]M ]Mzz
 "TODO
 " next
 "   harpoon, marks.nvim, and/or mark-radar.nvim
+"   coc-git or gitsigns
 "   lightspeed?
 "   vista
 "   git-messenger (blame)
@@ -315,9 +321,11 @@ nnoremap ]M ]Mzz
 "       return 'q'
 "     endif
 "   endfunction
-"   
+"
 "   nnoremap q <silent> <expr> s:MacroToggle()
 "   nnoremap Q <silent> <expr> '@'.s:lastreg
+" firefox
+"   https://github.com/glacambre/firenvim
 " markdown
 "   on paste, convert github urls to links
 "   on paste of link, get title

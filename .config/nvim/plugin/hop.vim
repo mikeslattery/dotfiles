@@ -1,4 +1,15 @@
 " https://github.com/phaazon/hop.nvim
+" https://github.com/ggandor/lightspeed.nvim
+
+if has_key(g:plugs, 'marks.nvim')
+  lua require('marks').setup({})
+  " https://github.com/chentau/marks.nvim
+  " m;   Add/toggle next mark
+  " dm-  Delete marks at line
+  " md<space> Delete all marks in buffer
+  " m]   next mark
+  " dmx  Delete mark x
+endif
 
 if has_key(g:plugs, 'hop.nvim')
   " lua require'hop'.setup( { keys = 'asdfghjklzxcvbnmqwertyuiop', jump_on_sole_occurrence = false, perm_method = require'hop.perm'.TermSeqBias, term_seq_bias = 0.5 } )
@@ -9,7 +20,8 @@ if has_key(g:plugs, 'hop.nvim')
   noremap t :HopChar1AC<cr>
   noremap T :HopChar1BC<cr>
 
-  noremap g2 :HopChar2<cr>
+  noremap s :HopChar2AC<cr>
+  noremap S :HopChar2BC<cr>
   noremap gw :HopWord<cr>
   noremap g/ :HopPattern<cr>
 elseif has_key(g:plugs, 'vim-easymotion')
@@ -20,7 +32,7 @@ elseif has_key(g:plugs, 'vim-easymotion')
   map t <Plug>(easymotion-t)
   map T <Plug>(easymotion-T)
 
-  map g2 <Plug>(easymotion-f2)
+  map s <Plug>(easymotion-f2)
   map gw <Plug>(easymotion-w)
   map gb <Plug>(easymotion-b)
   map g/ <Plug>(easymotion-sn)
