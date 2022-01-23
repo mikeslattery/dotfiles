@@ -1,0 +1,23 @@
+# This is a universal .editorconfig for all projects
+# that don't have one.
+# see also ~/.config/git/templates/README.md
+
+root = true
+
+# 2 space indentation
+[{*.py,*.js,*.ts,*.java}]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 2
+
+[*.md]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+indent_style = space
+indent_size = 2
+trim_trailing_whitespace = false
+

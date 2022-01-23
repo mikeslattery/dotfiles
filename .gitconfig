@@ -12,3 +12,5 @@
     features = Github
     syntax-theme = Github
 
+[init]
+	templateDir = /home/mike/.config/git/templates
