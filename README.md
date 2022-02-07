@@ -155,6 +155,7 @@ These aren't features of the install, but of my configuration dot files.
 * Powerline fonts across alacritty, tmux, neovim
 * Mouseless usage as a goal, with vi-bindings when possible
 * Similar keybindings for tmux, i3, neovim
+* Global git pre-commit hook to run editorconfig checker
 * Integration between Jetbrains IDEs and NeoVim
 * Supplies files for `/etc`
 

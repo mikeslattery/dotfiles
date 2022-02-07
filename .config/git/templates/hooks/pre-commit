@@ -21,11 +21,16 @@ exec 1>&2
 # If there are whitespace errors, print the offending file names and fail.
 git diff-index --check --cached "$against" --
 
+files="$(git diff --name-only --diff-filter=AM --cached "$against" --)"
+
+# no FIXME comments.   TODOs are allow for commit, but not push.
+! echo "$files" | xargs -r grep -F FIXME
+
 # editorconfig-check
 if command -v ec >/dev/null; then
-  git diff --name-only --diff-filter=AM --cached "$against" -- | xargs -r ec
+  echo "$files" | xargs -r ec
 else
-  echo "$0:W: ec not in path"
-  echo $'\t https://github.com/editorconfig-checker/editorconfig-checker'
+  echo "W:$(basename "$0"): ec not in path"
+  echo '  https://github.com/editorconfig-checker/editorconfig-checker'
 fi
 
