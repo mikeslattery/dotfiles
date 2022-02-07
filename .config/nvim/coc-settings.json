@@ -1,5 +1,8 @@
 {
   "coc.preferences.useQuickfixForLocations": true,
-  "coc.preferences.extensionUpdateCheck": "weekly"
+  "coc.preferences.extensionUpdateCheck": "weekly",
+  "javascript.suggestionActions.enabled": false,
+  "vetur.useWorkspaceDependencies": true,
+  "eslint.autoFixOnSave": true
 }
 

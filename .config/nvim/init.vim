@@ -30,11 +30,11 @@ let s:plugvim_file = s:autoload_dir . '/plug.vim'
 if empty(glob(s:plugvim_file))
   call  mkdir(s:autoload_dir, 'p')
   let s:plugurl= 'https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
-  silent execute '!curl -fsLo '.s:plugvim_file.' '.s:plugurl
+  execute 'silent !curl -fsLo '.s:plugvim_file.' '.s:plugurl
     \ .' ||        wget -q -O '.s:plugvim_file.' '.s:plugurl
 endif
 " Install missing plugins
-autocmd VimEnter * if getcwd() != $HOME && len(filter(values(g:plugs), '!isdirectory(v:val.dir)'))
+autocmd VimEnter * if len(filter(values(g:plugs), '!isdirectory(v:val.dir)'))
     \| PlugUpdate --sync | source $MYVIMRC
   \| endif
 let g:plugs={}
@@ -45,7 +45,6 @@ if has('nvim')
   Plug 'nvim-lua/popup.nvim'
   Plug 'nvim-lua/plenary.nvim'
   Plug 'nvim-telescope/telescope.nvim'
-  Plug 'fannheyward/telescope-coc.nvim'
   Plug 'folke/which-key.nvim'
   Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
   Plug 'chentau/marks.nvim'
@@ -55,13 +54,11 @@ else
   else
     Plug 'ctrlpvim/ctrlp.vim'
   endif
+  Plug 'kshenoy/vim-signature'
   Plug 'liuchengxu/vim-which-key'
 endif
-if has('nvim')
-  Plug 'ggandor/lightspeed.nvim'
-else
-  Plug 'easymotion/vim-easymotion'
-endif
+Plug 'easymotion/vim-easymotion'
+Plug 'jiangmiao/auto-pairs'
 
 if exists('$TMUX')
   Plug 'christoomey/vim-tmux-navigator'
@@ -70,19 +67,23 @@ endif
 " Required for tmux-continuum
 Plug 'tpope/vim-obsession'
 
-if has('nvim') && executable('node') && isdirectory('.git')
-  Plug 'neoclide/coc.nvim', {'branch': 'release'}
-else
-  Plug 'dense-analysis/ale'
-endif
-Plug 'dracula/vim', { 'as': 'dracula' }
-Plug 'bling/vim-airline'
-"Plug 'tpope/vim-surround'
-Plug 'tpope/vim-commentary'
 if isdirectory('.git')
   Plug 'airblade/vim-gitgutter'
   Plug 'tpope/vim-fugitive'
+
+  if executable('node')
+    Plug 'neoclide/coc.nvim', {'branch': 'release'}
+    if has_key(g:plugs, 'telescope.nvim') && has_key(g:plugs, 'coc.nvim')
+      Plug 'fannheyward/telescope-coc.nvim'
+    endif
+  else
+    Plug 'dense-analysis/ale'
+  endif
 endif
+Plug 'dracula/vim', { 'as': 'dracula' }
+Plug 'bling/vim-airline'
+Plug 'tpope/vim-surround'
+Plug 'tpope/vim-commentary'
 
 Plug 'ap/vim-css-color'
 
@@ -145,6 +146,7 @@ set tabstop=2
 set softtabstop=2
 set shiftwidth=2
 set expandtab
+set smartindent
 
 " SEARCHING FOR FILES
 set showmatch
@@ -254,6 +256,7 @@ set foldcolumn=1
 set foldlevelstart=99
 set foldnestmax=10
 set foldlevel=2
+" :help ft-markdown-plugin
 let g:markdown_folding=1
 set scrolloff=3
 set mouse=a
@@ -273,10 +276,14 @@ nnoremap <leader>zs :set spell!<CR>
 nnoremap <leader>zm :set showmatch!<CR>
 nnoremap <leader>zw :set wrap!<CR>
 nnoremap <leader>zl :set list!<CR>
+nnoremap <leader>zg :GitGutterToggle<CR>
 set number
 set relativenumber
 set wrap linebreak nolist
 set tw=480
+if has('nvim')
+  set signcolumn=auto:9
+endif
 " stay centered
 nnoremap n nzzzv
 nnoremap N Nzzzv
@@ -290,8 +297,25 @@ nnoremap ]M ]Mzz
 
 "TODO
 " next
+"   cheat
+"      execute "r!curl -s 'https://cht.sh/".&filetype."/".substitute(input("Query: "), ' ', '+', 'g')."?qT'"
+"   ctrl-f
+"     lightspeed only for sSx
+"     quick-scope. only hightlight when ftFT pressed
+"   airline
+"     lua?
+"     keep: mode, branch, lines, filename
+"     shorten: filename
+"     add nav: ctrl-6 basename, c-i/o line num, marks
+"     add status: unit test color, git status, toggles (spell, wrap)
+"   editorconfig-vim
+"   telescope buffers sort_mru
+"   https://github.com/windwp/nvim-ts-autotag
+"   https://alpha2phi.medium.com/neovim-for-beginner-auto-pairs-c09e87a4d511
+"     nvim-autopairs, nvim-ts-autotag, nvim-treesitter-endwise
 "   harpoon, marks.nvim, and/or mark-radar.nvim
 "   coc-git or gitsigns
+"   tabout
 "   lightspeed?
 "   vista
 "   git-messenger (blame)
@@ -307,6 +331,12 @@ nnoremap ]M ]Mzz
 "     a - actions
 "     r - run
 "     [] - forward/backward
+" ftFT helpers
+"   shot-f, quick-scope
+"   sneak
+" telescope sort buffers
+"   https://github.com/nvim-telescope/telescope.nvim/blob/nvim-0.5.1/doc/telescope.txt#L1182
+"   https://github.com/nvim-telescope/telescope.nvim/issues?q=sort_mru
 " Q for vim
 "   let s:lastreg = '@'
 "   let s:recording=''
@@ -327,6 +357,7 @@ nnoremap ]M ]Mzz
 " firefox
 "   https://github.com/glacambre/firenvim
 " markdown
+"   https://github.com/vim-pandoc/vim-pandoc-syntax
 "   on paste, convert github urls to links
 "   on paste of link, get title
 " hop config (or lightspeed)

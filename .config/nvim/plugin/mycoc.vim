@@ -11,27 +11,34 @@ endif
 " see https://github.com/dense-analysis/ale#faq-coc-nvim
 let g:ale_disable_lsp = 1
 
+autocmd User EasyMotionPromptBegin silent! CocDisable
+autocmd User EasyMotionPromptEnd   silent! CocEnable
+
+noremap <leader>aR <Cmd>CocRestart<cr>
+map <leader>an <Plug>(coc-rename)
+map <leader>ar <Plug>(coc-refactor)
+
 " coc-css
 autocmd FileType scss setl iskeyword+=@-@
 
 "TODO: nnoremap <leader>fl :CocList<cr>
 
 let g:coc_global_extensions = [
-  \'coc-tsserver',
-  \'coc-vetur',
-  \'coc-lists',
-  \'coc-eslint',
-  \'coc-html',
-  \'coc-css',
-  \'coc-jest',
-  \'coc-json',
-  \'coc-prettier',
-  \'coc-yaml',
-  \'coc-pairs',
-  \'coc-explorer',
+  \ 'coc-lists',
+  \ 'coc-eslint',
+  \ 'coc-html',
+  \ 'coc-css',
+  \ 'coc-json',
+  \ 'coc-yaml',
+  \ 'coc-explorer',
+  \ 'coc-vetur',
+  \ 'coc-tsserver',
   \ ]
+"  \'coc-prettier',
+"  \'coc-jest',
 "  \'coc-graphql',
 "  \'coc-git',
+"  \'coc-emmet',
 "  \'coc-snippets',
 "  \'coc-sh',
 "  \'coc-markdownlint',
@@ -39,10 +46,8 @@ let g:coc_global_extensions = [
 "  \'coc-go',
 "  \'coc-fzf-preview',
 "  \'coc-fzf',
-"  \'coc-explorer',
 "  \'coc-yank',
 "  \'coc-diagnostic',
-"  \'coc-emmet',
 "  \'coc-tasks',
 "  \'coc-java',
 "  \'coc-pyright',
@@ -53,6 +58,7 @@ let g:coc_global_extensions = [
 "  \'coc-translator',
 "  \'coc-docker',
 "  \'coc-kotlin',
+"  \'coc-pairs',
 
 
 "TODO: coc-snippets

@@ -1,3 +1,5 @@
+"exec" ~/.config/nvim/init.vim "$@"
+
 " This .vimrc sets NeoVim's defaults for Vim
 " then it loads NeoVim's init.vim
 

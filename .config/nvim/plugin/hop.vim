@@ -2,11 +2,13 @@
 " https://github.com/ggandor/lightspeed.nvim
 
 if has_key(g:plugs, 'marks.nvim')
-  lua require('marks').setup({})
+  lua require('marks').setup { builtin_marks = { "'", "^", ".", "0", "1", "2", "3" } }
+
+  " sign for jump (mark.nvim), marks `'[]^."`
   " https://github.com/chentau/marks.nvim
   " m;   Add/toggle next mark
   " dm-  Delete marks at line
-  " md<space> Delete all marks in buffer
+  " dm<space> Delete all marks in buffer
   " m]   next mark
   " dmx  Delete mark x
 endif
@@ -33,6 +35,7 @@ elseif has_key(g:plugs, 'vim-easymotion')
   map T <Plug>(easymotion-T)
 
   map s <Plug>(easymotion-f2)
+  map S <Plug>(easymotion-F2)
   map gw <Plug>(easymotion-w)
   map gb <Plug>(easymotion-b)
   map g/ <Plug>(easymotion-sn)
@@ -50,4 +53,7 @@ noremap <leader>gF F
 noremap <leader>gT T
 noremap <leader>g; ;
 noremap <leader>g, ,
+
+" row,col marks more convenient
+noremap ' `
 

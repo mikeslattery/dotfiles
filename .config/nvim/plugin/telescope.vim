@@ -1,7 +1,7 @@
 " https://github.com/nvim-telescope/telescope.nvim
 
 if has_key(g:plugs, 'telescope.nvim')
-  noremap <leader>b <cmd>Telescope buffers<cr>
+  noremap <leader>b <cmd>lua require('telescope.builtin').buffers({sort_mru=true, ignore_current_buffer=true})<cr>
   if executable('fd')
     noremap <leader>ff <cmd>Telescope fd<cr>
   else
@@ -9,9 +9,12 @@ if has_key(g:plugs, 'telescope.nvim')
   endif
   noremap <leader>m <cmd>Telescope oldfiles<cr>
   if isdirectory('.git')
-    noremap <leader>e :CocCommand explorer<cr>
+    if has_key(g:plugs, 'coc.nvim')
+      noremap <leader>e :CocCommand explorer<cr>
+      noremap <leader>fq :Telescope coc workspace_diagnostics<cr>
+      lua require('telescope').load_extension('coc')
+    endif
     noremap <leader>fp <cmd>Telescope git_files<cr>
-    noremap <leader>fq :Telescope coc workspace_diagnostics<cr>
   else
     noremap <leader>e :let @/=expand('%:t')<cr>:Explore<cr>
     noremap <leader>fp <cmd>Telescope find_files<cr>
@@ -27,7 +30,6 @@ if has_key(g:plugs, 'telescope.nvim')
   noremap <leader>gc :changes<cr>
   noremap <leader>gl <cmd>Telescope current_buffer_fuzzy_find<cr>
 
-  lua require('telescope').load_extension('coc')
 elseif has_key(g:plugs, 'fzf.vim')
   noremap <leader>e :let @/=expand('%:t')<cr>:Explore<cr>
   noremap <leader>b :Buffers<CR>
