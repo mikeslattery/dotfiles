@@ -45,6 +45,8 @@ key_bindings:
   - { key: C,        mods: Control|Shift, mode: Vi|~Search,  action: ReceiveChar }
   - { key: C,        mods: Command,       mode: Vi|~Search,  action: ReceiveChar }
   - { key: Insert,   mods: Shift,                            action: ReceiveChar }
+  # tmux doesn't support ctrl-backspace
+  - { key: Back,   mods: Control,   chars: "\x17" }
   # Original
   #- { key: Paste,                                       action: Paste          }
   #- { key: Copy,                                        action: Copy           }

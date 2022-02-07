@@ -75,6 +75,7 @@ pathmunge () {
 pathmunge "node_modules/.bin"
 addpath "$HOME/bin"
 addpath "$HOME/.local/bin"
+addpath "$HOME/go/bin"
 
 alias is_fedora='grep -sq fedora /etc/os-release'
 
@@ -86,7 +87,7 @@ if has podman-compose && ! has docker-compose; then
 fi
 
 if iszsh; then
-    ZSH_THEME="avit"
+    ZSH_THEME="darkblood" # set by `omz`
     ZSH_THEME="ys"
     ZSH_THEME="powerlevel10k/powerlevel10k"
     ZSH_THEME="agnoster"
@@ -174,6 +175,7 @@ alias c1='c 1'
 alias c2='c 2'
 alias c3='c 3'
 alias nogrep='rg -v " rg | grep "'
+alias fd='fd --hidden --exclude=.git'
 # Pipe to this to make something immediately executable
 # usage: curl .../ec | xble ~/bin/ec
 xble() { set -eu; cat > "$1"; chmod u+x "$1"; }
@@ -329,6 +331,7 @@ if iszsh; then
     # this will soon be default
     # see https://github.com/ohmyzsh/ohmyzsh/issues/7609
     bindkey '^H' backward-kill-word
+    bindkey '^U' backward-kill-line
 else
     lsource /usr/share/fzf/shell/key-bindings.bash
     lsource /usr/share/doc/fzf/examples/key-bindings.bash
@@ -376,10 +379,6 @@ browse() { xdg-open "file://$(readlink -f "$1")"; }
 alias 'cpd=/home/mslattery/Downloads/pmd-bin-6.22.0/bin/run.sh cpd'
 todo() { ( set -x; "$@"; ) 2>&1 | tee -a todo.txt; }
 
-if iszsh; then
-  bindkey '^U' backward-kill-line
-fi
-
 git-foresta() { ~/src/git-foresta/git-foresta --style=10 "$@" | less -RSX; }
 
 # Make shell script
@@ -396,7 +395,7 @@ chmod +x "$1"
 export JAVA_HOME="$HOME/javahome"
 if [[ ! -d ~/javahome ]]; then
   ln -snf /usr/lib/jvm/jre "$JAVA_HOME"
-  export PATH="$JAVA_HOME/bin:$PATH"
+  addpath "$JAVA_HOME/bin" after
 fi
 alias chjvm='readlink -f /usr/lib/jvm/* | sort -u | fzf | xargs -I{} ln -snf {} ~/javahome'
 alias chjvm='readlink -f /usr/lib/jvm/* | sort -u | fzf --preview "{}/bin/java -version; ls -l {} {}/bin" | xargs -I{} ln -snf {} ~/javahome'
@@ -502,6 +501,7 @@ lntmp() {
 # to undo run lzsh
 shortprompt() {
   omz theme use bira
+  export PROMPT="${PROMPT/\%n@\%m/!%h}"
 }
 
 alias config="git -C $HOME --git-dir=$HOME/.dotfiles --work-tree=$HOME"
