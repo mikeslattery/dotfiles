@@ -1,0 +1,3 @@
+#!/bin/bash
+# copy rich-text (html) clipboard to markdown
+/usr/bin/xclip -o -selection clipboard -t text/html | pandoc -f html -t markdown | sed -r 's/^-   /\* /; s/^    -   /  - /;' | /usr/bin/xclip -i -selection clipboard

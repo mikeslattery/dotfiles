@@ -1,0 +1,6 @@
+#!/bin/bash
+# copy clipboard in markdown to rich-text (text/html)
+{
+	echo $'---\ntitle:\nheader-includes: <meta http-equiv="content-type" content="text/html; charset=utf-8"/>\n---'
+	/usr/bin/xclip -o -selection clipboard
+} | pandoc -f markdown -s -t html --quiet | sed '/<title>/d' | /usr/bin/xclip -i -selection clipboard -t text/html

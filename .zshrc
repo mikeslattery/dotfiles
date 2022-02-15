@@ -434,23 +434,20 @@ incognito() {
   ' -- "$@"
 }
 
-# copy clipboard in markdown to rich-text (text/html)
-md2rt-clip() {
-    {
-        echo $'---\ntitle:\nheader-includes: <meta http-equiv="content-type" content="text/html; charset=utf-8"/>\n---'
-        /usr/bin/xclip -o -selection clipboard
-    } | \
-        pandoc -f markdown -s -t html --quiet | \
-        sed '/<title>/d' | \
-        /usr/bin/xclip -i -selection clipboard -t text/html
-}
+# Converts a zshrc function to a script in ~/bin
+fun2script() {
+  {
+    echo -n "#!/bin/bash\n# $1\n"
+    which "$1" | sed '1d; $d; s/^\t//;'
+  } > "$HOME/bin/$1";
+  chmod u+x "$HOME/bin/$1"
 
-# copy rich-text (html) clipboard to markdown
-rt2md-clip() {
-    /usr/bin/xclip -o -selection clipboard -t text/html | \
-        pandoc -f html -t markdown | \
-        sed -r 's/^-   /\* /; s/^    -   /  - /;' | \
-        /usr/bin/xclip -i -selection clipboard
+  sed -ri "/^${1}\(\) \{/, /^\}/ d;" ~/.zshrc
+
+  dotfiles add "bin/$1"
+  dotfiles add -u ~/.zshrc
+  unset -f "$1"
+  hash -r
 }
 
 # Convert clipboard to raw html, without header
