@@ -154,6 +154,7 @@ nnoremap <leader>/ :noh<cr>
 set incsearch
 set ignorecase
 set smartcase
+set nowrapscan
 nnoremap <leader>i :execute "update\|silent !curl -fs 'http://localhost:63342/api/file/".expand("%")."?line=".line(".")."&column=".col(".")."'"\|redraw!<cr>
 
 "TODO: what? vnoremap <leader>c :I#<ESC><C-i>
@@ -282,7 +283,7 @@ set relativenumber
 set wrap linebreak nolist
 set tw=480
 if has('nvim')
-  set signcolumn=auto:9
+  set signcolumn=yes:2
 endif
 " stay centered
 nnoremap n nzzzv

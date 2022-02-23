@@ -11,6 +11,7 @@ if has_key(g:plugs, 'marks.nvim')
   " dm<space> Delete all marks in buffer
   " m]   next mark
   " dmx  Delete mark x
+  " :delmarks A-Z   Delete all global marks
 endif
 
 if has_key(g:plugs, 'hop.nvim')
@@ -29,10 +30,10 @@ if has_key(g:plugs, 'hop.nvim')
 elseif has_key(g:plugs, 'vim-easymotion')
   let g:EasyMotion_do_mapping = 0
 
-  map f <Plug>(easymotion-f)
-  map F <Plug>(easymotion-F)
-  map t <Plug>(easymotion-t)
-  map T <Plug>(easymotion-T)
+  "map f <Plug>(easymotion-f)
+  "map F <Plug>(easymotion-F)
+  "map t <Plug>(easymotion-t)
+  "map T <Plug>(easymotion-T)
 
   map s <Plug>(easymotion-f2)
   map S <Plug>(easymotion-F2)

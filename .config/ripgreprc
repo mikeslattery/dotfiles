@@ -1,5 +1,6 @@
 -g!package-lock.json
 -g!yarn.lock
 -g!.git
+-g!*.svg
 --hidden
 --heading
