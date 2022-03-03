@@ -17,6 +17,7 @@ Usage:  (after install)
   dotfiles uninstall  - Revert to config as before install.
   dotfiles docker <id>- Install into a running docker container
   dotfiles curl|wget  - Print out install command, for copy-paste purposes.
+  dotfiles others <dir> - Show untracked files in a directory
   dotfiles ...        - git subcommand. (in case "config" alias not set)
 
 Environmental override variables
@@ -186,6 +187,10 @@ main() {
       ;;
     tig)
       exec tig -C"$HOME" "$@"
+      ;;
+    others)
+      [[ -d "$HOME/$1" ]] || die "Directory doesn't exist [${1}]"
+      git -C "$HOME" ls-files --others --exclude-standard "$1"
       ;;
     *)
       exec git -C "$HOME" "$cmd" "$@"
