@@ -64,6 +64,7 @@ let g:coc_global_extensions = [
 
 "TODO: coc-snippets
 "TODO: coc-list working like fzf
+" https://www.reddit.com/r/neovim/comments/ejznuz/what_do_your_coc_settings_look_like/
 "{
 "  "coc.preferences.useQuickfixForLocations": true,
 "  "coc.preferences.snippets.enable": true,

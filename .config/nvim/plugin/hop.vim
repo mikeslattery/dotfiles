@@ -27,8 +27,13 @@ if has_key(g:plugs, 'hop.nvim')
   noremap S :HopChar2BC<cr>
   noremap gw :HopWord<cr>
   noremap g/ :HopPattern<cr>
+elseif has_key(g:plugs, 'lightspeed.nvim')
+  " nothing to do.  default mappings are ok
 elseif has_key(g:plugs, 'vim-easymotion')
   let g:EasyMotion_do_mapping = 0
+
+  " quick-scope
+  let g:qs_highlight_on_keys = ['f', 'F', 't', 'T']
 
   "map f <Plug>(easymotion-f)
   "map F <Plug>(easymotion-F)

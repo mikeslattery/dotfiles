@@ -48,6 +48,7 @@ if has('nvim')
   Plug 'folke/which-key.nvim'
   Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
   Plug 'chentau/marks.nvim'
+  Plug 'ggandor/lightspeed.nvim'
 else
   if executable('fzf')
     Plug 'junegunn/fzf.vim'
@@ -56,8 +57,9 @@ else
   endif
   Plug 'kshenoy/vim-signature'
   Plug 'liuchengxu/vim-which-key'
+  Plug 'easymotion/vim-easymotion'
+  Plug 'unblevable/quick-scope'
 endif
-Plug 'easymotion/vim-easymotion'
 Plug 'jiangmiao/auto-pairs'
 
 if exists('$TMUX')
@@ -302,7 +304,9 @@ nnoremap ]M ]Mzz
 "      execute "r!curl -s 'https://cht.sh/".&filetype."/".substitute(input("Query: "), ' ', '+', 'g')."?qT'"
 "   ctrl-f
 "     lightspeed only for sSx
-"     quick-scope. only hightlight when ftFT pressed
+"     quick-scope. only qs_highlight_on_keys when ftFT pressed
+"   coc
+"     try out coc-action, coc-highlight, coc-snippet
 "   airline
 "     lua?
 "     keep: mode, branch, lines, filename

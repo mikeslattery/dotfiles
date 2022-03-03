@@ -10,6 +10,9 @@ highlight Normal cterm=NONE ctermbg=233 gui=NONE guibg=#121212
 highlight CursorLine cterm=NONE ctermbg=234 gui=NONE guibg=#1c1c1c
 highlight CursorColumn cterm=NONE ctermbg=234 gui=NONE guibg=#1c1c1c
 
+highlight QuickScopePrimary guifg='#afff5f' gui=underline ctermfg=155 cterm=underline
+highlight QuickScopeSecondary guifg='#5fffff' gui=underline ctermfg=81 cterm=underline
+
 set cursorline
 
 set colorcolumn=100
