@@ -311,9 +311,9 @@ nnoremap ]M ]Mzz
 "   airline
 "     lua?
 "     keep: mode, branch, lines, filename
-"     shorten: filename
-"     add nav: ctrl-6 basename, c-i/o line num, marks
-"     add status: unit test color, git status, toggles (spell, wrap)
+"     shorten: base filename
+"     add nav: ctrl-6 basename, jump index, c-o line num, marks
+"     add status: unit test color, diagnostics, git status, toggles (spell, wrap)
 "   editorconfig-vim
 "   telescope buffers sort_mru
 "   https://github.com/windwp/nvim-ts-autotag

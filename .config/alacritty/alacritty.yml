@@ -47,6 +47,8 @@ key_bindings:
   - { key: Insert,   mods: Shift,                            action: ReceiveChar }
   # tmux doesn't support ctrl-backspace
   - { key: Back,   mods: Control,   chars: "\x17" }
+  #- { key: Delete, chars: "\x1b[3~" }
+  #- { key: Delete, mods: Control, chars: "\x1b[3;5~" }
   # Original
   #- { key: Paste,                                       action: Paste          }
   #- { key: Copy,                                        action: Copy           }

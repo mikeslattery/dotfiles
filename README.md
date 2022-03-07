@@ -165,7 +165,8 @@ These aren't features of the install, but of my configuration dot files.
 
 ### Various high level To-Dos
 
-* Submodules for OMZ, tmux tpm, qt.
+* Git submodules for OMZ, tmux tpm, qt.
+* GSConnect
 * Configure firefox with sync
 * Install script for packages, including Google Drive and Keepass
 * Better integrate i3, Neovim, tmux, firefox, zathura
