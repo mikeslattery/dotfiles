@@ -73,7 +73,8 @@ if isdirectory('.git')
   Plug 'airblade/vim-gitgutter'
   Plug 'tpope/vim-fugitive'
 
-  if executable('node')
+  if executable('node') && get(g:, 'coc_enabled', 1)
+    " To disable: nvim --cmd 'let g:coc_enabled=0'
     Plug 'neoclide/coc.nvim', {'branch': 'release'}
     if has_key(g:plugs, 'telescope.nvim') && has_key(g:plugs, 'coc.nvim')
       Plug 'fannheyward/telescope-coc.nvim'
