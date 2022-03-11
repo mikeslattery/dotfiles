@@ -29,12 +29,13 @@ disputes() {
 }
 
 health() {
-  echo "GQL:  $(curl -fs https://data.equityrisingscholarships.org/healthz || echo ERROR)"
+  echo "Nety: $(curl -fsS   https://www.netlifystatus.com/api/v2/status.json | jq .status.description -r || echo ERROR)"
+  echo "GQL:  $(curl -fsS https://data.equityrisingscholarships.org/healthz || echo ERROR)"
   # TODO: full run: auth as a user, graphql query, fetch CDN file
-  echo "Func: $(curl -fs https://equityrisingscholarships.org/.netlify/functions/health || echo ERROR)"
-  echo "Auth: $(curl -fs https://equityrisingscholarships.org/.netlify/identity/health &>/dev/null && echo "OK" || echo "ERROR")"
-  echo "Pay:  $(stripe status --format json | jq '.message' -r)"
-  echo "Mail: $(curl -s https://3tgl2vf85cht.statuspage.io/api/v2/status.json | jq '.status.description' -r)"
+  echo "Func: $(curl -fsS https://equityrisingscholarships.org/.netlify/functions/health || echo ERROR)"
+  echo "Auth: $(curl -fsS https://equityrisingscholarships.org/.netlify/identity/health &>/dev/null && echo OK || echo ERROR)"
+  echo "Pay:  $(curl -fsS https://status.stripe.com/current/full | jq .message -r || echo ERROR)"
+  echo "Mail: $(curl -fsS https://3tgl2vf85cht.statuspage.io/api/v2/status.json | jq .status.description -r || echo ERROR)"
 }
 
 
