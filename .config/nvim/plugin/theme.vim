@@ -28,3 +28,13 @@ endif
 let g:airline_powerline_fonts=1
 set noshowmode
 
+lua <<EOF
+require'colorizer'.setup({
+    'css';
+    'javascript';
+    'scss';
+    'sass';
+  },
+  { mode = 'background' }
+)
+EOF

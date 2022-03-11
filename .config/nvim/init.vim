@@ -1,22 +1,21 @@
-"set" -xeu
+":" # This top part will install NeoVim on Linux
 "export" nvim="$HOME/.local/bin/nvim"
 "export" nvimurl="https://github.com/neovim/neovim/releases/download/nightly/nvim.appimage"
+"set" -xeu
 "curl" -fL "$nvimurl" -o "$nvim" -z "$nvim"
 "chmod" u+x "$nvim"
 "$nvim" +qa
 "exit" 0
 
-" Requires: vim or neovim, curl or wget
-" Optional: git, fzf, rg, nodejs
-" Windows gVim not supported
+" Requires: neovim or vim, curl or wget
+" Optional: git, fzf, rg, fd, node, watchman
+" Unsupported: Windows gVim
 
 " To update nvim: bash ~/.config/nvim/nvim.init
 " nvim can't be in use during this.
 
-" This configuration works best with this software:
-" neovim, curl, fzf, rg, fd, node, watchman
-
 if has('nvim')
+  " This function should have been declared in ~/.vimrc
   function! Stdpath(id)
     return stdpath(a:id)
   endfunction
@@ -49,6 +48,7 @@ if has('nvim')
   Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
   Plug 'chentau/marks.nvim'
   Plug 'ggandor/lightspeed.nvim'
+  Plug 'norcalli/nvim-colorizer.lua'
 else
   if executable('fzf')
     Plug 'junegunn/fzf.vim'
@@ -59,6 +59,7 @@ else
   Plug 'liuchengxu/vim-which-key'
   Plug 'easymotion/vim-easymotion'
   Plug 'unblevable/quick-scope'
+  Plug 'ap/vim-css-color'
 endif
 Plug 'jiangmiao/auto-pairs'
 
@@ -88,8 +89,6 @@ Plug 'bling/vim-airline'
 Plug 'tpope/vim-surround'
 Plug 'tpope/vim-commentary'
 
-Plug 'ap/vim-css-color'
-
 call plug#end()
 
 " MY CUSTOM STUFF "
@@ -101,16 +100,22 @@ let maplocalleader=mapleader
 
 " EXECUTION
 " silently run a command, and only show output on error
-command! -nargs=1 Silent execute 'silent !(' . <q-args> .') || (echo Hit enter:; read)' | execute 'redraw!'
-nnoremap <leader><leader>m :update\|Silent pandoc % -o /tmp/vim.pdf<cr>
+if has('nvim')
+  command! -nargs=1 Silent execute 'silent !(' . <q-args> .')'
+else
+  command! -nargs=1 Silent execute 'silent !(' . <q-args> .') || (echo Hit enter:; read)' | execute 'redraw!'
+endif
+nnoremap <leader>rm :update\|Silent pandoc % -o /tmp/vim.pdf<cr>
+nnoremap <leader>rp :Silent pomostart<cr>
+nnoremap <leader>rr :echo system("cut -c16- ~/.zsh_history \| fzf --tac")<cr>
 "TODO: vnoremap <leader><leader>q :<c-U>execute '!tmux send-keys -t 1 "'.escape(join(getline(getpos("'<")[1],getpos("'>")[1]), "\n"), '"#').'" Enter'<cr>
 " ignore any further error formats.  (hopefully this doesn't break any plugins)
 set errorformat+=%-G%.%#
 
 " SESSION AND CONFIG MANAGEMENT
-nnoremap <leader>r.  :execute getline('.')<CR>
+nnoremap <leader>r. :execute getline('.')<CR>
 nnoremap <leader>ra :source $MYVIMRC<CR>
-nnoremap <leader><leader>u :PlugUpdate --sync\|PlugUpgrade\|CocUpdateSync<cr>
+nnoremap <leader>ru :PlugUpdate --sync\|PlugUpgrade\|CocUpdateSync<cr>
 " load source.  Save current first, and remember the filename for Obsession
 function! s:Source(file)
   if !empty(v:this_session)
@@ -207,10 +212,13 @@ nnoremap <leader>q @q
 
 set clipboard=unnamed,unnamedplus
 " ctrl-backspace to delete previous word
-inoremap <C-h> <C-w>
-cnoremap <C-h> <C-w>
-inoremap <C-bs> <C-w>
-cnoremap <C-bs> <C-w>
+if has('gui_running') || has('nvim')
+  inoremap <C-bs> <C-w>
+  cnoremap <C-bs> <C-w>
+else
+  inoremap <C-h> <C-w>
+  cnoremap <C-h> <C-w>
+endif
 " Capitalize previous word while editing
 inoremap <C-\> <esc>m'b~`'a
 " Capitalize sentence

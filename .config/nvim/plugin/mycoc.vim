@@ -28,6 +28,7 @@ let g:coc_global_extensions = [
   \ 'coc-eslint',
   \ 'coc-html',
   \ 'coc-css',
+  \ 'coc-cssmodules',
   \ 'coc-json',
   \ 'coc-yaml',
   \ 'coc-explorer',
