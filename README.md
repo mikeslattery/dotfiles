@@ -8,7 +8,7 @@ See ["Getting Started"](#getting-started) to read about the install script.
 
 ## Supported Environment
 
-This s about the configuration dot files (not the install script).
+This describes the configuration dotfiles and the environments supported.
 
 Some of the following may not be fully supported at any time as I change tools.
 
@@ -32,7 +32,7 @@ Environments I've successfully used with these dot files.
 * Remote RHEL servers over ssh (w/o git installed)
 * WSL 1  (WSL 2 not tested)
 * Cygwin, Msys2
-* Git for Windows (striped down Msys2)
+* Git for Windows (stripped down Msys2)
 
 ### Notable Features of my configuration
 
@@ -42,7 +42,7 @@ Environments I've successfully used with these dot files.
 * `.zshrc` also serves as a `.bashrc`
 * `init.vim` also serves as a `.vimrc`
 * Powerline fonts across alacritty, tmux, neovim
-* Mouseless usage as a goal, with vi bindings when possible
+* Mouseless usage as a goal, with vi keybindings when possible
 * Similar keybindings for tmux, i3, neovim
 * Global git pre-commit hook to run editorconfig checker
 * Integration between Jetbrains IDEs and NeoVim
@@ -66,6 +66,9 @@ Environments I've successfully used with these dot files.
 * Support for in-container development.  `c-b c` starts in same container.  Shared clipboard.
 
 ## Getting started
+
+This describes how to install the dotfiles from this project.
+The script will backup your existing files to a branch.
 
 ### To install
 
