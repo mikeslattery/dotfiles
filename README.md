@@ -1,8 +1,69 @@
 # Dotfiles project
 
-[This](https://github.com/mikeslattery/dotfiles) is my personal dotfiles and dotfiles installer project on github.
+[This](https://github.com/mikeslattery/dotfiles) is my personal dotfiles
+and dotfiles installer project on github.
 
-The first two sections are about the install script.  See [farther down](#supported-environment) to read about the dot files themselves.
+The first section is about the dot files themselves.
+See ["Getting Started"](#getting-started) to read about the install script.
+
+## Supported Environment
+
+This about the configuration dot files (not the install script).
+
+Some of the following may not be fully supported at any time as I change tools.
+
+### Software
+
+* NeoVim
+* Zsh, Oh-My-Zsh
+* Tmux, Alacritty
+* npm, yarn, node
+* i3, sway
+* `fzf`, `rg`, `fd`, `bat`, `exa`
+* Podman
+
+### Operating Environments
+
+Environments I've successfully used with these dot files.
+
+* Linux distros.  Fedora, Ubuntu, Alpine, Arch.
+* Docker containers: alpine, ubuntu, fedora, debian
+* Termux Android app
+* Remote RHEL servers over ssh (w/o git installed)
+* WSL 1  (WSL 2 not tested)
+* Cygwin, Msys2
+* Git for Windows (striped down Msys2)
+
+### Notable Features of my configuration
+
+* Auto-install of plugin managers for NeoVim, Tmux, Zsh, on first use
+* Dracula theme for NeoVim, Tmux, Alacritty, i3/sway, Gtk, Slack, but with darker background
+* [True color](https://gist.github.com/andersevenrud/015e61af2fd264371032763d4ed965b6) support across alacritty, tmux, NeoVim 
+* `.zshrc` also serves as a `.bashrc`
+* `init.vim` also serves as a `.vimrc`
+* Powerline fonts across alacritty, tmux, neovim
+* Mouseless usage as a goal, with vi bindings when possible
+* Similar keybindings for tmux, i3, neovim
+* Global git pre-commit hook to run editorconfig checker
+* Integration between Jetbrains IDEs and NeoVim
+* Supplies files for `/etc`
+
+### Notable individual files and directories
+
+* `.vimrc` implements NeoVim defaults and then sources `.config/nvim/init.vim`
+* `~/.config/dotfiles` location for support files for this dotfiles project.
+
+### Various high level To-Dos
+
+* Git submodules for OMZ, tmux tpm, qt.
+* GSConnect
+* Configure firefox with sync
+* Install script for packages, including Google Drive and Keepass
+* Better integrate i3, Neovim, tmux, firefox, zathura
+* Switch to NeoVim native LSP.  Fallback to Ale and/or tags
+* git-crypt for `.gitconfig`, `.ssh`, netlify, stripe, keypassxc.ini
+* dconf as a text file
+* Support for in-container development.  `c-b c` starts in same container.  Shared clipboard.
 
 ## Getting started
 
@@ -114,66 +175,6 @@ DOTFILES_DIR    - default is ~/.dotfiles
 * <https://www.atlassian.com/git/tutorials/dotfiles>
 * Read the [.local/bin/dotfiles](.local/bin/dotfiles) script
 * Other files in [.config/dotfiles](.config/dotfiles)
-
-## Supported Environment
-
-This about the configuration dot files (not the install script).
-
-Some of the following may not be fully supported at any time as I change tools.
-
-### Software
-
-* NeoVim, IDEAVim
-* Zsh, Oh-My-Zsh
-* Tmux, Alacritty
-* npm, yarn, node
-* i3, sway
-* `fzf`, `rg`, `fd`, `bat`, `exa`
-* Podman
-
-### Operating Environments
-
-Environments I've successfully used with these dot files.
-
-* Linux distros.  Fedora, Ubuntu, Alpine, Arch.
-* Docker containers: alpine, ubuntu, fedora, debian
-* Termux Android app
-* Remote RHEL servers over ssh (w/o git installed)
-* WSL 1  (WSL 2 not tested)
-* Cygwin, Msys2
-* Git for Windows (striped down Msys2)
-
-### Notable Features of my configuration
-
-These aren't features of the install, but of my configuration dot files.
-
-* Auto-install of plugin managers for NeoVim, Tmux, Zsh, on first use
-* `.zshrc` also serves as a `.bashrc`
-* `init.vim` also serves as a `.vimrc`
-* Dracula theme for NeoVim, Tmux, Alacritty, i3/sway, Gtk, Slack, but with darker background
-* [True color](https://gist.github.com/andersevenrud/015e61af2fd264371032763d4ed965b6) support across alacritty, tmux, NeoVim 
-* Powerline fonts across alacritty, tmux, neovim
-* Mouseless usage as a goal, with vi-bindings when possible
-* Similar keybindings for tmux, i3, neovim
-* Global git pre-commit hook to run editorconfig checker
-* Integration between Jetbrains IDEs and NeoVim
-* Supplies files for `/etc`
-
-### Notable individual files
-
-* `.vimrc` implements NeoVim defaults and then sources `.config/nvim/init.vim`
-
-### Various high level To-Dos
-
-* Git submodules for OMZ, tmux tpm, qt.
-* GSConnect
-* Configure firefox with sync
-* Install script for packages, including Google Drive and Keepass
-* Better integrate i3, Neovim, tmux, firefox, zathura
-* Switch to NeoVim native LSP.  Fallback to Ale and/or tags
-* git-crypt for `.gitconfig`, `.ssh`, netlify, stripe, keypassxc.ini
-* dconf as a text file
-* Support for in-container development.  `c-b c` starts in same container.  Shared clipboard.
 
 ## FAQ
 
