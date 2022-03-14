@@ -8,13 +8,13 @@ See ["Getting Started"](#getting-started) to read about the install script.
 
 ## Supported Environment
 
-This about the configuration dot files (not the install script).
+This s about the configuration dot files (not the install script).
 
 Some of the following may not be fully supported at any time as I change tools.
 
 ### Software
 
-* NeoVim
+* NeoVim, Vim, IDEAVim
 * Zsh, Oh-My-Zsh
 * Tmux, Alacritty
 * npm, yarn, node
@@ -50,8 +50,8 @@ Environments I've successfully used with these dot files.
 
 ### Notable individual files and directories
 
-* `.vimrc` implements NeoVim defaults and then sources `.config/nvim/init.vim`
-* `~/.config/dotfiles` location for support files for this dotfiles project.
+* [.vimrc](.vimrc) implements NeoVim defaults and then sources [.config/nvim/init.vim](.config/nvim/init.vim)
+* [.config/dotfiles](.config/dotfiles) location for support files for this dotfiles project.
 
 ### Various high level To-Dos
 
@@ -134,7 +134,7 @@ but only for your dot files in `$HOME`.
 ## Install Script Details
 
 This is additional information about the install script.
-It is located at `~/.local/bin/dotfiles`.
+It is located at [.local/bin/dotfiles](.local/bin/dotfiles).
 
 ### Usage:  (after install)
 
