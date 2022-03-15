@@ -34,6 +34,7 @@ require'colorizer'.setup({
     'javascript';
     'scss';
     'sass';
+    'vue';
   },
   { mode = 'background' }
 )

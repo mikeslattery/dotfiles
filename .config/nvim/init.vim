@@ -21,6 +21,8 @@ if has('nvim')
   endfunction
 endif
 
+let g:hasgit=!empty(glob('.git')) && executable('git')
+
 " Autoinstall plugin manager
 let s:data_dir     = Stdpath('data')
 let g:plug_home    = s:data_dir . '/plugged'
@@ -70,7 +72,7 @@ endif
 " Required for tmux-continuum
 Plug 'tpope/vim-obsession'
 
-if isdirectory('.git')
+if g:hasgit
   Plug 'airblade/vim-gitgutter'
   Plug 'tpope/vim-fugitive'
 
@@ -126,7 +128,7 @@ function! s:Source(file)
   let v:this_obsession = a:file
 endfunction
 command! Source -complete=file -nargs=1 execute s:Source(<f-args>)
-if isdirectory('.git')
+if g:hasgit
   " save session and state locally
   let s:session_dir = '.vim/sessions/'
   let v:this_session=s:session_dir . 'Session.vim'
@@ -171,7 +173,7 @@ nnoremap <leader>x :bd<CR>
 "   browse files in same dir as current file
 nnoremap <leader><leader>rm :call delete(expand('%'))\|bdelete!<CR>
 nnoremap <leader><leader>grm :silent !git rm %\|bdelete!<CR>
-if executable('git') && isdirectory('.git')
+if g:hasgit
   let s:hide=netrw_gitignore#Hide()
   let s:hide.=',.git/,yarn.lock,package-lock.json'
   let s:hide=substitute(s:hide, '.env,', '', '')
@@ -309,11 +311,10 @@ nnoremap ]M ]Mzz
 
 "TODO
 " next
+"   folds - autocmd - md indent, code treesitter
+"   yaml - on comment don't autoindent so much.  treesitter?
 "   cheat
 "      execute "r!curl -s 'https://cht.sh/".&filetype."/".substitute(input("Query: "), ' ', '+', 'g')."?qT'"
-"   ctrl-f
-"     lightspeed only for sSx
-"     quick-scope. only qs_highlight_on_keys when ftFT pressed
 "   coc
 "     try out coc-action, coc-highlight, coc-snippet
 "   airline
@@ -461,6 +462,7 @@ nnoremap ]M ]Mzz
 "Plug 'tpope/vim-rsi'
 " " Let's not install and start heavy IDE features if not necessary
 " if filereadable('package.json') && isdirectory('.git')
+" if filereadable('package.json') && g:hasgit
 "   if executable('node')
 "     Plug 'neoclide/coc.nvim', {'branch': 'release'}
 "     nnoremap <c-]> jump to mappings

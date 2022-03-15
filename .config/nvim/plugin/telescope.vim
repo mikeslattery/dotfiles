@@ -8,7 +8,7 @@ if has_key(g:plugs, 'telescope.nvim')
     noremap <leader>ff <cmd>Telescope find_files<cr>
   endif
   noremap <leader>m <cmd>Telescope oldfiles<cr>
-  if isdirectory('.git')
+  if g:hasgit
     if has_key(g:plugs, 'coc.nvim')
       noremap <leader>e :CocCommand explorer<cr>
       noremap <leader>fq :Telescope coc workspace_diagnostics<cr>
@@ -35,7 +35,7 @@ elseif has_key(g:plugs, 'fzf.vim')
   noremap <leader>b :Buffers<CR>
   noremap <leader>fq :copen<cr>
   noremap <leader>m :History<CR>
-  if isdirectory('.git')
+  if g:hasgit
     noremap <leader>fp :GFiles<CR>
   else
     noremap <leader>fp :Files<CR>

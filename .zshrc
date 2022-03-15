@@ -271,6 +271,7 @@ unalias gss &>/dev/null || true
 unalias gs &>/dev/null || true
 gss() { git --no-pager -c color.ui=always status -s "$@" -uno | cat -n; }
 gs()  { git --no-pager -c color.ui=always status -s "$@" -b | cat -n; }
+alias gdno='git --no-pager diff -w --name-only --diff-filter=AM'
 alias gr='./gradlew'
 alias gt='clear; ./gradlew test'
 #gcd() { cd "$1" || exit 1; git status | sed -n '/use/ !{ /^$/ !p };'; }
