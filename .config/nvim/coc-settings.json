@@ -3,6 +3,7 @@
   "coc.preferences.extensionUpdateCheck": "weekly",
   "javascript.suggestionActions.enabled": false,
   "vetur.useWorkspaceDependencies": true,
-  "eslint.autoFixOnSave": true
+  "eslint.autoFixOnSave": true,
+  "explorer.icon.enableNerdfont": false
 }
 

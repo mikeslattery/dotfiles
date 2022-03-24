@@ -28,14 +28,16 @@ endif
 let g:airline_powerline_fonts=1
 set noshowmode
 
-lua <<EOF
-require'colorizer'.setup({
-    'css';
-    'javascript';
-    'scss';
-    'sass';
-    'vue';
-  },
-  { mode = 'background' }
-)
+if has_key(g:plugs, 'nvim-colorizer.lua')
+  lua <<EOF
+  require'colorizer'.setup({
+      'css';
+      'javascript';
+      'scss';
+      'sass';
+      'vue';
+    },
+    { mode = 'background' }
+  )
 EOF
+endif
