@@ -17,5 +17,9 @@ EOF
   nnoremap <c-w>p <c-w>p
   nnoremap <c-w><c-p> <c-w><c-p>
 
+  " top level mappings
+  noremap <leader>vm <cmd>lua require('which-key').show()<cr>
+
 endif
 
+" TODO: spelling = { enabled = true, suggestions = 12 }

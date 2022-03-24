@@ -83,6 +83,7 @@ sh -c "$(wget https://git.io/msdot -O -)" -- i
 ```
 
 or, if you don't want to use the install script, you can install manually:
+(This will not backup existing files.)
 
 ```sh
 cd ~
@@ -93,6 +94,7 @@ config config --local core.excludesFile ~/.config/dotfiles/gitignore
 config config --local submodule.recurse true
 config reset --hard
 config pull
+source .zshrc
 ```
 
 ### Requirements

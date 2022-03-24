@@ -1,10 +1,10 @@
-":" # This top part will install NeoVim on Linux
+":" This will install NeoVim on Linux and update plugins
 "export" nvim="$HOME/.local/bin/nvim"
 "export" nvimurl="https://github.com/neovim/neovim/releases/download/nightly/nvim.appimage"
 "set" -xeu
 "curl" -fL "$nvimurl" -o "$nvim" -z "$nvim"
 "chmod" u+x "$nvim"
-"$nvim" +qa
+"$nvim" +PlugUpgrade +'PlugUpdate --sync'
 "exit" 0
 
 " Requires: neovim or vim, curl or wget
@@ -287,6 +287,7 @@ inoremap <C-c> <esc>
 
 nnoremap <leader>zn :set relativenumber!<CR>
 nnoremap <leader>zs :set spell!<CR>
+nnoremap <leader>z= z=1<cr><cr>
 nnoremap <leader>zm :set showmatch!<CR>
 nnoremap <leader>zw :set wrap!<CR>
 nnoremap <leader>zl :set list!<CR>
@@ -311,8 +312,10 @@ nnoremap ]M ]Mzz
 
 "TODO
 " next
+"   zt goes to 1, but it should have a top margin
 "   folds - autocmd - md indent, code treesitter
 "   yaml - on comment don't autoindent so much.  treesitter?
+"   checktime on focus.  test focus
 "   cheat
 "      execute "r!curl -s 'https://cht.sh/".&filetype."/".substitute(input("Query: "), ' ', '+', 'g')."?qT'"
 "   coc
