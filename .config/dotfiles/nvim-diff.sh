@@ -1,21 +1,59 @@
 #!/bin/bash
 #shellcheck disable=SC2016
 
-cd /tmp || exit 1
+# Show defaults differences between vim and nvim
+# except those handled by my .vimrc.
 
-touch /tmp/.vimrc
-# Use this one only if you have an empty init.vim
- vim +'set noloadplugins'                       +'redir! > vs.txt | set all | redir END | qa'
-#vim +'set noloadplugins' -u /tmp/.vimrc        +'redir! > vs.txt | set all | redir END | qa'
-#vim  --clean +'source $VIMRUNTIME/defaults.vim | redir! > vs.txt | set all | redir END | qa'
- nvim --clean                                   +'set loadplugins | redir! > ns.txt | set all | redir END | qa'
-#nvim +'set noloadplugins'                      +'redir! > ns.txt | set all | redir END | qa'
+# This is used to maintain .vimrc
+# to set vim defaults similar to nvim defaults.
+
+# fedora
+vim() { vimx "$@"; }
 
 cleanit() {
-  cat "$1" | sed -r 's/^ +//; /^.{17} / { s/ +/\n/g; };' | sed -r 's/^no(.*)/\1 off/;' | sort
+  cat "$1" | sed -r '
+    # no=off
+    s/^no(.*)/\1=off/;
+    s|^ *||;
+
+    # path differences
+    s|/tmp/\.mount_nvim[^/]*/|/|g;
+    s|/vimswap|/swap|;
+    s|/vimundo|/undo|;
+
+    # Naming differences
+    s|^shada|viminfo|;
+
+    # option values not in both
+    /^cpoptions=/ { s/_//; };
+    /^diffopt=/ { s/,closeoff//; };
+    /^display=/ { s/,msgsep//; };
+    /^sessionoptions=/ { s/,terminal//; };
+
+    # incomparable differences
+    /^mouse=/ { s/=a/=/; };
+    /^scroll=/ d;
+    /^cdpath=/ d;
+
+    # do not care
+    /^highlight=/ d;
+    /^printexpr=/ d;
+    /^helpfile=/ d;
+    ' | sort
 }
 
-diff -u0 <(cleanit vs.txt) <(cleanit ns.txt) > diff.txt
+# only include options that exist in both
+cleaned() {
+  cleanit "$1" | grep -f <(cleanit "$2" | sed -r 's/=.*$//; /^$/d; s/^/^/; s/$/\\b/;')
+  # this isn't efficient, but who care?
+}
 
-cat diff.txt | sed '/^@@/d' | vim - -R
+vim  -u NONE -c 'source ~/.vimrc' +'redir! > /tmp/vs.txt | silent set! all | redir END | qa'
+nvim -u NONE                      +'redir! > /tmp/ns.txt | silent set! all | redir END | qa'
+
+diff -u0 <(cleaned /tmp/vs.txt /tmp/ns.txt) <(cleaned /tmp/ns.txt /tmp/vs.txt) | \
+  sed '/^@@/d' | \
+  nvim --clean - -R '+set ft=diff'
+
+rm -f /tmp/vs.txt /tmp/ns.txt
 

@@ -66,6 +66,7 @@ set sessionoptions-=options
 set shortmess=filnxtToOF
 set sidescroll=1
 set smarttab
+set nostartofline
 set tabpagemax=50
 set tags=./tags;,tags
 set notitle
@@ -76,8 +77,8 @@ set ttimeoutlen=50
 set ttyfast
 "TODO: set viewoptions+=unix,slash
 set viewoptions-=options
-set viminfo+=!
-let &wildoptions="tagfile"
+let &viminfo='!,'.&viminfo
+let &wildoptions="pum,tagfile"
 
 let g:vimsyn_embed='l'
 
@@ -156,7 +157,7 @@ else
   let &undodir   = s:datadir . '/vimundo//'
 endif
 
-let &viminfo.=',n' . s:datadir . '/viminfo'
+let &viminfofile.=s:datadir . '/viminfo'
 
 " NeoVim creates directories if they don't exist
 function! s:MakeDirs()
