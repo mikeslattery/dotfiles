@@ -84,7 +84,16 @@ main() {
       echo "/bin/sh -c \"\$(wget -q -O - https://raw.githubusercontent.com/$github/$branch/.local/bin/dotfiles)\" -- install"
       ;;
     install|i)
-      if ! command -v git >/dev/null; then
+      # On Git for Windows, .config -> AppData/Local
+      case "$(uname -s)" in MINGW*)
+        if ! [ -d "$HOME.config" ] && \
+            [ "$HOME" = "$USERPROFILE" ] && \
+            [ -d "${LOCALAPPDATA:-none}" ]; then
+          mklink /J "$HOME/.config" "$LOCALAPPDATA"
+        fi
+        ;;
+      esac
+      if ! has git; then
         # fallback to unzip, if git not installed
         command -v unzip >/dev/null || die 'E: git nor unzip are installed'
         cd ~
@@ -189,7 +198,7 @@ main() {
       exec tig -C"$HOME" "$@"
       ;;
     others)
-      [[ -d "$HOME/$1" ]] || die "Directory doesn't exist [${1}]"
+      [ -d "$HOME/$1" ] || die "Directory doesn't exist [${1}]"
       git -C "$HOME" ls-files --others --exclude-standard "$1"
       ;;
     *)
