@@ -1,31 +1,45 @@
 #!/bin/bash
 
+# Moves config files out of home, when possible
+
+# See https://wiki.archlinux.org/title/XDG_Base_Directory#Support
+
+set -euo pipefail
 cd ~ || exit 1
 
+xdg() {
+  name="XDG_$1"
+  path="$2"
 
-
-move1() {
-  local name="$1"
-  if [[ -f ".$name" ]]; then
-    mv ".$name/" ~/.config/"$name"/
-  fi
+  eval "$name=\"\$\{$name:-\"$HOME/$path\"\}\""
 }
 
-move2() {
+xdg CONFIG_HOME .config
+xdg CACHE_HOME .cache
+xdg DATA_HOME .local/share
+xdg STATE_HOME .local/state
+
+log() {
+  echo "$*"
+  "$@"
+}
+
+move() {
   local name="$1"
-  local dest="$2"
+  local dest="${2:-${1/./}}"
   if [[ -f "$name" ]]; then
-    mv "$name/" ~/.config/"$dest"
+    mkdir -p "$(dirname "$XDG_CONFIG_HOME/$dest")"
+    log mv "$name" "$XDG_CONFIG_HOME/$dest"
   fi
 }
 
 #TODO: androidstudio, antimicrox, blender
-move1 aria2
-move2 .asoundrc alsa/asoundrc
-move2 .asunder asunder/asunder
-move2 .asunder_album_artist asunder/asunder_album_artist
-move2 .asunder_album_genre asunder/asunder_album_genre
-move2 .asunder_album_title asunder/asunder_album_title
-move1 binwalk
-move1 calcurse
-move2 .ccache ccache/ccache.conf
+move .aria2
+move .asoundrc alsa/asoundrc
+move .asunder asunder/asunder
+move .asunder_album_artist asunder/asunder_album_artist
+move .asunder_album_genre asunder/asunder_album_genre
+move .asunder_album_title asunder/asunder_album_title
+move .binwalk
+move .calcurse
+move .ccache ccache/ccache.conf
