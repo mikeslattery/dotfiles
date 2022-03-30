@@ -157,6 +157,7 @@ set softtabstop=2
 set shiftwidth=2
 set expandtab
 set smartindent
+set breakindent
 
 " SEARCHING FOR FILES
 set showmatch
@@ -287,7 +288,8 @@ inoremap <C-c> <esc>
 
 nnoremap <leader>zn :set relativenumber!<CR>
 nnoremap <leader>zs :set spell!<CR>
-nnoremap <leader>z= z=1<cr><cr>
+nnoremap <leader>zb :set breakindent!<CR>
+nnoremap <silent> <leader>z= z=1<cr><cr>
 nnoremap <leader>zm :set showmatch!<CR>
 nnoremap <leader>zw :set wrap!<CR>
 nnoremap <leader>zl :set list!<CR>

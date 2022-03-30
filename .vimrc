@@ -197,7 +197,7 @@ function! RecordAndStop()
   endif
 endfunction
 
-noremap q <Cmd>call RecordAndStop()<cr>
+command! MapQ noremap q :call RecordAndStop()<cr>
 noremap Q <Cmd>execute 'normal! @'.g:qreg<cr>
 
 " DEFAULT PLUGINS
@@ -212,10 +212,18 @@ if exists(":Man") != 2
   runtime! ftplugin/man.vim
 endif
 
+command! UpdateDefaults !curl -LO https://raw.githubusercontent.com/mikeslattery/nvim-defaults.vim/master/.vimrc
+
+" LOAD init.vim
+
 " If this is the .vimrc, not a plugin, then load init.vim
 if $MYVIMRC == expand('<sfile>:p')
   let $MYVIMRC = s:configdir . '/init.vim'
   source $MYVIMRC
+endif
+
+if &exrc && filereadable('.nvimrc')
+  source .nvimrc
 endif
 
 " See also:

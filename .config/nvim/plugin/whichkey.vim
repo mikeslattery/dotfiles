@@ -11,15 +11,17 @@ elseif has_key(g:plugs, 'which-key.nvim')
       -- your configuration comes here
       -- or leave it empty to use the default settings
       -- refer to the configuration section below
+      -- TODO: spelling = { enabled = true, suggestions = 12 }
     }
 EOF
+  " top level mappings
+  nnoremap <M-k> <cmd>WhichKey<cr>
+  vnoremap <M-k> <cmd>WhichKey '' v<cr>
+  inoremap <M-k> <cmd>WhichKey '' i<cr>
+  cnoremap <M-k> <cmd>WhichKey '' c<cr>
+
   " workaround for missing mappings
   nnoremap <c-w>p <c-w>p
   nnoremap <c-w><c-p> <c-w><c-p>
 
-  " top level mappings
-  noremap <leader>vm <cmd>lua require('which-key').show()<cr>
-
 endif
-
-" TODO: spelling = { enabled = true, suggestions = 12 }
