@@ -6,6 +6,8 @@ and dotfiles installer project on github.
 The first section is about the dot files themselves.
 See ["Getting Started"](#getting-started) to read about the install script.
 
+[](https://i.imgur.com/1FlkC12.png)
+
 ## Supported Environment
 
 This describes the configuration dotfiles and the environments supported.
