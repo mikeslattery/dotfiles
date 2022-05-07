@@ -3,10 +3,10 @@
 [This](https://github.com/mikeslattery/dotfiles) is my personal dotfiles
 and dotfiles installer project on github.
 
+![](https://i.imgur.com/1FlkC12.png)
+
 The first section is about the dot files themselves.
 See ["Getting Started"](#getting-started) to read about the install script.
-
-![](https://i.imgur.com/1FlkC12.png)
 
 ## Supported Environment
 
