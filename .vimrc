@@ -40,7 +40,7 @@ set autoread
 set background=dark
 set belloff=all
 set cdpath=,.,~/src,~/
-set clipboard=
+set clipboard=unnamed,unnamedplus
 set cmdheight=1
 set complete=.,w,b,u,t
 set cscopeverbose
