@@ -2,16 +2,23 @@
 " https://gist.github.com/andersevenrud/015e61af2fd264371032763d4ed965b6
 " https://vimhelp.org/term.txt.html#xterm-true-color
 set termguicolors
+
+function! s:Colors()
+  " darker background
+  " https://vim.fandom.com/wiki/Xterm256_color_names_for_console_Vim
+  highlight Normal cterm=NONE ctermbg=233 gui=NONE guibg=#121212
+
+  highlight CursorLine cterm=NONE ctermbg=234 gui=NONE guibg=#1c1c1c
+  highlight CursorColumn cterm=NONE ctermbg=234 gui=NONE guibg=#1c1c1c
+
+  highlight QuickScopePrimary guifg='#afff5f' gui=underline ctermfg=155 cterm=underline
+  highlight QuickScopeSecondary guifg='#5fffff' gui=underline ctermfg=81 cterm=underline
+endfunction
+
+augroup darken_bg | au!
+    au Colorscheme * call s:Colors()
+augroup END
 colorscheme dracula
-
-" darker background
-" https://vim.fandom.com/wiki/Xterm256_color_names_for_console_Vim
-highlight Normal cterm=NONE ctermbg=233 gui=NONE guibg=#121212
-highlight CursorLine cterm=NONE ctermbg=234 gui=NONE guibg=#1c1c1c
-highlight CursorColumn cterm=NONE ctermbg=234 gui=NONE guibg=#1c1c1c
-
-highlight QuickScopePrimary guifg='#afff5f' gui=underline ctermfg=155 cterm=underline
-highlight QuickScopeSecondary guifg='#5fffff' gui=underline ctermfg=81 cterm=underline
 
 set cursorline
 
