@@ -1,4 +1,4 @@
-":" This will install NeoVim on Linux and update plugins
+":" This will install Neovim on Linux and update plugins
 "export" nvim="$HOME/.local/bin/nvim"
 "export" nvimurl="https://github.com/neovim/neovim/releases/download/nightly/nvim.appimage"
 "set" -xeu
@@ -109,6 +109,9 @@ else
 endif
 nnoremap <leader>rm :update\|Silent pandoc % -o /tmp/vim.pdf<cr>
 nnoremap <leader>rp :Silent pomostart<cr>
+nnoremap <leader>rc :Silent md2rt-clip<cr>
+vnoremap <leader>rc y:Silent md2rt-clip<cr>
+nnoremap <leader>rv :Silent rt2md-clip<cr>p
 nnoremap <leader>rr :echo system("cut -c16- ~/.zsh_history \| fzf --tac")<cr>
 "TODO: vnoremap <leader><leader>q :<c-U>execute '!tmux send-keys -t 1 "'.escape(join(getline(getpos("'<")[1],getpos("'>")[1]), "\n"), '"#').'" Enter'<cr>
 " ignore any further error formats.  (hopefully this doesn't break any plugins)
@@ -172,8 +175,16 @@ nnoremap <leader>i :execute "update\|silent !curl -fs 'http://localhost:63342/ap
 "   close current buffer
 nnoremap <leader>x :bd<CR>
 "   browse files in same dir as current file
-nnoremap <leader><leader>rm :call delete(expand('%'))\|bdelete!<CR>
-nnoremap <leader><leader>grm :silent !git rm %\|bdelete!<CR>
+function! g:DeleteThisFile()
+  call mkdir('/tmp/vim', 'p')
+  write
+  execute 'silent !mv '.expand('%').' /tmp/vim/'.expand('%:t')
+  bdelete!
+endfunction
+noremap <leader><leader>rm <Cmd>call g:DeleteThisFile()<cr>
+noremap <leader><leader>grm <Cmd>silent !git rm %\|bdelete!<CR>
+" select all
+nnoremap <leader>ga ggyG<c-o>
 if g:hasgit
   let s:hide=netrw_gitignore#Hide()
   let s:hide.=',.git/,yarn.lock,package-lock.json'
@@ -250,6 +261,7 @@ nnoremap <leader><leader>l :call term_sendkeys(bufnr($SHELL),getline('.') . "\n"
 " CREATE/SAVE FILES
 nnoremap <leader><leader>t :exec "e ".system('mktemp -p /var/tmp')<cr>
 nnoremap <leader>w :up<CR>
+nnoremap <leader>W :wa<CR>
 set autoread
 set hidden
 set undofile
@@ -275,9 +287,10 @@ set foldlevel=2
 let g:markdown_folding=1
 set scrolloff=3
 set mouse=a
+nnoremap <LeftMouse> m'<LeftMouse>
 " double click check box
 "TODO: uncheck. autocmd md. only check if brackets.  single click
-nnoremap <2-LeftMouse> rx
+"nnoremap <2-LeftMouse> rx
 "TODO: remove jk
 inoremap jk <esc>
 nnoremap <C-Space> i
@@ -314,6 +327,9 @@ nnoremap ]M ]Mzz
 
 "TODO
 " next
+"   checktime on autocmd focus
+"   galaxyline
+"   css plugin in lua + tree sitter
 "   zt goes to 1, but it should have a top margin
 "   folds - autocmd - md indent, code treesitter
 "   yaml - on comment don't autoindent so much.  treesitter?
@@ -401,7 +417,7 @@ nnoremap ]M ]Mzz
 "   ale example: https://github.com/mantoni/dotfiles/blob/master/.vimrc
 "   vim-airline - Green/Red on success/failure of ec,lint,tests
 " native lsp
-"   ALE? NeoVim?
+"   ALE? Neovim?
 "   nvim-lspconfig
 "   eslint_d
 " learn
