@@ -133,4 +133,5 @@ endif
 nnoremap <leader>fe :Explore .<cr>
 nnoremap <leader>ft :checktime<CR>
 nnoremap <leader>vc <c-w>h<c-w>c
-
+" Create file in directory of buffer
+nnoremap <leader>fd :e %:h/
