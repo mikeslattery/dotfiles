@@ -2,5 +2,6 @@
 -g!yarn.lock
 -g!.git
 -g!*.svg
+-g!app.css
 --hidden
 --heading
