@@ -38,27 +38,39 @@ health() {
   echo "Mail: $(curl -fsS https://3tgl2vf85cht.statuspage.io/api/v2/status.json | jq .status.description -r || echo ERROR)"
 }
 
+highlight() {
+  search="$1"
+  color="${2:-31}"
+  sed -r "s/(${search})/\x1b[${color}m\1\x1b[0m/g"
+}
 
 # Development and CI/CD
 
 builds() {
-  now="$(date +%s)"
-  gptime="$(git -C ~/src/nuxt/newstart log -1 --format=%at origin/master)"
-  ftime="$(stat /tmp/builds.txt --format=%Y 2>/dev/null || echo 0)"
-  thmin="$(( 60 * 20 ))"
+  timeoutmin=5
 
-  # if push in last 20 minutes, or no updates in last 20 minutes
-  if [[ $(( "$now" - "$gptime" )) -le "$thmin" ]] || [[ $(( "$now" - "$ftime" )) -ge "$thmin" ]]; then
+  now="$(date +%s)"
+  # last push
+  gptime="$(git -C ~/src/nuxt/newstart2 log -1 --format=%at origin/master)"
+  gpsubj="$(git -C ~/src/nuxt/newstart2 log -1 --format=%s  origin/master)"
+  # last deploy check
+  ftime="$(stat /tmp/builds.txt --format=%Y 2>/dev/null || echo 0)"
+  thmin="$(( 60 * $timeoutmin ))"
+
+  # if push in last $timeoutmin minutes, or no updates in last $timeoutmin minutes
+  if  [[ $(( "$now" - "$gptime" )) -le "$thmin" ]] || \
+      [[ $(( "$now" - "$ftime"  )) -ge "$thmin" ]]; then
     netlify api listSiteDeploys \
         -d '{"site_id": "equityrisingscholarships.org", "page": 1, "per_page": 2}' \
-      | jq  '.[] | [.state, .created_at, .title] | @tsv' -r \
+      | jq  '.[] | [.state, .status_message, .created_at, .title] | @tsv' -r \
       | sed -r 's/202[1-9]-([0-9\-]+)T/\1 /; s/:[0-9][0-9]\....Z//; s/\t/   /g' \
+      | highlight error \
       | tee /tmp/builds.txt
     echo 'updated'
   else
     cat /tmp/builds.txt
   fi
-  echo "push    $(date -d "@$gptime" '+%m-%d %H:%M' --utc)"
+  echo "push       $(date -d "@$gptime" '+%m-%d %H:%M' --utc)   ${gpsubj}"
 }
 
 gss() {
