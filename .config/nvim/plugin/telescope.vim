@@ -21,6 +21,7 @@ if has_key(g:plugs, 'telescope.nvim')
     noremap <leader>fq :copen<cr>
   endif
   noremap <leader>fg <cmd>Telescope live_grep<cr>
+  noremap <leader>f. <cmd>Telescope resume<cr>
   noremap <leader>g' <cmd>Telescope marks<cr>
   noremap <leader>gj <cmd>Telescope jumplist<cr>
   noremap <leader>vj <c-w>v<c-w>p:Telescope jumplist<cr>

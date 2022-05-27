@@ -28,7 +28,18 @@ if has_key(g:plugs, 'hop.nvim')
   noremap gw :HopWord<cr>
   noremap g/ :HopPattern<cr>
 elseif has_key(g:plugs, 'lightspeed.nvim')
-  " nothing to do.  default mappings are ok
+  let g:lightspeed_no_default_keymaps=1
+
+  nnoremap <silent> gS <Plug>Lightspeed_gS
+  nnoremap <silent> gs <Plug>Lightspeed_gs
+  nnoremap <silent> S  <Plug>Lightspeed_S
+  xnoremap <silent> s  <Plug>Lightspeed_s
+  nnoremap <silent> s  <Plug>Lightspeed_s
+
+  "onoremap <silent> x <Plug>Lightspeed_x
+  "onoremap <silent> X <Plug>Lightspeed_X
+  "onoremap <silent> z <Plug>Lightspeed_s
+  "onoremap <silent> Z <Plug>Lightspeed_S
 elseif has_key(g:plugs, 'vim-easymotion')
   let g:EasyMotion_do_mapping = 0
 
