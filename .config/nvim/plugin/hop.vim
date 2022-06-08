@@ -2,7 +2,7 @@
 " https://github.com/ggandor/lightspeed.nvim
 
 if has_key(g:plugs, 'marks.nvim')
-  lua require('marks').setup { builtin_marks = { "'", "^", ".", "0", "1", "2", "3" } }
+  lua require('marks').setup { builtin_marks = { "'", "^", ".", "0", "1" }, refresh_interval = 500 }
 
   " sign for jump (mark.nvim), marks `'[]^."`
   " https://github.com/chentau/marks.nvim

@@ -48,7 +48,7 @@ if has('nvim')
   Plug 'nvim-telescope/telescope.nvim'
   Plug 'folke/which-key.nvim'
   Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
-  Plug 'chentau/marks.nvim'
+  Plug 'chentoast/marks.nvim'
   Plug 'ggandor/lightspeed.nvim'
   Plug 'norcalli/nvim-colorizer.lua'
 else

@@ -136,3 +136,7 @@ nnoremap <leader>ft :checktime<CR>
 nnoremap <leader>vc <c-w>h<c-w>c
 " Create file in directory of buffer
 nnoremap <leader>fd :e %:h/
+" Internet search
+noremap <leader>vC :r !curl -s 'https://cheat.sh/?T'<left><left><left>
+noremap <leader>vD :terminal ddgr<space>
+noremap <leader>vO :terminal socli<space>

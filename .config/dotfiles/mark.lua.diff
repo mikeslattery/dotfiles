@@ -1,0 +1,63 @@
+diff --git a/lua/marks/mark.lua b/lua/marks/mark.lua
+index 8c3607d..eb03bb9 100644
+--- a/lua/marks/mark.lua
++++ b/lua/marks/mark.lua
+@@ -321,10 +321,8 @@ function Mark:refresh(bufnr, force)
+ 
+   -- first, remove all marks that were deleted
+   for mark, _ in pairs(self.buffers[bufnr].placed_marks) do
+-    if a.nvim_buf_get_mark(bufnr, mark)[1] == 0 then
+     self:delete_mark(mark, false)
+   end
+-  end
+ 
+   local mark
+   local pos
+@@ -368,6 +366,47 @@ function Mark:refresh(bufnr, force)
+       self:register_mark(char, pos[2], pos[3], bufnr)
+     end
+   end
++
++  -- jumplist
++  winnr = a.nvim_get_current_win()
++  tabnr = a.nvim_get_current_tabpage()
++  jumplist = vim.fn.getjumplist(winnr, tabnr)
++  jumps = jumplist[1]
++  jump_pointer = jumplist[2]
++
++  -- future jumps, ctrl-i
++  for i = 1, 5 do
++    -- forward.  usually empty
++    index = jump_pointer + i + 1
++    if index <= #jumps then
++      jump = jumps[index]
++      label = '\u{00ee}'
++      if i > 1 then
++        label = i .. label
++      end
++      cached_mark = self.buffers[bufnr].placed_marks[label]
++      if jump.lnum ~= 0 and (jump.bufnr == 0 or jump.bufnr == bufnr) and
++        (force or not cached_mark or jump.lnum ~= cached_mark.line) then
++        self:register_mark(label, jump.lnum, jump.col, jump.bufnr)
++      end
++    end
++
++    -- back history, ctrl-o
++    index = jump_pointer - i + 1
++    if index > 0 then
++      jump = jumps[index]
++      label = '\u{00f4}'
++      if i > 1 then
++        label = i .. label
++      end
++      cached_mark = self.buffers[bufnr].placed_marks[label]
++      if jump.lnum ~= 0 and (jump.bufnr == 0 or jump.bufnr == bufnr) and
++        (force or not cached_mark or jump.lnum ~= cached_mark.line) then
++        self:register_mark(label, jump.lnum, jump.col, jump.bufnr)
++      end
++    end
++  end
++
+   return
+ end
+ 
