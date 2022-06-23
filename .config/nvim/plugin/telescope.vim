@@ -134,9 +134,11 @@ endif
 nnoremap <leader>fe :Explore .<cr>
 nnoremap <leader>ft :checktime<CR>
 nnoremap <leader>vc <c-w>h<c-w>c
+nnoremap <leader>vM :silent !meld . &<cr>
+nnoremap <leader>vZ :Term lazygit<cr>
 " Create file in directory of buffer
 nnoremap <leader>fd :e %:h/
 " Internet search
 noremap <leader>vC :r !curl -s 'https://cheat.sh/?T'<left><left><left>
-noremap <leader>vD :terminal ddgr<space>
-noremap <leader>vO :terminal socli<space>
+noremap <leader>vD :Term ddgr<space>
+noremap <leader>vO :Term socli<space>

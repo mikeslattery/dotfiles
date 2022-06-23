@@ -69,9 +69,6 @@ if exists('$TMUX')
   Plug 'christoomey/vim-tmux-navigator'
 endif
 
-" Required for tmux-continuum
-Plug 'tpope/vim-obsession'
-
 if g:hasgit
   Plug 'airblade/vim-gitgutter'
   Plug 'tpope/vim-fugitive'
@@ -107,11 +104,32 @@ if has('nvim')
 else
   command! -nargs=1 Silent execute 'silent !(' . <q-args> .') || (echo Hit enter:; read)' | execute 'redraw!'
 endif
+
+function! s:Term(args)
+  if has('nvim')
+    tabnew
+    execute 'terminal ' . a:args
+    " no left gutter
+    setlocal signcolumn=no
+    setlocal norelativenumber
+    setlocal nonumber
+    " if no errors, auto-close
+    autocmd! TermClose <buffer=abuf> if !v:event.status | exec 'bd! '..expand('<abuf>') | endif | checktime
+    startinsert
+  elseif has('terminal')
+    execute 'tab terminal ++close ' . a:args
+  else
+    execute 'silent !( ' . (a:args != '' ? a:args : $SHELL) . ') || ( echo "Press ENTER to continue"; read; )' | redraw!
+  endif
+endfunction
+command! -nargs=? Terminal call s:Term(<q-args>)
+
 nnoremap <leader>rm :update\|Silent pandoc % -o /tmp/vim.pdf<cr>
 nnoremap <leader>rp :Silent pomostart<cr>
 nnoremap <leader>rc :Silent md2rt-clip<cr>
 vnoremap <leader>rc y:Silent md2rt-clip<cr>
 nnoremap <leader>rv :Silent rt2md-clip<cr>p
+nnoremap <leader>rt :silent !tmux send-keys -t 'right:1.1' '' Enter<left><left><left><left><left><left><left>
 nnoremap <leader>rr :echo system("cut -c16- ~/.zsh_history \| fzf --tac")<cr>
 "TODO: vnoremap <leader><leader>q :<c-U>execute '!tmux send-keys -t 1 "'.escape(join(getline(getpos("'<")[1],getpos("'>")[1]), "\n"), '"#').'" Enter'<cr>
 " ignore any further error formats.  (hopefully this doesn't break any plugins)
@@ -121,36 +139,80 @@ set errorformat+=%-G%.%#
 nnoremap <leader>r. :execute getline('.')<CR>
 nnoremap <leader>ra :source $MYVIMRC<CR>
 nnoremap <leader>ru :PlugUpdate --sync\|PlugUpgrade\|CocUpdateSync<cr>
+" Needed for coc-explorer
+set sessionoptions-=blank
+set sessionoptions+=terminal
+" set sessionoptions-=help
+" set sessionoptions+=options
 " load source.  Save current first, and remember the filename for Obsession
+
+" State management.  Use cases:
+" nvim -S           # global state
+" nvim              # Won't save global session on exit
+" nvim +State       # local directory project
+" :ChProject <dir>  # Change/Set project
+" :Source <file>    # Change session
+" :SaveState        # Save (in case of crash)
+
+" Load another session and update it on exit.
+command! -complete=file -nargs=1 Source call s:Source(<f-args>)
 function! s:Source(file)
-  if !empty(v:this_session)
-    mksession! v:this_session
+  call s:SaveSession()
+  if filereadable(a:file)
+    execute 'source ' . a:file
   endif
-  execute 'source ' . a:file
   let v:this_session = a:file
-  let v:this_obsession = a:file
 endfunction
-command! Source -complete=file -nargs=1 execute s:Source(<f-args>)
-if g:hasgit
-  " save session and state locally
-  let s:session_dir = '.vim/sessions/'
-  let v:this_session=s:session_dir . 'Session.vim'
+autocmd VimLeave * call s:SaveSession()
+
+" Set Project
+function! s:SetProject(dir)
+  " TODO: source before <cwd>/.vim/leaverc, after <dir>/.vim/vimrc
+  " TODO: .vim/.gitignore with main.shada .viminfo, if none
+  let s:session_dir  = a:dir . '/.vim/sessions/'
+  call s:Source(s:session_dir . 'Session.vim')
   if has('nvim')
     set shadafile=.vim/main.shada
   else
     set viminfofile=.vim/.viminfo
   endif
-  if filereadable(v:this_session)
-    execute 'source ' . v:this_session
+endfunction
+command! -nargs=1 -complete=dir ChProject call s:ChProject(<f-args>)
+function! s:ChProject(dir)
+  call s:SaveState()
+  call s:SetProject(a:dir)
+  rviminfo!
+endfunction
+
+" Save state
+command! -nargs=0 SaveState call s:SaveState()
+function! s:SaveState()
+  wall
+  call s:SaveSession()
+  wviminfo!
+endfunction
+function s:SaveSession()
+  if !empty(v:this_session)
+    mksession! v:this_session
   endif
+endfunction
+
+" Init.
+if index(v:argv, '+State') >= 0
+  " To start in a project: nvim +State
+  call s:SetProject(getcwd())
+  " no-op
+  command! -nargs=0 State execute ''
 else
   let s:session_dir = s:data_dir . '/sessions/'
 endif
 call mkdir(s:session_dir, 'p')
-" use alternate session file
+
+" Switch projects and sessions
 execute 'nnoremap <leader><leader>s :mksession! ' . s:session_dir
 execute 'nnoremap <leader><leader>r :Source '     . s:session_dir
-autocmd VimEnter * if ObsessionStatus('on', 'off') == 'off' | Obsession | endif
+nnoremap <leader><leader>c :ChProject ~/src/
+
 nnoremap <leader><leader>w :update\|silent! make -s\|redraw!\|cc<cr>
 nnoremap <leader><leader>q :execute 'silent !tmux send-keys -t 1 "'.escape(getline('.'), '"#').'" Enter'<cr>:redraw!<cr>
 
@@ -173,13 +235,14 @@ nnoremap <leader>i :execute "update\|silent !curl -fs 'http://localhost:63342/ap
 
 "TODO: what? vnoremap <leader>c :I#<ESC><C-i>
 "   close current buffer
-nnoremap <leader>x :bd<CR>
+nnoremap <leader>x :bn\|bd#<CR>
 "   browse files in same dir as current file
 function! g:DeleteThisFile()
+  update
   call mkdir('/tmp/vim', 'p')
-  write
   execute 'silent !mv '.expand('%').' /tmp/vim/'.expand('%:t')
-  bdelete!
+  bp
+  bdelete #
 endfunction
 noremap <leader><leader>rm <Cmd>call g:DeleteThisFile()<cr>
 noremap <leader><leader>grm <Cmd>silent !git rm %\|bdelete!<CR>
@@ -325,8 +388,18 @@ nnoremap [m [mzz
 nnoremap [M [Mzz
 nnoremap ]M ]Mzz
 
+" Open marks A-E in new windows
+nnoremap ,vg :silent vsplit\|wincmd l\|execute "normal 'A"\|split\|wincmd j\|execute "normal 'B"\|split\|wincmd j\|execute "normal 'C"\|split\|wincmd j\|execute "normal 'D"\|split\|wincmd j\|execute "normal 'E"\|wincmd h<cr>
+" Close marks A-E windows.  (right, 5 close)
+nnoremap ,vG :wincmd l\|wincmd c\|wincmd c\|wincmd c\|wincmd c\|wincmd c<cr>
+nmap ,vR ,vG,vg
+
+
+
 "TODO
 " next
+"   Find better alternative: https://github.com/hotoo/jsgf.vim/blob/master/doc/jsgf.txt
+"
 "   checktime on autocmd focus
 "   galaxyline
 "   css plugin in lua + tree sitter
