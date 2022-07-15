@@ -193,7 +193,7 @@ function! s:SaveState()
 endfunction
 function s:SaveSession()
   if !empty(v:this_session)
-    mksession! v:this_session
+    execute 'mksession! ' . v:this_session
   endif
 endfunction
 
@@ -399,8 +399,10 @@ nmap ,vR ,vG,vg
 "TODO
 " next
 "   Find better alternative: https://github.com/hotoo/jsgf.vim/blob/master/doc/jsgf.txt
-"
 "   checktime on autocmd focus
+"     https://github.com/tmux-plugins/vim-tmux-focus-events
+"     https://stackoverflow.com/a/20418591
+"
 "   galaxyline
 "   css plugin in lua + tree sitter
 "   zt goes to 1, but it should have a top margin
