@@ -18,17 +18,18 @@ fi
 # Redirect output to stderr.
 exec 1>&2
 
-# If there are whitespace errors, print the offending file names and fail.
-git diff-index --check --cached "$against" --
-
+# Get list of staged files
 files="$(git diff --name-only --diff-filter=AM --cached "$against" --)"
 
-# no FIXME comments.   TODOs are allow for commit, but not push.
-! echo "$files" | xargs -r grep -F FIXME
+# If there are whitespace errors, print the offending file names and fail.
+echo "$files" | xargs -d$'\n' -r git diff-index --check --cached "$against" --
+
+# no TODO comments.   TODOs are allowed for commit, but not push.
+! echo "$files" | xargs -d$'\n' -r grep -F TODO
 
 # editorconfig-check
 if command -v ec >/dev/null; then
-  echo "$files" | xargs -r ec
+  echo "$files" | xargs -d$'\n' -r ec
 else
   echo "W:$(basename "$0"): ec not in path"
   echo '  https://github.com/editorconfig-checker/editorconfig-checker'

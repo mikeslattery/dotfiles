@@ -12,12 +12,15 @@ against="$1"
 # Redirect output to stderr.
 exec 1>&2
 
+# Get list of staged files
 files="$(git diff --name-only --diff-filter=AM --cached "$against" --)"
 
-# no TODO comments.
-! echo "$files" | xargs -r grep -F TODO
+# no TODO or FIXME comments.
+! echo "$files" | xargs -d$'\n' -r grep 'FIXME\|TODO'
 
 # build pre-push check
 if [ -f yarn.lock ] && grep -sq pre-push package.json; then
   yarn pre-push
+elif [ -f package-lock.json ] && grep -sq pre-push package.json; then
+  npm run pre-push
 fi
