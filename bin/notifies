@@ -1,0 +1,33 @@
+#!/bin/bash
+
+old_filter() {
+  sed -nur '/"notify-send"/d; /"default"/d; /"Firefox"/d; /"Slack"/d; /"Outlook"/d; /string ":1\.[0-9][0-9][0-9]/d; s/^   string "([^"]+)"/\1/p;' | \
+  awk '!x[$0]++ { print strftime("%d %H:%M"), $0; fflush(); }'
+}
+
+filter() {
+  #shellcheck disable=SC1004
+  awk '
+      /^   string "/ && ! /":1\.[0-9]/ && \
+      ! /"(|Firefox|Slack|Outlook|default|notify-send)"/ && \
+      !x[$0]++ {
+        gsub("   string \"|\"$", "", $0);
+        print strftime("%d %H:%M"), $0;
+        fflush();
+      }
+    ' /tmp/notifies.log
+}
+
+once() {
+  cat /tmp/notifies.log
+  # old_filter < /tmp/notifies.log | tail | sed 's/^.. ..:.. /         /g'
+}
+
+continuous() {
+  dbus-monitor "interface='org.freedesktop.Notifications'" | \
+    old_filter | \
+    tee -a /tmp/notifies.log
+}
+
+once
+continuous

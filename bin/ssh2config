@@ -1,0 +1,28 @@
+#!/bin/bash
+
+ssh2append() {
+  ssh -G "$@" | sed -n 's/^hostname //p'
+  comm -23 <(ssh -G "$@" 2>/dev/null | sort) <(ssh -G . 2>/dev/null | sort) | sed 's/^/    /'
+  # This loop+if is for remote command, -N, -W as -G lacks support
+  while getopts '1246AaCfGgKkMNnqsTtVvXxYyB:b:c:D:E:e:F:I:i:J:L:l:m:O:o:p:Q:R:S:W:w:' opt; do
+    #shellcheck disable=SC2254
+    case "$opt" in
+      4|6|A|a|C|f|G|g|K|k|M|n|q|s|T|t|X|x|v|Y|y) ;;
+      B|b|c|D|E|e|F|I|i|J|L|l|m|O|o|p|R|S|w) ;;
+      N) echo "    remotecommand exec sleep infinity" ;;
+      W) echo "    remotecommand nc ${OPTARG/:/ }" ;;
+      *) echo "Unsupported flag -$opt"; exit 1 ;; #12QV
+    esac
+  done
+  shift "$OPTIND"
+  [[ "$#" -eq 0 ]] || printf '%q ' remotecommand "$@" | sed 's/^/    /; s/ $/\n/'
+
+  echo ''
+}
+
+if [[ "$#" -eq 0 ]]; then
+  eval "$(sed -n 's/^: [0-9]*:[0-9]*;//; /-G/d; /--help/d; s/^ssh /ssh2append /p;' \
+  ~/.*sh_history | sort -u)"
+else
+  ssh2append "$@"
+fi

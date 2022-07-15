@@ -77,7 +77,7 @@ gss() {
   git -C ~/src/nuxt/newstart status -sb --show-stash | sed -r '0,/^(\?\? )/s//\n\1/'
   # Also can add: --ignored
   echo ''
-  git -C ~/src/nuxt/newstart stash list
+  git -C ~/src/nuxt/newstart stash list -3
 }
 
 servers() {

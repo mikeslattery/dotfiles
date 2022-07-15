@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# Watch file
+# Run a command whenever a file or directory changes.
+# Usage: watchfile <file> <command> <args...>
+
+file="$1"
+shift
+
+ts=''
+
+while true; do
+  ots="$ts"
+  ts="$(stat -c %Y "$file")"
+  [[ "$ts" == "$ots" ]] || "$@"
+
+  sleep 1
+done
+
+#TODO:
+# --stdin  Read stdin for command from file
+# --cls    Clear screen after each run
+# --time   Print time before each run
+# --       Command follows.  Useful it watching multiple files
+# Use inotifywait if in path
+

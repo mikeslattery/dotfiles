@@ -1,0 +1,42 @@
+#!/bin/bash
+
+set -eu
+set -x
+
+# Creates beginning layout
+# ane ends with tmux running in the foreground.
+
+# main
+
+main-session() {
+  tmux new-session -s main -d
+  tmux send-keys 'nvim -S' Enter
+
+  tmux new-window -n newnpm -c ~/src/research/newnpm
+  tmux send-keys 'nvim +State' Enter
+
+  tmux new-window -n newstart -c ~/src/nuxt/newstart2
+  tmux send-keys 'nvim +State' Enter
+
+  tmux new-window -c ~/src/nuxt/newstart2
+  tmux previous-window
+}
+
+
+top-session() {
+  tmux new-session -s top -d -c ~/src/nuxt/newstart2
+  tmux send-keys './netlifydev' Enter
+
+  tmux split-window -h -c ~/src/nuxt/newstart2
+  tmux send-keys 'tdd' Enter
+
+  tmux select-pane -L
+  tmux split-window -v -c ~/src/nuxt/newstart2
+  tmux send-keys 'shortprompt' Enter
+}
+
+main-session
+top-session
+
+tmux attach-session -t main
+

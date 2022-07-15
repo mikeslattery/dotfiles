@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# Meant to be a keybinding, such as super+enter
+# number are specific to current layout
+# TODO: query with xrandr
+
+eval "$(xdotool getmouselocation --shell)"
+
+if [[ "$X" -lt 1920 ]]; then
+  # left to right
+  X="$(( "$X" + 1920 ))"
+  Y="$(( "$Y" + 620 ))"
+else
+  # right to left
+  X="$(( "$X" - 1920 ))"
+  Y="$(( "$Y" - 620 ))"
+fi
+
+xdotool mousemove "$X" "$Y"
+
