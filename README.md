@@ -66,6 +66,7 @@ Environments I've successfully used with these dot files.
 * git-crypt for `.gitconfig`, `.ssh`, netlify, stripe, keypassxc.ini
 * dconf as a text file
 * Support for in-container development.  `c-b c` starts in same container.  Shared clipboard.
+* [Gnome CPU usage](https://github.com/corecoding/Vitals)
 
 ## Getting started
 
@@ -85,18 +86,19 @@ sh -c "$(wget https://git.io/msdot -O -)" -- i
 ```
 
 or, if you don't want to use the install script, you can install manually:
-(This will not backup existing files.)
+(This will overwrite existing files, without backup.)
 
 ```sh
 cd ~
+curl -sO https://raw.githubusercontent.com/mikeslattery/dotfiles/master/.zshrc
+sh .zshrc install
+source .zshrc
 git clone --bare https://github.com/mikeslattery/dotfiles .dotfiles
-alias config="git -C $HOME --git-dir=$HOME/.dotfiles --work-tree=$HOME"
 config config --local status.showUntrackedFiles no
 config config --local core.excludesFile ~/.config/dotfiles/gitignore
 config config --local submodule.recurse true
 config reset --hard
 config pull
-source .zshrc
 ```
 
 ### Requirements

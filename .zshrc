@@ -5,9 +5,9 @@ export ZSH_CUSTOM="$HOME/.config/zsh/custom"
 
 if [[ "$1" == "install" ]]; then
     set -eu
-    dl() { wget "$1" -O -q 2>/dev/null || curl -sLf "$1"; }
+    dl() { wget "$1" -O /dev/stdout -q 2>/dev/null || curl -sLf "$1"; }
     sh -c "RUNZSH=no; $(dl https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" -- --keep-zshrc
-    mkdir "$ZSH"/{completions,custom,functions}
+    mkdir -p "$ZSH"/completions "$ZSH"/custom "$ZSH"/functions
     exit $?
 elif [[ "$1" == "shellcheck" ]]; then
     cd ~
@@ -333,10 +333,14 @@ if iszsh; then
     # see https://github.com/ohmyzsh/ohmyzsh/issues/7609
     bindkey '^H' backward-kill-word
     bindkey '^U' backward-kill-line
+
 else
     lsource /usr/share/fzf/shell/key-bindings.bash
     lsource /usr/share/doc/fzf/examples/key-bindings.bash
     #. /usr/share/powerline/bash/powerline.sh
+
+    # does not work with gnome-terminal + tmux
+    bind "\C-h":backward-kill-word
 fi
 
 #TODO: fasd, z, oh-my-zsh, powerline
