@@ -14,5 +14,3 @@
 
 [init]
 	templateDir = /home/mike/.config/git/templates
-[blame]
-	ignoreRevsFile = .git-blame-ignore-revs

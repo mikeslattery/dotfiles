@@ -1,0 +1,38 @@
+npm uninstall -g npe
+npm uninstall -g npx
+man pip install
+pip install psutil
+sudo pip install psutil
+pip install wpm
+npm install -g npm-check-updates
+npm install -g yarn
+pip uninstall tuir
+sudo pip uninstall tuir
+pip install tuir
+npm install -g neovim && gen install neovim && nvim --clean +checkhealth
+gem install neovim && nvim --clean +checkhealth
+gem install neovim
+python -m pip install --user --upgrade pynvim
+python -m pip uninstall neovim pynvim
+python -m pip uninstall -y neovim pynvim
+python -m pip install --user --upgrade pynvim
+python -m pip uninstall -y neovim
+python2 -m pip uninstall neovim
+npm install -g pnpm
+npm install -g npe
+pip install tuir
+npm install -g neovim
+npm install -g npm
+npm install -g node
+pip install -g cli
+pip install cli
+pip install socli
+npm install -g sendgrid-cli
+npm install -g sendgrid/sendgrid-cli
+npm install -g jest-simple-reporter
+pip install tuir
+pip install socli
+pip install tuir
+man pip install
+history | rg 'install -g' | less
+  rg '\bpip\d? install|install -g' > ~/.config/dotfiles/tools.log

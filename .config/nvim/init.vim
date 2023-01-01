@@ -1,18 +1,12 @@
-":" This will install Neovim on Linux and update plugins
-"export" nvim="$HOME/.local/bin/nvim"
-"export" nvimurl="https://github.com/neovim/neovim/releases/download/nightly/nvim.appimage"
-"set" -xeu
-"curl" -fL "$nvimurl" -o "$nvim" -z "$nvim"
-"chmod" u+x "$nvim"
-"$nvim" +PlugUpgrade +'PlugUpdate --sync'
-"exit" 0
+":" Running this as a bash script will install Neovim on Linux and update plugins
+"exec" "$HOME/bin/nvim-upgrade"
 
 " Requires: neovim or vim, curl or wget
-" Optional: git, fzf, rg, fd, node, watchman
+" Optional: git, rg, fd, node, npm, watchman
+" Optional Vim: fzf
 " Unsupported: Windows gVim
 
 " To update nvim: bash ~/.config/nvim/nvim.init
-" nvim can't be in use during this.
 
 if has('nvim')
   " This function should have been declared in ~/.vimrc
@@ -35,10 +29,10 @@ if empty(glob(s:plugvim_file))
     \ .' ||        wget -q -O '.s:plugvim_file.' '.s:plugurl
 endif
 " Install missing plugins
+let g:plugs={}
 autocmd VimEnter * if len(filter(values(g:plugs), '!isdirectory(v:val.dir)'))
     \| PlugUpdate --sync | source $MYVIMRC
   \| endif
-let g:plugs={}
 
 call plug#begin()
 
@@ -98,13 +92,26 @@ let mapleader=','
 let maplocalleader=mapleader
 
 " EXECUTION
-" silently run a command, and only show output on error
+" silently run a shell command, and only show output on error
 if has('nvim')
-  command! -nargs=1 Silent execute 'silent !(' . <q-args> .')'
+  function! g:Silent(cmdline)
+    let l:result = execute('!' . a:cmdline)
+    if l:result =~ 'shell returned'
+      echo l:result
+    endif
+  endfunction
 else
-  command! -nargs=1 Silent execute 'silent !(' . <q-args> .') || (echo Hit enter:; read)' | execute 'redraw!'
+  function! g:Silent(cmdline)
+    execute 
+      \ 'silent !(' . a:cmdline .') || (echo -n "Hit enter: "; read)' 
+    redraw!
+  endfunction
 endif
+command! -nargs=1 Silent call g:Silent(<q-args>)
 
+"TODO: ShellWrite, similar to :'<,'>:w ! but works without selection
+
+" Execute command in terminal in new tab
 function! s:Term(args)
   if has('nvim')
     tabnew
@@ -117,20 +124,26 @@ function! s:Term(args)
     autocmd! TermClose <buffer=abuf> if !v:event.status | exec 'bd! '..expand('<abuf>') | endif | checktime
     startinsert
   elseif has('terminal')
+    " Vim 8
     execute 'tab terminal ++close ' . a:args
   else
-    execute 'silent !( ' . (a:args != '' ? a:args : $SHELL) . ') || ( echo "Press ENTER to continue"; read; )' | redraw!
+    " Vim 7
+    call s:Silent(a:args != '' ? a:args : $SHELL)
   endif
 endfunction
 command! -nargs=? Terminal call s:Term(<q-args>)
 
 nnoremap <leader>rm :update\|Silent pandoc % -o /tmp/vim.pdf<cr>
 nnoremap <leader>rp :Silent pomostart<cr>
+nnoremap <leader>rd :Silent tmux-start debug<cr>
 nnoremap <leader>rc :Silent md2rt-clip<cr>
 vnoremap <leader>rc y:Silent md2rt-clip<cr>
 nnoremap <leader>rv :Silent rt2md-clip<cr>p
-nnoremap <leader>rt :silent !tmux send-keys -t 'right:1.1' '' Enter<left><left><left><left><left><left><left>
+nnoremap <leader>rf :Silent wtfs start-timer<space>
+nnoremap <leader>rt :silent !tmux send-keys -t 'top:0.1' '' Enter<left><left><left><left><left><left><left>
 nnoremap <leader>rr :echo system("cut -c16- ~/.zsh_history \| fzf --tac")<cr>
+vnoremap <leader>rs y:execute 'silent !xsel -o -b\|ssh phone termux-tts-speak &'<cr>
+"TODO: vnoremap <leader>rs :'<,'>:w !ssh phone termux-tts-speak<cr>
 "TODO: vnoremap <leader><leader>q :<c-U>execute '!tmux send-keys -t 1 "'.escape(join(getline(getpos("'<")[1],getpos("'>")[1]), "\n"), '"#').'" Enter'<cr>
 " ignore any further error formats.  (hopefully this doesn't break any plugins)
 set errorformat+=%-G%.%#
@@ -163,7 +176,8 @@ function! s:Source(file)
   endif
   let v:this_session = a:file
 endfunction
-autocmd VimLeave * call s:SaveSession()
+autocmd VimLeave * call s:SaveState()
+autocmd FocusLost * call SaveStateTimer(0)
 
 " Set Project
 function! s:SetProject(dir)
@@ -176,6 +190,15 @@ function! s:SetProject(dir)
   else
     set viminfofile=.vim/.viminfo
   endif
+
+  " project specific config
+  if filereadable(a:dir . '/.vim/.nvimrc')
+    execute 'source ' . a:dir . '/.vim/.nvimrc'
+  endif
+  " Ignore in project
+  if ! filereadable(a:dir . '/.vim/.gitignore')
+    call writefile(['*', ''], a:dir . '/.vim/.gitignore', 'b')
+  endif
 endfunction
 command! -nargs=1 -complete=dir ChProject call s:ChProject(<f-args>)
 function! s:ChProject(dir)
@@ -186,16 +209,21 @@ endfunction
 
 " Save state
 command! -nargs=0 SaveState call s:SaveState()
-function! s:SaveState()
-  wall
+function! SaveStateTimer(tid)
   call s:SaveSession()
   wviminfo!
+endfunction
+function! s:SaveState()
+  wall
+  call SaveStateTimer(0)
 endfunction
 function s:SaveSession()
   if !empty(v:this_session)
     execute 'mksession! ' . v:this_session
   endif
 endfunction
+
+call timer_start(30 * 60000, function('SaveStateTimer'), {'repeat': -1})
 
 " Init.
 if index(v:argv, '+State') >= 0
@@ -389,20 +417,29 @@ nnoremap [M [Mzz
 nnoremap ]M ]Mzz
 
 " Open marks A-E in new windows
-nnoremap ,vg :silent vsplit\|wincmd l\|execute "normal 'A"\|split\|wincmd j\|execute "normal 'B"\|split\|wincmd j\|execute "normal 'C"\|split\|wincmd j\|execute "normal 'D"\|split\|wincmd j\|execute "normal 'E"\|wincmd h<cr>
+nnoremap <leader>vg :silent vsplit\|wincmd l\|execute "normal 'A"\|split\|wincmd j\|execute "normal 'B"\|split\|wincmd j\|execute "normal 'C"\|split\|wincmd j\|execute "normal 'D"\|split\|wincmd j\|execute "normal 'E"\|wincmd h<cr>
 " Close marks A-E windows.  (right, 5 close)
-nnoremap ,vG :wincmd l\|wincmd c\|wincmd c\|wincmd c\|wincmd c\|wincmd c<cr>
-nmap ,vR ,vG,vg
+noremap <leader>,vG :wincmd l\|wincmd c\|wincmd c\|wincmd c\|wincmd c\|wincmd c<cr>
+noremap <leader>vR ,vG,vg
 
 
 
 "TODO
 " next
+"   mini scripts
+"     convert link in clipboard to markdown link (:r !~/bin/mdlink)
+"     show current markdown in browser  (pandoc, xdg-open)
+"     save live preview: pdf, docx, 
+"   https://github.com/michaelb/sniprun
+"   https://github.com/nvim-treesitter/nvim-treesitter-context
 "   Find better alternative: https://github.com/hotoo/jsgf.vim/blob/master/doc/jsgf.txt
 "   checktime on autocmd focus
 "     https://github.com/tmux-plugins/vim-tmux-focus-events
 "     https://stackoverflow.com/a/20418591
-"
+"   markdown
+"     https://github.com/dkarter/bullets.vim
+"     https://www.reddit.com/r/linuxquestions/comments/ye0n93/comment/itwlqi5/
+"     https://github.com/iamcco/markdown-preview.nvim
 "   galaxyline
 "   css plugin in lua + tree sitter
 "   zt goes to 1, but it should have a top margin
@@ -442,6 +479,25 @@ nmap ,vR ,vG,vg
 "     a - actions
 "     r - run
 "     [] - forward/backward
+" Smart yank plugin
+"   On TextYankPost autocmd, record filetype
+"   On paste, detect if different filetypes and see what can be done
+"     if in:code out:markdown, insert code block, unindented
+"     if in:lua out:vimscript, put into lua block
+"     if in:vimscript out:lua, put into vim.cmd multi-line string
+"     if in:javascript out:html, stript tag, unless already in one
+"     if incompatible code langs, put into multi-line string
+"     Various pandoc in/out formats
+"   Multiline, single string sytax for various languages
+"   Smart translation
+"     Use GPT3 to translate
+"     code-to-code
+"   Pop-up for conversion type
+"     types: gpt, string embed, language-in-language embed
+"   Extensible combinations
+"     Alias group arrays (js:js,ts,jsx)
+"   References
+"     https://github.com/Perthys/LuaOpenAI
 " ftFT helpers
 "   shot-f, quick-scope
 "   sneak

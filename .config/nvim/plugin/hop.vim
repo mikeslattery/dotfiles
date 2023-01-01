@@ -71,6 +71,3 @@ noremap <leader>gT T
 noremap <leader>g; ;
 noremap <leader>g, ,
 
-" row,col marks more convenient
-noremap ' `
-

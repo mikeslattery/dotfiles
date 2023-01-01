@@ -13,7 +13,7 @@ main-session() {
   tmux send-keys 'nvim -S' Enter
 
   tmux new-window -n newnpm -c ~/src/research/newnpm
-  tmux send-keys 'nvim +State' Enter
+  # tmux send-keys 'nvim +State' Enter
 
   tmux new-window -n newstart -c ~/src/nuxt/newstart2
   tmux send-keys 'nvim +State' Enter
@@ -22,6 +22,39 @@ main-session() {
   tmux previous-window
 }
 
+start-apps() {
+  # TODO: detect if running
+
+  tmux send-keys -t 'main:0.0' 'nvim -S' Enter
+  tmux send-keys -t 'main:2.0' 'nvim +State' Enter
+
+  # main app and tdd
+  tmux send-keys -t 'top:0.0' './netlifydev'
+  tmux send-keys -t 'top:0.2' 'tdd'
+}
+
+stop-apps() {
+  # graceful shutdown of neovim
+  tmux list-panes -F '#{pane_current_command} #{pane_id}' -a | \
+    sed -rn 's/^n?vim //p' | \
+    xargs -tI{} tmux send-keys -t {} :xa Enter
+
+  # main app and tdd
+  tmux send-keys -t 'top:0.0' C-c
+  tmux send-keys -t 'top:0.2' 'q'
+}
+
+faster-apps() {
+  # tweaks to take less battery.
+
+  # Disable marks.nvim
+  tmux list-panes -F '#{pane_current_command} #{pane_id}' -a | \
+    sed -rn 's/^n?vim //p' | \
+    xargs -tI{} tmux send-keys -t {} :MarksToggleSigns Enter
+
+  # stop tdd
+  tmux send-keys -t 'top:0.2' 'q'
+}
 
 top-session() {
   tmux new-session -s top -d -c ~/src/nuxt/newstart2
@@ -35,8 +68,49 @@ top-session() {
   tmux send-keys 'shortprompt' Enter
 }
 
-main-session
-top-session
+left-session() {
+  tmux new-session -s left -d -c ~
+  tmux send-keys 'DISPLAY=:0 wtfutil' Enter
+}
 
-tmux attach-session -t main
+reddit-session() {
+  tmux new-session -s reddit -d -c ~
+  tmux send-keys 'DISPLAY=:0 tuir' Enter
+}
+
+debug() {
+  tmux switch-client -t top
+  tmux select-pane -t 'top:0.2'
+  tmux copy-mode -t 'top:0.2' -u
+}
+
+laptop() {
+  host=cathy
+  #TODO: start barriers daemon on command line
+  scp ~/bin/tmux-spare "${host}:bin/."
+  ssh "${host}" bin/tmux-spare
+}
+
+if [[ "${1:-}" == "stop" ]]; then
+  stop-apps
+elif [[ "${1:-}" == "start" ]]; then
+  start-apps
+elif [[ "${1:-}" == "faster" ]]; then
+  faster-apps
+elif [[ "${1:-}" == "laptop" ]]; then
+  laptop
+elif [[ "${1:-}" == "debug" ]]; then
+  debug
+else
+  main-session
+  top-session
+  left-session
+  reddit-session
+
+  tmux bind-key M-0 switch-client -t main
+  tmux bind-key M-9 switch-client -t top
+  tmux bind-key M-8 switch-client -t left
+
+  tmux attach-session -t main
+fi
 

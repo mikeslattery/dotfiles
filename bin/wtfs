@@ -6,7 +6,7 @@ _usage() {
   echo "Usage: $0 <subcommand>"
   echo ''
   echo 'Subcommands:'
-  sed -nr 's/^([a-z][a-zA-Z0-9_]*)\(.*/\1/p' < "$0"
+  sed -nr 's/^([a-z][a-zA-Z0-9_-]*)\(.*/\1/p' < "$0"
 }
 
 _main() {
@@ -21,24 +21,49 @@ _main() {
 
 # TODO: aggregate total charges today.  count, amount, earliest, latest
 charges() {
-  stripe charges list --limit 4 | jq '.data[] | [(.created | strftime("%F %T")), (.amount / 100.00), .status] | @tsv' -r
+  stripe charges list --live | \
+    jq '.data[]
+      | select(.payment_method_details.card.last4 != "4242")
+      | [(.created | strftime("%m-%d %H:%M")), (.amount / 100.00), .status]
+      | @tsv' -r | \
+      sed 's/^/charge  /'
+  stripe disputes list --live | \
+    jq '.data[]
+      | select(.payment_method_details.card.last4 != "4242")
+      | [(.created | strftime("%m-%d %H:%M")), (.amount / 100.00), .status]
+      | @tsv' -r | \
+    sed 's/^/dispute /'
 }
 
-disputes() {
-  stripe disputes list --limit 4 | jq '.data[] | [(.created | strftime("%F %T")), (.amount / 100.00), .status] | @tsv' -r
+#TODO: incomplete
+# https://www.maxivanov.io/make-graphql-requests-with-curl/
+newusers() {
+  source ~/src/nuxt/newstart2/.env.prod
+  local query="donation {amount city}"
+  local variables = "null"
+
+  curl -fsS https://data.communityrisingscholarships.org/v1/graphql \
+    -H "X-HASURA-ADMIN-SECRET: $HASURA_GRAPHQL_ADMIN_SECRET" \
+    -H 'Content-Type: application/json' \
+    --data "{
+      'query':'query MyQuery { ${query}',
+      'variables': ${variables},
+      'operationName':'MyQuery'}" | \
+    jq '.data.donation[] | [.amount, .city] | @tsv' -r
 }
 
 health() {
   echo "Nety: $(curl -fsS   https://www.netlifystatus.com/api/v2/status.json | jq .status.description -r || echo ERROR)"
-  echo "GQL:  $(curl -fsS https://data.equityrisingscholarships.org/healthz || echo ERROR)"
-  # TODO: full run: auth as a user, graphql query, fetch CDN file
-  echo "Func: $(curl -fsS https://equityrisingscholarships.org/.netlify/functions/health || echo ERROR)"
-  echo "Auth: $(curl -fsS https://equityrisingscholarships.org/.netlify/identity/health &>/dev/null && echo OK || echo ERROR)"
   echo "Pay:  $(curl -fsS https://status.stripe.com/current/full | jq .message -r || echo ERROR)"
   echo "Mail: $(curl -fsS https://3tgl2vf85cht.statuspage.io/api/v2/status.json | jq .status.description -r || echo ERROR)"
+
+  echo "GQL:  $(curl -fsS https://data.communityrisingscholarships.org/healthz || echo ERROR)"
+  # TODO: full run: auth as a user, graphql query, fetch CDN file
+  echo "Func: $(curl -fsS https://communityrisingscholarships.org/.netlify/functions/health || echo ERROR)"
+  echo "Auth: $(curl -fsS https://communityrisingscholarships.org/.netlify/identity/health &>/dev/null && echo OK || echo ERROR)"
 }
 
-highlight() {
+_highlight() {
   search="$1"
   color="${2:-31}"
   sed -r "s/(${search})/\x1b[${color}m\1\x1b[0m/g"
@@ -46,42 +71,74 @@ highlight() {
 
 # Development and CI/CD
 
+bs() {
+  echo 'bs'
+}
+
+_rawbuilds() {
+  netlify api listSiteDeploys \
+     -d '{"site_id": "communityrisingscholarships.org", "page": 1, "per_page": 3}' \
+    | jq  '.[] | [.state, .status_message, .published_at, .title] | @tsv' -r \
+    | sed -r 's/202[1-9]-([0-9\-]+)T/\1 /; s/\....Z//; s/\t/   /g' \
+    | _highlight error \
+    | tee /tmp/builds.txt \
+    | sed -r '$ { s/^.*\t/updated\t/; };'
+}
+
 builds() {
   timeoutmin=5
 
   now="$(date +%s)"
   # last push
-  gptime="$(git -C ~/src/nuxt/newstart2 log -1 --format=%at origin/master)"
-  gpsubj="$(git -C ~/src/nuxt/newstart2 log -1 --format=%s  origin/master)"
+  gptime="$(git --no-pager -C ~/src/nuxt/newstart2 log -1 --format=%at origin/master 2>/dev/null)"
+  gpsubj="$(git --no-pager -C ~/src/nuxt/newstart2 log -1 --format=%s  origin/master 2>/dev/null)"
   # last deploy check
   ftime="$(stat /tmp/builds.txt --format=%Y 2>/dev/null || echo 0)"
-  thmin="$(( 60 * $timeoutmin ))"
+  thmin="$(( 60 * "$timeoutmin" ))"
 
+  echo "push       $(date -d "@$gptime" '+%m-%d %H:%M:%S' --utc)   ${gpsubj}"
   # if push in last $timeoutmin minutes, or no updates in last $timeoutmin minutes
   if  [[ $(( "$now" - "$gptime" )) -le "$thmin" ]] || \
       [[ $(( "$now" - "$ftime"  )) -ge "$thmin" ]]; then
     netlify api listSiteDeploys \
-        -d '{"site_id": "equityrisingscholarships.org", "page": 1, "per_page": 2}' \
-      | jq  '.[] | [.state, .status_message, .created_at, .title] | @tsv' -r \
-      | sed -r 's/202[1-9]-([0-9\-]+)T/\1 /; s/:[0-9][0-9]\....Z//; s/\t/   /g' \
-      | highlight error \
-      | tee /tmp/builds.txt
-    echo 'updated'
+       -d '{"site_id": "communityrisingscholarships.org", "page": 1, "per_page": 3}' \
+      | jq  '.[] | [.state, .status_message, .published_at, .title] | @tsv' -r \
+      | sed -r 's/202[1-9]-([0-9\-]+)T/\1 /; s/\....Z//; s/\t/   /g' \
+      | _highlight error \
+      | tee /tmp/builds.txt \
+      | sed -r '$ { s/^.*\t/updated\t/; };'
+      # | sed -r 's/202[1-9]-([0-9\-]+)T/\1 /; s/:[0-9][0-9]\....Z//; s/\t/   /g' \
   else
     cat /tmp/builds.txt
   fi
-  echo "push       $(date -d "@$gptime" '+%m-%d %H:%M' --utc)   ${gpsubj}"
+}
+
+feedback() {
+  netlify api listFormSubmissions -d \
+    '{"site_id": "communityrisingscholarships.org", "form_id": "639ce56f78dbff0008f52bdc",
+     "page": 1, "per_page": 9}' | \
+       jq '.[] | [(.created_at), .data.category] | @tsv' -r | \
+       sed -r 's/^202.-(..-..)T(..:..):......Z/\1 \2/'
 }
 
 gss() {
-  git -C ~/src/nuxt/newstart status -sb --show-stash | sed -r '0,/^(\?\? )/s//\n\1/'
+  git -C ~/src/nuxt/newstart2 status -sb --show-stash | head -20 #| sed -r '0,/^(\?\? )/s//\n\1/'
   # Also can add: --ignored
   echo ''
-  git -C ~/src/nuxt/newstart stash list -3
+  git -C ~/src/nuxt/newstart2 log --oneline origin/master..HEAD -5
+  git -C ~/src/nuxt/newstart2 stash list -2
 }
 
 servers() {
-  netstat -ltnp 2>/dev/null | sed -rn '/:(53|5355|631) /d; /\/java  *$/d; s/^.* ([0-9\.]+:[0-9]+) .*$/\1/p;'
+  # netstat must be in your suders:
+  # %wheel	ALL=(ALL)	NOPASSWD: /usr/bin/netstat *
+
+  sudo netstat -4ltnp 2>/dev/null | \
+    sed -rn '
+      /:(53|5355|631) /d;
+      /\/java  *$/d;
+      s/^.* ([0-9\.]+:[0-9]+) .*$/\1/p;' | \
+    sort
 }
 
 # Local environment
@@ -90,8 +147,88 @@ todos() {
   rg '^ +\* \[[- ]\]' ~/src/ven/doc/.todo.md -m 3 | sed -r 's/^ +\* \[(.)\]/\1/'
 }
 
+start-pomodoro() {
+  mkdir -p ~/.local/state
+  date +%s > ~/.local/state/pomodoro
+}
+
 pomodoro() {
   date -d "0 + $(( $(date +%s) - $(cat ~/.local/state/pomodoro) )) seconds" "+%-H  %M:%S"
+}
+
+# rm-timer <name>
+rm-timer() {
+  local name="${1}"
+
+  timer="$HOME/.local/state/timers/$name"
+  rm "$timer"
+}
+
+rm-timers() {
+  rm -f ~/.local/state/timers/*
+}
+
+# set-timer <name> [resume|pause]
+set-timer() {(
+  local name="${1:-default}"
+  local astate="${2:-resume}"
+
+  timer="$HOME/.local/state/timers/$name"
+  mkdir -p "$(dirname "$timer")"
+  
+  if [[ -f "$timer" ]]; then
+    source "$timer"
+  else
+    # creation of timer
+    accumulated=0
+    state=pause
+  fi
+
+  if [[ "$state" == "$astate" ]]; then
+    return 0
+  fi
+
+  if [[ "$astate" == "pause" ]]; then
+    accumulated=$(( "$accumulated" + "$(date +%s)" - "${laststart}" ))
+  else # resume
+    laststart="$(date +%s)"
+  fi
+
+  cat > "$timer" <<TIMER
+accumulated=$accumulated
+laststart=$laststart
+state=${astate}
+TIMER
+)}
+
+start-timer() {
+  local aname="$1"
+
+  local timer
+  for timer in $(find ~/.local/state/timers -type f); do
+    local name="$(basename "$timer")"
+    if [[ "$name" != "$aname" ]]; then
+      set-timer "$name" pause
+    fi
+  done
+
+  set-timer "$aname" resume
+}
+
+timers() {
+  echo -n $'pomo\t'; pomodoro
+  echo ''
+  local timer
+  for timer in $(find ~/.local/state/timers -type f); do (
+    source "$timer"
+
+    if [[ "$state" == "pause" ]]; then
+      laststart="$(date +%s)"
+    fi
+
+    echo -en "$(basename "$timer")\t"
+    date -d "0 + $(( "$accumulated" + $(date +%s) - "$laststart" )) seconds" "+%H:%M:%S"
+  ); done
 }
 
 processes() {
@@ -102,13 +239,13 @@ tmux() {
   #TODO: turn red if CPU is high, or pomodoro is almost due
   #TODO: cpu="$(LINES=12 top -bn1 -w | sed -r '1,/PID/d; / wtfutil$/d; s/^.{51}(.{10}).{10}/\1/; ' | head -1)"
   #In hawaii, EST time: | $(date +%T --date='now + 5 hours')
-  echo -n "$(pomodoro) | $(date +%T)"
+  echo -n "$(pomodoro default) | $(date +%T)"
 }
 
 # Personal
 
 weather() {
-  curl -sf 'https://wttr.in/Indianapolis?format=2'
+  curl -sf 'https://wttr.in/Indianapolis?u&format=2'
 }
 
 recycling() {
@@ -116,16 +253,77 @@ recycling() {
   [[ "$(( $(date -d "+5 days" +%s) / 3600 / 24 / 7 % 2 ))" == 1 ]] && echo "Recycling" || echo "Trash"
 }
 
+personal() {
+  weather
+  recycling
+}
+
 
 _main "$@"
 
-#      args: ["/home/mike/bin/notifies"]
-#      args: ["-c", "while true; do sleep 1; date; done"]
-#TODO:
-# netstat -ltn4 | sed -rn '/:(53|5355|631) /d; s/^.* ([0-9\.]+:[0-9]+) .*$/\1/p'
+
+# args: ["/home/mike/bin/notifies"]
+
+# HIGH PRIORITY
+# use
+#   health
+# add
+#   new user
+#     possible sources: logs, graphql
+#   latest unique onsite errors
+#     bin/util prod compose-logs -f --tail=0 | grep -Ei error
+#     try this: console.log('error') or something else and filter on it
+#     bin/util prod compose-logs --no-color -f --tail=0 | \
+#       grep -i 'error' | \
+#       sed 's/"http_error":null//; /error/ !d;' | \
+#       rg -v '(handshake|"status":404|caddy.*reset|11/27|code=|moore|FeedBaxley|m2slattery' | \
+#       rg -v '(8373|hook unauth|confirmation_token|isDark|error page.*object Object|validate-user.*401)' | \
+#       sed -r 's/\\n/\n/g; s/\\t/\t/g' | \
+#       perl -e 'use Digest::MD5 qw(md5);
+#         while(<>) { if(/error/i) { print $_ if !$h{md5($_)}; $h{md5($_)}=1;  } }'
+#   full stack health endpoint smoke test
+#     gotrue, gql, s3, sendgrid
+# fix
+#   todos
+# alerts
+#   bug feedback, novel error log, dispute, health check failure
+
+
+# MEDIUM
+# my next calendar events
+# fix todos
+# weather and recycling together
+# health of all systems.  Just report issues
+# processes and resource usage together
+# reddit responses
+
+# MEDIUM-LOW
+
+# gitlab: my PRs, their PRs, todo list
+# github notifications
+# reddit notifications
+# pomodoro scripts: start, pause, stop, alarms
+# unit test status
+# next priority item:
+#    refund, downage, high server resource usage,
+#    calendar appointment warning,
+#    periodic (lunch, end of day, stand-up), 
+#    new onsite error, user complaint,
+#    failed build, failed unit test,
+#    pomodoro 5 minute warning,
+#    build success, unit test success (after failure),
+#    important email,
+#    my PR reviewed, my PR stale, new PR to review
+#    email, github notification, reddit notification
+
+
+# LOW
+
+# servers()
+#   netstat -ltn4 | sed -rn '/:(53|5355|631) /d; s/^.* ([0-9\.]+:[0-9]+) .*$/\1/p'
 # bat .todo.md --color=always --style=plain --line-range=:10
 # uptime | sed 's/^.*: //'
-# inxi ... # current temp
+# inxi ... # current cpu temp
 #
 # Done:
 # pretty weather
@@ -145,12 +343,13 @@ _main "$@"
 #
 # Unwritten:
 # rss status feeds: status.gitlab.com, www.netlifystatus.com, status.digitalocean.com
+# notifications in go
+# tmux current pane git status
 # health: hasura /healthz, id site/.netlify/identity/health
 # load factor for droplets  (ssh + uptime)
 # cpu,io % of DO managed db
 # netlify identity logs
 # check services running: list down sites in red .wrong: xargs -r -n1 -d$'\n' < sites.txt | bash -c -- 'curl -fsS "$1" | grep -sq || echo "$1 down"'
-# pomodoro scripts: start, pause, stop, alarms
 # top -bn1 ... only show CPU%, SMEM%, Process name.  top 2 processes but not "top"
 # slack channels: 1on1, linux
 # gitlab CI failures

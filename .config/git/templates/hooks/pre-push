@@ -5,18 +5,22 @@
 # exit with non-zero status after issuing an appropriate message if
 # it wants to stop the commit.
 
-set -euo pipefail
+set -eu
 
-against="$1"
+against="${1:-HEAD}"
 
 # Redirect output to stderr.
 exec 1>&2
 
 # Get list of staged files
-files="$(git diff --name-only --diff-filter=AM --cached "$against" --)"
+filesargs() {
+  git diff -z --name-only --diff-filter=AM --cached "$against" -- | \
+    xargs -0 -r \
+    "$@"
+}
 
 # no TODO or FIXME comments.
-! echo "$files" | xargs -d$'\n' -r grep 'FIXME\|TODO'
+filesargs grep 'FIXME\|TODO' && exit 1
 
 # build pre-push check
 if [ -f yarn.lock ] && grep -sq pre-push package.json; then
@@ -24,3 +28,9 @@ if [ -f yarn.lock ] && grep -sq pre-push package.json; then
 elif [ -f package-lock.json ] && grep -sq pre-push package.json; then
   npm run pre-push
 fi
+
+# TODO:
+# Configuration: allow TODOs, skip editorconfig, skip other steps
+# List your PR reviews (don't show errors), with command to open in browser
+# List tickets assigned to you.
+# Share code with pre-commit

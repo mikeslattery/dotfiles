@@ -16,11 +16,11 @@ wtf:
           odd: "white"
       enabled: true
       locations:
-        Japan: "Asia/Tokyo"
         Hawaii: "HST"
         Eastern: "US/Eastern"
         UTC: "UTC"
-        France: "CET"
+        CA: "America/Los_Angeles"
+        Cork: "Europe/Dublin"
       position:
         top: 0
         left: 1
@@ -29,18 +29,18 @@ wtf:
       refreshInterval: 15
       sort: "chronological"
       type: "clocks"
-    ports:
-      title: "Local Servers"
+    timers:
+      title: "Timers"
+      type: cmdrunner
       cmd: "wtfs"
-      args: [servers]
+      args: [timers]
       enabled: true
       position:
         top: 0
         left: 2
         height: 1
         width: 1
-      refreshInterval: 5
-      type: cmdrunner
+      refreshInterval: 1
     subreddit:
       enabled: true
       numberOfPosts: 10
@@ -56,7 +56,7 @@ wtf:
       cpuCombined: true
       enabled: true
       position:
-        top: 2
+        top: 3
         left: 1
         height: 1
         width: 1
@@ -64,48 +64,37 @@ wtf:
       showCPU: true
       showMem: true
       showSwp: true
-    weather:
-      title: "Weather"
+    personal:
+      title: "Personal"
       enabled: true
       position:
         top: 2
         left: 2
         height: 1
         width: 1
-      refreshInterval: 300
+      refreshInterval: 600
       type: cmdrunner
       cmd: "wtfs"
-      args: [weather]
-    curb:
-      title: "curb"
-      enabled: true
-      position:
-        top: 3
-        left: 2
-        height: 1
-        width: 1
-      refreshInterval: 7200
-      type: cmdrunner
+      args: [personal]
+    ports:
+      title: "Local Servers"
       cmd: "wtfs"
-      args: [recycling]
-    textfile:
+      args: [servers]
       enabled: true
-      filePath: "~/.config/wtf/config.yml"
-      format: true
       position:
         top: 0
         left: 0
-        height: 4
+        height: 3
         width: 1
-      refreshInterval: 30
-      wrapText: false
+      refreshInterval: 5
+      type: cmdrunner
     stopwatch:
       title: "Pomodoro"
       cmd: "wtfs"
       args: [pomodoro]
       enabled: true
       position:
-        top: 3
+        top: 2
         left: 1
         height: 1
         width: 1
@@ -128,7 +117,6 @@ wtf:
       cmd: "wtfs"
       args: ["builds"]
       enabled: true
-      pty: true
       tail: false
       position:
         top: 0
@@ -137,6 +125,19 @@ wtf:
         width: 2
       refreshInterval: 10
       type: cmdrunner
+    charges:
+      title: "Charges"
+      cmd: "wtfs"
+      args: ["charges"]
+      enabled: true
+      tail: false
+      position:
+        top: 1
+        left: 3
+        height: 1
+        width: 2
+      refreshInterval: 300
+      type: cmdrunner
     processes:
       title: "processes"
       cmd: "wtfs"
@@ -144,16 +145,16 @@ wtf:
       enabled: true
       tail: false
       position:
-        top: 1
-        left: 3
+        top: 3
+        left: 0
         height: 1
         width: 1
       refreshInterval: 4
       type: cmdrunner
-    todos:
-      title: "todos"
+    feedback:
+      title: "Feedback"
       cmd: "wtfs"
-      args: ["todos"]
+      args: ["feedback"]
       enabled: true
       tail: false
       position:

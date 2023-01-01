@@ -35,6 +35,7 @@ let g:coc_global_extensions = [
   \ 'coc-vetur',
   \ 'coc-tsserver',
   \ 'coc-helper',
+  \ 'coc-tailwindcss',
   \ ]
 "  \'coc-prettier',
 "  \'coc-jest',

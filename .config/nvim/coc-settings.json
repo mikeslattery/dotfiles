@@ -4,6 +4,7 @@
   "javascript.suggestionActions.enabled": false,
   "vetur.useWorkspaceDependencies": true,
   "eslint.autoFixOnSave": true,
-  "explorer.icon.enableNerdfont": false
+  "explorer.icon.enableNerdfont": false,
+  "tailwindCSS.headwind.runOnSave": false
 }
 

@@ -3,8 +3,9 @@
 # This should contains things specific to a local environment, such as IDE, OS, or editor.
 # This shouldn't contain anything created or used by project command line build tools.
 
-# Jetbrains
+# IDEs
 .idea
+.vscode
 
 # Vim
 tags
@@ -25,11 +26,6 @@ nohup.out
 
 # Sandbox files
 junk*
-
-# Nuxt sandbox
-# TODO: move to pages/junk and remove this section
-pages/box.vue
-pages/mockups.vue
 
 # See header comment for why these aren't ignored globally:
 # *.log

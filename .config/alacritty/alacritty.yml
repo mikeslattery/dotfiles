@@ -83,3 +83,7 @@ scrolling:
 selection:
   save_to_clipboard: false
 
+
+#TODO:
+# ctrl-[0-9] https://unix.stackexchange.com/questions/96884/using-ctrl0-9-to-cycle-between-windows-using-tmux
+# ssh cathy - backspace doesn't work

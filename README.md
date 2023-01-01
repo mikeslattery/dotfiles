@@ -57,16 +57,21 @@ Environments I've successfully used with these dot files.
 
 ### Various high level To-Dos
 
-* Git submodules for OMZ, tmux tpm, qt.
-* GSConnect
-* Configure firefox with sync
-* Install script for packages, including Google Drive and Keepass
-* Better integrate i3, Neovim, tmux, firefox, zathura
-* Switch to NeoVim native LSP.  Fallback to Ale and/or tags
-* git-crypt for `.gitconfig`, `.ssh`, netlify, stripe, keypassxc.ini
-* dconf as a text file
-* Support for in-container development.  `c-b c` starts in same container.  Shared clipboard.
-* [Gnome CPU usage](https://github.com/corecoding/Vitals)
+* Folders and files
+  * Git submodules for OMZ, tmux tpm, qt.
+  * dconf as a text file
+  * Twin self-hosted repo for secrets, for `.config/git/config`, `.ssh`, netlify, stripe, keypassxc.ini, `.pgpass`, `.pki`, `.npmrc`, `.gnupg`, `.gptshrc`
+  * Twin self-hosted repos for /etc and /etc secrets
+  * Some kind of google sync
+* Other data integrations
+  * GSConnect
+  * Configure firefox with sync
+* Mappings and configuration
+  * Better integrate i3, Neovim, tmux, firefox, zathura.
+  * Switch to NeoVim native LSP.  Fallback to Ale.
+* Installs
+  * Install script for packages, including Google Drive and Keepass
+  * [Gnome CPU usage](https://github.com/corecoding/Vitals)
 
 ## Getting started
 

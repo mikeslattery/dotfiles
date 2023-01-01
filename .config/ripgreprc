@@ -3,5 +3,6 @@
 -g!.git
 -g!*.svg
 -g!app.css
+-g!sar.html
 --hidden
 --heading

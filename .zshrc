@@ -81,8 +81,6 @@ alias is_fedora='grep -sq fedora /etc/os-release'
 
 if has podman && ! has docker; then
     docker() { podman "$@"; }
-fi
-if has podman-compose && ! has docker-compose; then
     docker-compose() { podman-compose "$@"; }
 fi
 
@@ -158,6 +156,10 @@ export CDPATH="$HOME/src"
 export LESS=-iRj3
 setopt cdablevars
 unsetopt autocd
+
+export TUIR_BROWSER=w3m
+export NCDU_SHELL='vifm .'
+alias ddgr='BROWSER=w3m ddgr'
 
 if [[ -d /usr/lib/jvm/default-java ]] && [[ -z "$JAVA_HOME" ]]; then
     export JAVA_HOME=/usr/lib/jvm/default-java
@@ -254,11 +256,13 @@ fi
 alias u='urxvt -e tmux &'
 
 if iszsh; then
+    alias -g -- --bat=' | xargs -d"\n" -r bat'
     alias -g -- --cless='--color=always | less -R'
     alias -g --  --ccat='--color=always | cat'
     alias -g --  --java='**/main/java/**/*.java'
     alias -g -- --fdall='--hidden --no-ignore -E .git'
 fi
+
 r() { sed -r -n "${1}p"; }
 x() { xargs -d"\n" -r "$@"; }
 xy() {
@@ -298,13 +302,21 @@ alias grfm='git ls-files -m --exclude-standard | sort | fzf -m --preview "git di
 alias grfo='git ls-files -o --exclude-standard | sort | fzf -m --preview "bat --color=always -r :99 {}" | xargs -tr rm; git status'
 # fuzzy git diff
 alias gdfm='git ls-files -m --exclude-standard | sort | fzf -m --preview "git diff -w {}"'
+alias gl='git pull --ff --no-edit'
 alias gp1='git push --set-upstream origin $(git_current_branch)'
+alias gpf='git push origin HEAD --force-with-lease'
+alias 'gpf!'='git push origin HEAD --force'
+unalias gp &>/dev/null || true
+gp() {
+  # check for conflicts before pull
+  git pull --no-ff --no-commit && \
+    git pull --ff --no-edit && \
+    git push
+}
 alias gdd='git --no-pager diff'
 alias gdh='git diff HEAD'
 alias gd='git diff -w'
 alias gcb='git checkout -b --track'
-alias gpf='git push origin HEAD --force-with-lease'
-alias 'gpf!'='git push origin HEAD --force'
 unalias glo &>/dev/null || true
 glo() {
     git --no-pager log --oneline --decorate -9 --color=always "$@" | nl -v0 | sed -r 's/^ +/HEAD~/; s/\t/ /'
@@ -353,14 +365,14 @@ export ANDROID_SDK_ROOT=$HOME/Android/Sdk
 #export PERL_MB_OPT="--install_base \"$HOME/perl5\""; export PERL_MB_OPT;
 #export PERL_MM_OPT="INSTALL_BASE=$HOME/perl5"; export PERL_MM_OPT;
 
-EDITOR="$(which nvim 2>/dev/null || which vim)"
+EDITOR="$(which nvim 2>/dev/null || which vim 2>/dev/null || which vimx 2>/dev/null || echo -n "${EDITOR:-nano}")"
 export EDITOR
 
 # Container package manager
 contize() {
     podman run -it --rm \
-        --privileged --userns=keep-id \
-        -v /etc/passwd:/etc/passwd:ro -v /etc/group:/etc/group:ro \
+        --security-opt label=disable \
+        --userns=keep-id \
         -v "$HOME:$HOME" -v /tmp:/tmp \
         -w "$PWD" \
         "$@"
@@ -465,13 +477,21 @@ html-clip() {
 #TODO: single clip command.  -f|-t html|md|text -i -|clip|file -o -|clip|file
 
 # Speak clipboard from phone
+tts() {
+  ssh phone termux-tts-speak
+}
+
 tts-clip() {
-  /usr/bin/xclip -o -selection clipoard | ssh phone termux-tts-speak
+  /usr/bin/xclip -o -selection clipoard | tts
 }
 
 # Phone dialog input, possibly from mic, to clipboard
+stt() {
+  ssh phone termux-dialog -m | jq '.text' -r
+}
+
 stt-clip() {
-  ssh phone termux-dialog -m | jq '.text' -r | /usr/bin/xclip -i -selection clipboard
+  sst | /usr/bin/xclip -i -selection clipboard
 }
 
 # move directory to /tmp
