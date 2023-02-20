@@ -27,6 +27,14 @@ if has_key(g:plugs, 'hop.nvim')
   noremap S :HopChar2BC<cr>
   noremap gw :HopWord<cr>
   noremap g/ :HopPattern<cr>
+elseif has_key(g:plugs, 'leap.nvim')
+  lua require('leap').add_default_mappings()
+  noremap x "_x
+  " nnoremap <silent> gS <Plug>Leap_gS
+  " nnoremap <silent> gs <Plug>Leap_gs
+  " nnoremap <silent> S  <Plug>Leap_S
+  " xnoremap <silent> s  <Plug>Leap_s
+  " nnoremap <silent> s  <Plug>Leap_s
 elseif has_key(g:plugs, 'lightspeed.nvim')
   let g:lightspeed_no_default_keymaps=1
 

@@ -21,3 +21,6 @@ addpath "$HOME/.local/bin"
 unset -f addpath
 unset -f pathmunge
 
+if [ -x "$HOME/.local/bin/nvim" ] && [ -z "$EDITOR" ]; then
+  export EDITOR="$HOME/.local/bin/nvim"
+fi

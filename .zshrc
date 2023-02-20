@@ -158,6 +158,7 @@ setopt cdablevars
 unsetopt autocd
 
 export TUIR_BROWSER=w3m
+export TUIR_EDITOR=nvim
 export NCDU_SHELL='vifm .'
 alias ddgr='BROWSER=w3m ddgr'
 
@@ -171,6 +172,13 @@ fi
 cheat() { curl -s "cheat.sh/$(echo -n "$*" | jq -sRr @uri)"; }
 nocolor() { sed -r 's:\x1B\[[0-9;]*[mKB]::g; s:^.*\x0D::g;'; }
 alias weather='curl -sL4 http://wttr.in/Indianapolis'
+
+fin() {
+  local r="$?"
+  local msg="${1:-Done}"
+  notify-send "$msg ($r) $(date +%T)"
+  echo "$msg ($r) $(date +%T)"
+}
 
 c() { awk -v "n=$1" '{print $n}'; }
 alias c1='c 1'
@@ -360,12 +368,11 @@ fi
 umask 027
 
 export ANDROID_SDK_ROOT=$HOME/Android/Sdk
-#export PERL5LIB="$HOME/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
-#export PERL_LOCAL_LIB_ROOT="$HOME/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
-#export PERL_MB_OPT="--install_base \"$HOME/perl5\""; export PERL_MB_OPT;
-#export PERL_MM_OPT="INSTALL_BASE=$HOME/perl5"; export PERL_MM_OPT;
 
-EDITOR="$(which nvim 2>/dev/null || which vim 2>/dev/null || which vimx 2>/dev/null || echo -n "${EDITOR:-nano}")"
+EDITOR="$(command -v nvim || command -v vi)"
+if [[ -n "$TMUX" ]]; then
+  EDITOR="tmux popup -E $EDITOR"
+fi
 export EDITOR
 
 # Container package manager
@@ -537,3 +544,13 @@ unset -f addpath
 #   exec tmux
 #fi
 
+#old
+#export PERL5LIB="$HOME/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
+#export PERL_LOCAL_LIB_ROOT="$HOME/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
+#export PERL_MB_OPT="--install_base \"$HOME/perl5\""; export PERL_MB_OPT;
+#export PERL_MM_OPT="INSTALL_BASE=$HOME/perl5"; export PERL_MM_OPT;
+PATH="/home/mike/perl5/bin${PATH:+:${PATH}}"; export PATH;
+PERL5LIB="/home/mike/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
+PERL_LOCAL_LIB_ROOT="/home/mike/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
+PERL_MB_OPT="--install_base \"/home/mike/perl5\""; export PERL_MB_OPT;
+PERL_MM_OPT="INSTALL_BASE=/home/mike/perl5"; export PERL_MM_OPT;

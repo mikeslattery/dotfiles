@@ -43,7 +43,7 @@ if has('nvim')
   Plug 'folke/which-key.nvim'
   Plug 'nvim-treesitter/nvim-treesitter', {'do': ':TSUpdate'}
   Plug 'chentoast/marks.nvim'
-  Plug 'ggandor/lightspeed.nvim'
+  Plug 'ggandor/leap.nvim'
   Plug 'norcalli/nvim-colorizer.lua'
 else
   if executable('fzf')
@@ -133,14 +133,26 @@ function! s:Term(args)
 endfunction
 command! -nargs=? Terminal call s:Term(<q-args>)
 
-nnoremap <leader>rm :update\|Silent pandoc % -o /tmp/vim.pdf<cr>
+" Inject last zsh command
+nnoremap <leader>r$ : r !sed -rn '$ { s/^[^;]*;//; p; }' ~/.zsh_history<cr>
+" Run line in shell and inject output
+vnoremap <leader>r! y:'<,'>!bash<cr>P
+nnoremap <leader>r! yy:.!bash<cr>P
+nnoremap <leader>rw :up\|Silent pandoc % -o /tmp/vim.pdf<cr>
+vnoremap <leader>rw :'<,'>w /tmp/vim.md\|Silent pandoc /tmp/vim.md -o /tmp/vim.pdf<cr>
 nnoremap <leader>rp :Silent pomostart<cr>
+nnoremap <leader>rs :r !vtt<cr>
+nnoremap <leader>rS :Silent vtt \| xsel -i -b<cr>
 nnoremap <leader>rd :Silent tmux-start debug<cr>
+nnoremap <leader>rD :Silent tmux-start undebug<cr>
 nnoremap <leader>rc :Silent md2rt-clip<cr>
 vnoremap <leader>rc y:Silent md2rt-clip<cr>
 nnoremap <leader>rv :Silent rt2md-clip<cr>p
 nnoremap <leader>rf :Silent wtfs start-timer<space>
+nnoremap <leader>rt :silent !tmux send-keys -t 'top:0.1' '' Enter<S-left><left><left>
 nnoremap <leader>rt :silent !tmux send-keys -t 'top:0.1' '' Enter<left><left><left><left><left><left><left>
+nnoremap <leader>rl :execute('silent !tmux send-keys -t "top:0.1" "' . escape(getline("."), '$"!\') . '" Enter')<cr>
+nnoremap <leader>rX j?test('<cr>"+yi'<c-o>k:!tmux send-keys -t 'top:0.1' 'jest "%" -t "<c-r>+"' Enter<cr>
 nnoremap <leader>rr :echo system("cut -c16- ~/.zsh_history \| fzf --tac")<cr>
 vnoremap <leader>rs y:execute 'silent !xsel -o -b\|ssh phone termux-tts-speak &'<cr>
 "TODO: vnoremap <leader>rs :'<,'>:w !ssh phone termux-tts-speak<cr>
@@ -244,6 +256,11 @@ nnoremap <leader><leader>c :ChProject ~/src/
 nnoremap <leader><leader>w :update\|silent! make -s\|redraw!\|cc<cr>
 nnoremap <leader><leader>q :execute 'silent !tmux send-keys -t 1 "'.escape(getline('.'), '"#').'" Enter'<cr>:redraw!<cr>
 
+" emulate tmux panes
+nnoremap <c-w><c-^> <c-w>p
+nnoremap <c-w>% <c-w>v<c-w>l:bp<cr>
+nnoremap <c-w>" <c-w>s<c-w>j:bp<cr>
+
 " WHITESPACE
 set tabstop=2
 set softtabstop=2
@@ -311,8 +328,9 @@ augroup END
 " EDITING
 "nnoremap <cr> o<esc>
 "nnoremap <space> i<space><esc>l
-noremap <c-w><c-^> <c-w>p
-noremap <leader>d "-d
+noremap <leader>d ""d
+noremap c ""c
+noremap x "_x
 nnoremap <leader>q @q
 
 set clipboard=unnamed,unnamedplus
@@ -343,12 +361,6 @@ inoremap <C-k> <C-o>d$
 " conflicts: c-a, c-k
 " excluded: c-b
 
-" TERMINAL
-nnoremap <c-w>% :rightbelow vertical terminal<cr>
-nnoremap <c-w>" :below terminal<cr>
-nnoremap <leader>h :rightbelow vertical help<space>
-nnoremap <leader><leader>l :call term_sendkeys(bufnr($SHELL),getline('.') . "\n")<cr>
-
 " CREATE/SAVE FILES
 nnoremap <leader><leader>t :exec "e ".system('mktemp -p /var/tmp')<cr>
 nnoremap <leader>w :up<CR>
@@ -362,7 +374,11 @@ let &backupdir = s:data_dir . '/backup//'
 
 " file type mappings
 autocmd BufRead,BufNewFile Dockerfile setlocal filetype=sh
+
+" markdown
 autocmd FileType markdown setlocal spell
+autocmd BufRead /tmp/tuir_*.txt setlocal filetype=markdown | execute '/Formatting help/,/link text/ d _' | execute 'normal Go'
+nnoremap <leader>Q :u0<cr>:wq<cr>
 
 " remove trailing spaces on save
 "autocmd BufWritePre * %s/\s\+$//e
@@ -426,10 +442,24 @@ noremap <leader>vR ,vG,vg
 
 "TODO
 " next
+"   run inline code
+"     invoke the right runtime, based on filetype
+"     use environment.  imports, libraries
+"     vnoremap <leader>r! y:'<,'>!bash<cr>P
+"     nnoremap <leader>r! yy:.!bash<cr>P
+"   unit tests
+"     RED/GREEN status
+"   status line
+"     better plugin
+"     base file name, line number, diagnostics count+color
 "   mini scripts
 "     convert link in clipboard to markdown link (:r !~/bin/mdlink)
 "     show current markdown in browser  (pandoc, xdg-open)
 "     save live preview: pdf, docx, 
+"   mini commands
+"     remove buffers that don't have existing files
+"   startup
+"     after start, remove buffers that don't have existing files
 "   https://github.com/michaelb/sniprun
 "   https://github.com/nvim-treesitter/nvim-treesitter-context
 "   Find better alternative: https://github.com/hotoo/jsgf.vim/blob/master/doc/jsgf.txt
@@ -534,10 +564,12 @@ noremap <leader>vR ,vG,vg
 "   F, T
 "   consistent keys?
 "   never autojump
-" ec, fixme/todo search pre-commit hook
-" next - telescope extension or PR
+" ec, fixme/todo search pre-push hook
+" telescope extension or PR
+"   bash picker: search(text), preview(), pick(text)
+"   git status, exlude index.  git diff --name-only --diff-filter=AM -- .
+"   telescope-npm - run commands, find packages
 "   changes, based off jumps
-"   buffers in mru order - look at fzf.vim
 " next - coc/ale
 "   see how to get ale and coc to live together
 "   put autoinstall stuff into plugin/

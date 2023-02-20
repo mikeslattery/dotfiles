@@ -38,10 +38,12 @@ charges() {
 #TODO: incomplete
 # https://www.maxivanov.io/make-graphql-requests-with-curl/
 newusers() {
+  #shellcheck disable=SC1090
   source ~/src/nuxt/newstart2/.env.prod
   local query="donation {amount city}"
-  local variables = "null"
+  local variables="null"
 
+  #shellcheck disable=SC2154
   curl -fsS https://data.communityrisingscholarships.org/v1/graphql \
     -H "X-HASURA-ADMIN-SECRET: $HASURA_GRAPHQL_ADMIN_SECRET" \
     -H 'Content-Type: application/json' \
@@ -125,8 +127,9 @@ gss() {
   git -C ~/src/nuxt/newstart2 status -sb --show-stash | head -20 #| sed -r '0,/^(\?\? )/s//\n\1/'
   # Also can add: --ignored
   echo ''
-  git -C ~/src/nuxt/newstart2 log --oneline origin/master..HEAD -5
-  git -C ~/src/nuxt/newstart2 stash list -2
+  git -C ~/src/nuxt/newstart2 log --oneline origin/master..HEAD -20
+  echo ''
+  git -C ~/src/nuxt/newstart2 stash list -4
 }
 
 servers() {
@@ -177,6 +180,7 @@ set-timer() {(
   mkdir -p "$(dirname "$timer")"
   
   if [[ -f "$timer" ]]; then
+    #shellcheck disable=SC1090
     source "$timer"
   else
     # creation of timer
@@ -219,15 +223,18 @@ timers() {
   echo -n $'pomo\t'; pomodoro
   echo ''
   local timer
+  #shellcheck disable=SC2044
   for timer in $(find ~/.local/state/timers -type f); do (
+    #shellcheck disable=SC1090
     source "$timer"
 
-    if [[ "$state" == "pause" ]]; then
+    if [[ "${state}" == "pause" ]]; then
       laststart="$(date +%s)"
     fi
 
-    echo -en "$(basename "$timer")\t"
-    date -d "0 + $(( "$accumulated" + $(date +%s) - "$laststart" )) seconds" "+%H:%M:%S"
+    echo -en "$(basename "${timer}")\t"
+    #shellcheck disable=SC2031
+    date -d "0 + $(( "${accumulated}" + "$(date +%s)" - "${laststart}" )) seconds" "+%H:%M:%S"
   ); done
 }
 
@@ -239,7 +246,7 @@ tmux() {
   #TODO: turn red if CPU is high, or pomodoro is almost due
   #TODO: cpu="$(LINES=12 top -bn1 -w | sed -r '1,/PID/d; / wtfutil$/d; s/^.{51}(.{10}).{10}/\1/; ' | head -1)"
   #In hawaii, EST time: | $(date +%T --date='now + 5 hours')
-  echo -n "$(pomodoro default) | $(date +%T)"
+  echo -n "$(cat /tmp/jest.txt) | $(pomodoro default) | $(date +%T)"
 }
 
 # Personal
@@ -299,9 +306,21 @@ _main "$@"
 
 # MEDIUM-LOW
 
+# Bus
+#    https://realtime.indygo.net/InfoPoint/
+#    https://realtime.indygo.net/InfoPoint/Stops/Stop/11595
+#    https://realtime.indygo.net/InfoPoint/Stops/Stop/11814
 # gitlab: my PRs, their PRs, todo list
 # github notifications
 # reddit notifications
+#    https://stackoverflow.com/questions/28955541/how-to-get-access-token-reddit-api
+#    https://www.reddit.com/r/redditdev/comments/k1lo76/how_to_make_simple_submit_post_to_reddit_api/
+#    https://stackoverflow.com/questions/41840497/how-to-gain-reddit-api-access-token
+#    https://www.reddit.com/r/redditdev/comments/qgr0np/installed_app_with_access_token_always_receive/
+#    https://www.reddit.com/r/redditdev/comments/lj4ha2/oauth2_how_to_get_an_auth_code_for_subsequent/
+#    ~/.config/tuir/tuir.cfg - client id and secret
+#    "POST /api/v1/access_token/ HTTP/1.1" 200 266
+#    "GET /message/unread/.json?limit=1024 HTTP/1.1" 200 122
 # pomodoro scripts: start, pause, stop, alarms
 # unit test status
 # next priority item:

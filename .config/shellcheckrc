@@ -1,1 +1,1 @@
-disable=SC2002
+disable=SC2002,SC2155,SC2250

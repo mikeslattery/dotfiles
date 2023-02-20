@@ -1,12 +1,18 @@
 #!/bin/bash
 
 set -eu
-set -x
 
 # Creates beginning layout
 # ane ends with tmux running in the foreground.
 
 # main
+
+set-window() {
+  local win="$(xdotool getactivewindow)"
+  xdotool windowsize "$win" 100% 100%
+  xdotool windowmove "$win" 0 0
+  xdotool windowmove "$win" 0 0
+}
 
 main-session() {
   tmux new-session -s main -d
@@ -29,8 +35,10 @@ start-apps() {
   tmux send-keys -t 'main:2.0' 'nvim +State' Enter
 
   # main app and tdd
-  tmux send-keys -t 'top:0.0' './netlifydev'
+  tmux send-keys -t 'top:0.0' 'npm run dev'
   tmux send-keys -t 'top:0.2' 'tdd'
+
+  tmux send-keys -t 'left:0.0' 'DISPLAY=:0 wtfutil'
 }
 
 stop-apps() {
@@ -44,24 +52,66 @@ stop-apps() {
   tmux send-keys -t 'top:0.2' 'q'
 }
 
-faster-apps() {
+_brightness() {
+  gdbus call --session \
+    --dest org.gnome.SettingsDaemon.Power \
+    --object-path /org/gnome/SettingsDaemon/Power \
+    --method org.freedesktop.DBus.Properties.Set \
+    org.gnome.SettingsDaemon.Power.Screen Brightness "<int32 $1>"
+
+  # Same as:
+  # max="$(cat /sys/class/backlight/intel_backlight/max_brightness)"
+  # echo "$max * $1 / 100" | bc > /sys/class/backlight/intel_backlight/brightness
+}
+
+battery() {
   # tweaks to take less battery.
 
-  # Disable marks.nvim
+  # Disable marks.nvim plugin
   tmux list-panes -F '#{pane_current_command} #{pane_id}' -a | \
     sed -rn 's/^n?vim //p' | \
     xargs -tI{} tmux send-keys -t {} :MarksToggleSigns Enter
 
-  # stop tdd
-  tmux send-keys -t 'top:0.2' 'q'
+  # dashboard
+  killall wtfutil
+
+  _brightness 15
+
+  # Open empty tab in all firefox windows
+  origwin="$(xdotool getactivewindow)"
+  ffmain="$(xdotool search --onlyvisible --classname '^firefox$')"
+  for win in $(xdotool search --onlyvisible --class '^firefox$'); do
+    if ! [[ "$win" == "$ffmain" ]]; then
+      xdotool windowactivate --sync "$win"
+      firefox about:blank
+    fi
+  done
+  xdotool windowactivate "$origwin"
+
+  laptop-off
+}
+
+ac() {
+  # tweaks to take more battery.
+
+  # Enable marks.nvim
+  tmux list-panes -F '#{pane_current_command} #{pane_id}' -a | \
+    sed -rn 's/^n?vim //p' | \
+    xargs -tI{} tmux send-keys -t {} :MarksToggleSigns Enter
+
+  tmux send-keys -t 'left:0.0' 'DISPLAY=:0 wtfutil' Enter
+
+  _brightness 70
+
+  laptop-on
 }
 
 top-session() {
   tmux new-session -s top -d -c ~/src/nuxt/newstart2
-  tmux send-keys './netlifydev' Enter
+  tmux send-keys 'npm run dev' Enter
 
   tmux split-window -h -c ~/src/nuxt/newstart2
-  tmux send-keys 'tdd' Enter
+  tmux send-keys '.vim/jest-watch' Enter
 
   tmux select-pane -L
   tmux split-window -v -c ~/src/nuxt/newstart2
@@ -81,7 +131,15 @@ reddit-session() {
 debug() {
   tmux switch-client -t top
   tmux select-pane -t 'top:0.2'
-  tmux copy-mode -t 'top:0.2' -u
+  # tmux send-keys '!!' Enter
+  # sleep 1
+  tmux copy-mode -t 'top:0.2'
+  tmux send-keys -t 'top:0.2' gg
+}
+
+undebug() {
+  tmux copy-mode -t 'top:0.2'
+  tmux send-keys -t 'top:0.2' q
 }
 
 laptop() {
@@ -91,17 +149,38 @@ laptop() {
   ssh "${host}" bin/tmux-spare
 }
 
-if [[ "${1:-}" == "stop" ]]; then
-  stop-apps
-elif [[ "${1:-}" == "start" ]]; then
-  start-apps
-elif [[ "${1:-}" == "faster" ]]; then
-  faster-apps
-elif [[ "${1:-}" == "laptop" ]]; then
-  laptop
-elif [[ "${1:-}" == "debug" ]]; then
-  debug
-else
+laptop-on() {
+  host=cathy
+  ssh "${host}" 'DISPLAY=:0 xset dpms force on'
+}
+
+laptop-off() {
+  host=cathy
+  ssh "${host}" 'DISPLAY=:0 xset dpms force off'
+}
+
+update-plugins() {
+  if [[ -d ~/.tmux/plugins/tpm ]]; then
+    git -C ~/.tmux/plugins/tpm pull
+    echo ''
+    echo ''
+    echo "List of previous plugin versions"
+    echo ''
+    find ~/.tmux/plugins -mindepth 1 -maxdepth 1 | \
+      xargs -tI{} \
+      git -C {} log -1 --oneline | \
+      tee ~/.tmux/plugins-prior-version.txt
+    ~/.tmux/plugins/tpm/bin/update_plugins all
+  fi
+  tmux source-file ~/.tmux.conf
+}
+
+reload-config() {
+  tmux source-file ~/.tmux.conf
+}
+
+boot() {
+  set-window
   main-session
   top-session
   left-session
@@ -112,5 +191,13 @@ else
   tmux bind-key M-8 switch-client -t left
 
   tmux attach-session -t main
-fi
+}
 
+main() {
+  command="${1:-boot}"
+  shift
+  set -x
+  "$command" "$@"
+}
+
+main "$@"

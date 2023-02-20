@@ -16,7 +16,7 @@ Some of the following may not be fully supported at any time as I change tools.
 
 ### Software
 
-* NeoVim, Vim, IDEAVim
+* Neovim, Vim, IDEAVim
 * Zsh, Oh-My-Zsh
 * Tmux, Alacritty
 * npm, yarn, node
@@ -38,38 +38,43 @@ Environments I've successfully used with these dot files.
 
 ### Notable Features of my configuration
 
-* Auto-install of plugin managers for NeoVim, Tmux, Zsh, on first use
-* Dracula theme for NeoVim, Tmux, Alacritty, i3/sway, Gtk, Slack, but with darker background
-* [True color](https://gist.github.com/andersevenrud/015e61af2fd264371032763d4ed965b6) support across alacritty, tmux, NeoVim 
+* Auto-install of plugin managers for Neovim, Tmux, Zsh, on first use
+* Dracula theme for Neovim, Tmux, Alacritty, i3/sway, Gtk, Slack, but with darker background
+* [True color](https://gist.github.com/andersevenrud/015e61af2fd264371032763d4ed965b6) support across alacritty, tmux, Neovim 
 * `.zshrc` also serves as a `.bashrc`
 * `init.vim` also serves as a `.vimrc`
 * Powerline fonts across alacritty, tmux, neovim
 * Mouseless usage as a goal, with vi keybindings when possible
 * Similar keybindings for tmux, i3, neovim
 * Global git pre-commit hook to run editorconfig checker
-* Integration between Jetbrains IDEs and NeoVim
+* Integration between Jetbrains IDEs and Neovim
 * Supplies files for `/etc`
 
 ### Notable individual files and directories
 
-* [.vimrc](.vimrc) implements NeoVim defaults and then sources [.config/nvim/init.vim](.config/nvim/init.vim)
+* [.vimrc](.vimrc) implements Neovim defaults and then sources [.config/nvim/init.vim](.config/nvim/init.vim)
 * [.config/dotfiles](.config/dotfiles) location for support files for this dotfiles project.
 
 ### Various high level To-Dos
 
-* Folders and files
-  * Git submodules for OMZ, tmux tpm, qt.
-  * dconf as a text file
-  * Twin self-hosted repo for secrets, for `.config/git/config`, `.ssh`, netlify, stripe, keypassxc.ini, `.pgpass`, `.pki`, `.npmrc`, `.gnupg`, `.gptshrc`
-  * Twin self-hosted repos for /etc and /etc secrets
-  * Some kind of google sync
+* Folder, files, and repos
+  * Git submodules for OMZ, tmux tpm, qt, my neovim.
+  * Some kind of google sync/UI for drive and photos
+  * Separate repo for Neovim configuration
+  * Private encrypted github repo for /etc and home secrets
+    * netlify, stripe
+    * `.config/git/config`, `.ssh`, `.pgpass`, `.pki`, `.npmrc`, `.gnupg`, `.gptshrc`
+    * `.config/keepassxc/keepassxc.ini`
+    * dconf as a text file
+  * Keep `passwords.kdbx` in Google drive.
+  * Move personal scripts from `~/.local/bin` to `~/bin`
 * Other data integrations
   * GSConnect
   * Configure firefox with sync
 * Mappings and configuration
-  * Better integrate i3, Neovim, tmux, firefox, zathura.
-  * Switch to NeoVim native LSP.  Fallback to Ale.
-* Installs
+  * Better integrate i3/sway, Neovim, tmux, firefox, zathura, tuir, vifm, jetbrains.
+  * Switch to Neovim native LSP.  Fallback to ALE
+* Installs and scripts
   * Install script for packages, including Google Drive and Keepass
   * [Gnome CPU usage](https://github.com/corecoding/Vitals)
 

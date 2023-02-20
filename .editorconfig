@@ -32,7 +32,7 @@ trim_trailing_whitespace = unset
 
 # Ignore, tool-specific
 
-[.run/*.xml]
+[{.run/*.xml,fixture/**}]
 end_of_line = unset
 insert_final_newline = unset
 indent_style = unset

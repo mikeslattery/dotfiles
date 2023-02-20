@@ -1,6 +1,12 @@
 " https://github.com/nvim-telescope/telescope.nvim
 
 if has_key(g:plugs, 'telescope.nvim')
+
+  " Search word under cursor
+  nnoremap <leader>* <cmd>execute 'normal yiw' \| lua require('telescope.builtin').live_grep({default_text = vim.fn.getreg()})<cr>
+  " Search selected text
+  vnoremap <leader>* <cmd>lua vim.cmd('noau normal! "vy"');require('telescope.builtin').live_grep({default_text = vim.fn.getreg("v")})<cr>
+
   noremap <leader>b <cmd>lua require('telescope.builtin').buffers({sort_mru=true, ignore_current_buffer=true})<cr>
   if executable('fd')
     noremap <leader>ff <cmd>Telescope fd<cr>
@@ -20,6 +26,7 @@ if has_key(g:plugs, 'telescope.nvim')
     noremap <leader>fp <cmd>Telescope find_files<cr>
     noremap <leader>fq :copen<cr>
   endif
+  noremap <leader>fT <cmd>Telescope builtin<cr>
   noremap <leader>fg <cmd>Telescope live_grep<cr>
   noremap <leader>f. <cmd>Telescope resume<cr>
   noremap <leader>g' <cmd>Telescope marks<cr>
@@ -27,7 +34,7 @@ if has_key(g:plugs, 'telescope.nvim')
   noremap <leader>vj <c-w>v<c-w>p:Telescope jumplist<cr>
   noremap <leader>v' <c-w>v<c-w>p:Telescope marks<cr>
   noremap <leader>vk <Cmd>Telescope keymaps<cr>
-  noremap <leader>vh :execute 'botright vertical help'\|Telescope help_tags<cr>
+  noremap <leader>vh :execute 'tab help'\|Telescope help_tags<cr>
   noremap <leader>gc :changes<cr>
   noremap <leader>gl <cmd>Telescope current_buffer_fuzzy_find<cr>
 
