@@ -1,6 +1,5 @@
 [user]
-	email = m2slattery@gmail.com
-	name = Michael Slattery
+  # email/EMAIL, name/GIT_AUTHOR_NAME values set in ~/.zshenv
 
 [core]
 #    pager = delta
@@ -13,4 +12,4 @@
     syntax-theme = Github
 
 [init]
-	templateDir = /home/mike/.config/git/templates
+	templateDir = ~/.config/git/templates

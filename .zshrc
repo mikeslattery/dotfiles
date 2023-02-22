@@ -540,17 +540,14 @@ unset -f pathmunge
 unset -f addpath
 
 # https://unix.stackexchange.com/questions/41274/having-tmux-load-by-default-when-a-zsh-terminal-is-launched
-#if iszsh && [[ -z "$TMUX" ]] && [[ -z "$SSH_CLIENT" ]]; then
+#if iszsh && [[ -z "$TMUX" ]] && [[ -z "$SSH_CLIENT" ]] && !ps -C tmux &>/dev/null; then
 #   exec tmux
 #fi
 
-#old
-#export PERL5LIB="$HOME/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
-#export PERL_LOCAL_LIB_ROOT="$HOME/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
-#export PERL_MB_OPT="--install_base \"$HOME/perl5\""; export PERL_MB_OPT;
-#export PERL_MM_OPT="INSTALL_BASE=$HOME/perl5"; export PERL_MM_OPT;
-PATH="/home/mike/perl5/bin${PATH:+:${PATH}}"; export PATH;
-PERL5LIB="/home/mike/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
-PERL_LOCAL_LIB_ROOT="/home/mike/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
-PERL_MB_OPT="--install_base \"/home/mike/perl5\""; export PERL_MB_OPT;
-PERL_MM_OPT="INSTALL_BASE=/home/mike/perl5"; export PERL_MM_OPT;
+# Not sure why this was automatically added here, but it breaks perl
+
+# export PATH="$HOME/perl5/bin${PATH:+:${PATH}}"
+# export PERL5LIB="$HOME/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"
+# export PERL_LOCAL_LIB_ROOT="$HOME/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"
+# export PERL_MB_OPT="--install_base \"$HOME/perl5\""
+# export PERL_MM_OPT="INSTALL_BASE=$HOME/perl5"
