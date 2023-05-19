@@ -1,0 +1,1 @@
+ssh phone termux-dialog -m | jq '.text' -r

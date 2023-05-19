@@ -13,14 +13,22 @@ against="${1:-HEAD}"
 exec 1>&2
 
 # Get list of staged files
-filesargs() {
-  git diff -z --name-only --diff-filter=AM --cached "$against" -- | \
-    xargs -0 -r \
-    "$@"
+stagedFiles() {
+  git diff -z --name-only --diff-filter=AM --cached "$against" --
 }
 
 # no TODO or FIXME comments.
-filesargs grep 'FIXME\|TODO' && exit 1
+! stagedFiles | xargs -0r grep 'FIXME\|TODO'
+
+# Overly complex lines.  12 levels of indentation in new code
+! stagedFiles | \
+  grep -zZE '\.([jt]s|java|sh|css|go|py)$' | \  # source code only
+  grep -zZEV '\.(config|data)\.[tj]s' | \  # skip config and data files
+  args -0rz git diff --diff-filter=AM -U0 --cached "$against" -- | \ # line diff
+  grep -E '^\+ {24}' # 12 levels of 2 space indentation
+
+# editorconfig-check
+stagedFiles | xargs -0r ec
 
 # build pre-push check
 if [ -f yarn.lock ] && grep -sq pre-push package.json; then

@@ -76,6 +76,7 @@ pathmunge "node_modules/.bin"
 addpath "$HOME/bin"
 addpath "$HOME/.local/bin"
 addpath "$HOME/go/bin"
+addpath "$HOME/src/ai"
 
 alias is_fedora='grep -sq fedora /etc/os-release'
 
@@ -484,9 +485,9 @@ html-clip() {
 #TODO: single clip command.  -f|-t html|md|text -i -|clip|file -o -|clip|file
 
 # Speak clipboard from phone
-tts() {
-  ssh phone termux-tts-speak
-}
+# tts() {
+#   ssh phone termux-tts-speak
+# }
 
 tts-clip() {
   /usr/bin/xclip -o -selection clipoard | tts

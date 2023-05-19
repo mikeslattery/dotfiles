@@ -1,0 +1,379 @@
+#!/bin/bash
+usage() { echo \
+"Usage: [var=value ...] $this <command> [<args>]
+
+This is a utility to help with testing and use of JWT.
+
+Common Commands and variables:
+
+    generatecert  Generate private key, certificate, and keystore. Env vars:
+                  targetdir- Destination directory   - ${targetdir}
+                  key      - location of private key - ${key}
+                  cert     - location of certificate - ${cert}
+                  keystore - location of keystore    - ${keystore}
+    header        generate Authorization header for jwt mect message to stdout
+                  role     - AD roles       - ${role}
+                  nercId   - MP             - ${nercId}
+                  fullName - Full User Name - ${fullName}
+                  email    - User email     - ${email}
+                  ao       - Asset Owner    - ${ao}
+                  key      - location of private key - ${key}
+    fix-run-dev   Modifies run_dev.sh of a Spring Boot app to use ${keystore}
+                  This does search/replace of text and may not work.
+    curl [curl-options] url
+                  Hit a website with JWT header (and portal cookie)
+                  Default curl options: -vkLf
+                  (same vars as header)
+    clean         Remove generated key files
+
+Less used commands:
+
+    install       Puts this script on your path, if not already.
+    signed        Generate a signed JWT MECT message to stdout. Env vars used:
+                  (same vars as header)
+    payload       Preview the unencoded, unsigned payload.
+                  Key files are not necessary.  This is for debugging only.
+    decode        Decode a JWT header currently held in the clipboard.
+    validate      Verify that the JWT in the clipboard was signed by the current key.
+    extractjks    Extract private key and certificate from a keystore to stdout
+                  keystore - location of input keystore
+Proxy Commands
+    proxy start   Start the proxy server
+                  proxyport      - The port the proxy will be listening - $proxyport
+    proxy stop    Stop the proxy server
+    proxy curl [curl-options] url
+                  Hit a website with JWT header via the proxy.
+                  Default curl options: -vkLf
+
+Typical usage.  Run these commands:
+    $this generatecert
+    $this fix-run-dev
+    docker/bin/run_dev.sh
+    $this proxy start
+    role=mect-admin nercId=IPLM ao=IPLM $this proxy header
+    $this proxy curl http://localhost:8080/nut/
+    $this chrome
+
+Typical usage without proxy:
+    run: $this generatecert
+    run: $this fix-run-dev
+    run: role=mect-admin-view,mect-operator nercId=CETR ao=MISO_MP $this header | clip
+    To test, run something like: role=mect-admin $this curl http://localhost:8080/nut/
+    Paste value into Requestly plugin 'Authorization' header value
+    View the app with the browser.
+
+
+See also:
+http://confluence.misoenergy.org:8090/display/SDG/Container+Development#ContainerDevelopment-JWTAuthentication
+" >&2
+
+    exit 1
+}
+
+set -euo pipefail
+
+# Configuration variables
+
+targetdir="."
+keystore="${keystore:-$targetdir/jwt.jks}"
+key="${key:-$targetdir/jwt.key}"
+p12="${p12:-$targetdir/jwt.p12}"
+cert="${cert:-$targetdir/jwt.pem}"
+role="${role:-mect-admin}"
+nercId="${nercId:-IPLM}"
+fullName="${fullName:-$role}"
+ao="${ao:-MISO_MP}"
+email="${email:-miso@misoenergy.org}"
+proxyport="8090"
+burpversion='1.7.35'
+headless="${headless:-true}"
+this="$(basename "$0")"
+
+dir="$(cd "$(dirname "$0")/.."; pwd; )"
+
+header='{
+  "alg": "RS256",
+  "typ": "JWT"
+}'
+
+now="$(date +%s)"
+expire="$(date --date='next year' +%s)"
+payload="
+{
+  \"iss\": \"MISO\",
+  \"aud\": \"MISO\",
+  \"sub\": \"1494600463139madmin\",
+  \"nercId\": \"${nercId}\",
+  \"fullName\": \"$fullName\",
+  \"emailAddress\": \"$email\",
+  \"telephone\": 3179790015,
+  \"roles\": {
+$(echo -n "$role" | xargs -r -d',' -I{} echo "    \"{}\": [\"${ao}\"],")
+    \"service-request\": [
+      \"MISO_TO_EXIT\",
+      \"MISO_OB\",
+      \"MISO_MVP\",
+      \"MISO_MP\",
+      \"MISO_INADV\",
+      \"MISO_GFA\",
+      \"MISO_CO\",
+      \"MISO\",
+      \"MAPP\",
+      \"MAIN\",
+      \"ECAR\"
+    ],
+    \"user-messages\": [
+      \"MISO_MP\",
+      \"MISO\"
+    ]
+  },
+  \"mpCompanyName\": \"${nercId}\",
+  \"iat\": $now,
+  \"exp\": $expire
+}
+"
+
+# Portability
+USERHOME="${USERPROFILE:-$HOME}"
+if ! which cygpath >/dev/null 2>/dev/null; then
+    cygpath() {
+        while [[ "$1" == -* ]]; do shift; done
+        echo -n "$1"
+    }
+fi
+
+die() {
+    echo "$!"
+    exit 1
+}
+
+cmd-install() {
+    if ! which jwt >/dev/null; then
+        command -v dos2unix > /dev/null || die 'dos2unix required'
+
+        mkdir -p ~/bin
+        echo -e "#!/bin/bash\\n$dir/bin/jwt \"\$@\"" > ~/bin/jwt
+        chmod u+x ~/bin/jwt
+
+        which jwt >/dev/null || echo 'You may need to restart the terminal.'
+    fi
+
+}
+
+__proxyConfig() {
+    echo "
+{
+    'proxy':{
+        'match_replace_rules':[
+            {
+                'enabled':true,
+                'is_simple_match':true,
+                'rule_type':'request_header',
+                'string_replace':'Authorization: $(cmd-header)'
+            },
+            {
+                'enabled':true,
+                'is_simple_match':true,
+                'rule_type':'request_header',
+                'string_replace':'Cookie: PORTAL_PARTICIPANT=4lz/xE9yYcM='
+            }
+        ],
+        'request_listeners':[
+            {
+                'certificate_mode':'per_host',
+                'listen_mode':'loopback_only',
+                'listener_port':${proxyport},
+                'running':true
+            }
+        ],
+        'intercept_client_requests':{
+            'automatically_fix_missing_or_superfluous_new_lines_at_end_of_request':false,
+            'automatically_update_content_length_header_when_the_request_is_edited':true,
+            'do_intercept':false,
+            'rules':[]
+        },
+        'intercept_server_responses':{
+            'automatically_update_content_length_header_when_the_response_is_edited':true,
+            'do_intercept':false,
+            'rules':[]
+        },
+        'intercept_web_sockets_messages':{
+            'client_to_server_messages':false,
+            'server_to_client_messages':false
+        }
+    },
+    'project_options':{
+        'sessions':{
+            'cookie_jar':{
+                'monitor_proxy':true,
+            }
+        }
+    }
+}"
+}
+
+cmd-proxy-start() {
+    jar="$USERHOME/burp.jar"
+    mkdir -p "$(dirname "$jar")"
+    if [[ ! -f "$jar" ]]; then
+        echo 'Installing proxy...'
+
+        java -version -b64 2>/dev/null || die 'A 64 bit JavaVM is required'
+
+        curl -fLk -o "$jar" \
+            "https://portswigger.net/burp/releases/download?product=community&version=${burpversion}&type=jar"
+        mkdir -p "$USERHOME/.java/.userPrefs/burp"
+        curl -fLk -o "$_/prefs.xml" 'https://raw.githubusercontent.com/raesene/burp-free/master/prefs.xml'
+    fi
+
+    echo 'Starting proxy...'
+    cmd-proxy-stop
+    __proxyConfig > /tmp/burp.json
+    java -jar "-Djava.awt.headless=${headless}" -jar "$jar" --config-file="$(cygpath /tmp/burp.json)" &
+    pid="$!"
+    echo "$pid" > /tmp/burp.pid
+}
+
+cmd-proxy-stop() {
+    if [[ -f /tmp/burp.pid ]]; then
+        kill -9 $(cat /tmp/burp.pid) || true
+        rm /tmp/burp.pid
+    fi
+}
+    
+cmd-proxy-curl() {
+    curl -vkfL --proxy "http://localhost:$proxyport" "$@"
+}
+
+cmd-fix-run-dev() {
+    file="$(find . -name 'run_dev.sh' | head -1)"
+    sed -i -r \
+        -e "s| -d --restart unless-stopped | -v '$(cygpath -w "$PWD" | sed 's|\\|/|g'):/docker' |;" \
+        -e "s|/opt/bootapp/(jwt-nonprod.jks)|/docker/\1|;" \
+        "$file"
+
+    git --no-pager diff "$file"
+}
+
+cmd-clean() {
+    rm -f "$p12" "$key" "$cert" "$keystore"
+}
+
+cmd-generatecert() {
+    # Input: key, cert, keystore
+
+    mkdir -p $targetdir
+
+    cmd-clean
+
+    # Generate private key
+    openssl genrsa -des3 -passout pass:changeit 2048 | \
+    openssl rsa -passin pass:changeit -outform pem -out "$key"
+
+    # Generate certificate
+    MSYS_NO_PATHCONV=1 MSYS2_ARG_CONV_EXCL="*" \
+        openssl req -new -x509 -days 365 -sha256 \
+        -key "$(cygpath -w "$key")" -subj '/C=US/ST=Indiana/L=Carmel/O=MISO/OU=Security/CN=JWT-Dev' | \
+        openssl x509 -text -pubkey > "$cert"
+
+    # Generate Java keystore
+    openssl pkcs12 -export -inkey "$key" -in "$cert" -out "$p12" -passout pass:changeit -name jwt
+    keytool -importkeystore \
+        -srckeystore "$(cygpath -w "$p12")" -srcstoretype PKCS12 \
+        -destkeystore "$(cygpath -w "$keystore")" \
+        -srcstorepass changeit -deststorepass changeit -noprompt
+    rm "$p12"
+
+    echo "Generated: ${key}, ${cert}, ${keystore}."
+}
+
+cmd-extractjks() {
+    # Input: keystore
+
+    keytool -importkeystore \
+        -srckeystore "$(cygpath -w "$keystore")" \
+        -deststoretype PKCS12 -destkeystore "$(cygpath -w "$p12")" \
+        -srcstorepass changeit -deststorepass changeit -noprompt
+    openssl pkcs12 -in "$p12" -passin pass:changeit -passout pass:changeit | openssl x509 -text -pubkey
+    rm "$p12"
+}
+
+base64() {
+    openssl enc -base64 | tr '\+/' '-_' | tr -d '=\r\n'
+}
+
+cmd-payload() {
+    echo -n "${payload}"
+}
+
+cmd-message() {
+    #Input: role, nercId, fullName, emailAddress
+
+    echo -n "${header}" | base64
+    echo -n '.'
+    echo -n "${payload}" | base64
+}
+
+cmd-signed() {
+    # Input: role, nercId, fullName, emailAddress, key
+
+    local msg
+    msg="$(cmd-message)"
+    echo -n "${msg}."
+    echo -n "${msg}" | openssl dgst -sha256 -passin pass:changeit -sign "$key" | base64
+}
+
+cmd-header() {
+    # Input: role, nercId, fullName, emailAddress, key
+
+    echo "Bearer: $(cmd-signed)"
+}
+
+cmd-curl() {
+    curl -vkLf -H "Authorization: $(cmd-header)" -H $'Cookie: PORTAL_PARTICIPANT=4lz/xE9yYcM=' "$@"
+}
+
+__getclip() {
+    getclip 2>/dev/null || \
+    xsel -o -b --display :0 2>/dev/null || \
+    powershell -command 'get-clipboard' 2>/dev/null || \
+    cat
+}
+
+cmd-decode() {
+    __getclip | awk -F'.' '{ print $2; }' | openssl enc -base64 -d 
+}
+
+cmd-validate() {
+    clip="$(__getclip | sed 's/^Authorization: //; s/^Bearer: //;')"
+    msg="$(echo -n "${clip}" | awk -F'.' '{ print $1"."$2; }')"
+    sign="$(echo -n "${msg}" | openssl dgst -sha256 -passin pass:changeit -sign "$key" | base64)"
+
+    if [[ "$clip" == "${msg}.${sign}" ]]; then
+        echo "OK"
+    else
+        echo "ERROR: Signature does not match key"
+        exit 1
+    fi
+}
+
+cmd-proxy() {
+    [[ "$#" -gt 0 ]] || usage
+
+    local command="cmd-proxy-$1"
+    shift
+
+    $command "$@"
+}
+
+main() {
+    [[ "$#" -gt 0 ]] || usage
+
+    local command="cmd-$1"
+    shift
+
+    $command "$@"
+}
+
+main "$@"
+

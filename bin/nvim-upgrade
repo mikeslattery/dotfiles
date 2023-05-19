@@ -1,0 +1,68 @@
+#!/bin/bash
+
+set -euo pipefail
+nvim="$HOME/.local/bin/nvim"
+backup="$HOME/.local/share/nvim/backup"
+version="nightly"  # or stable, see also https://github.com/neovim/neovim/tags
+nvimurl="https://github.com/neovim/neovim/releases/download/$version/nvim.appimage"
+
+prep() {
+  cd ~
+  mkdir -p "$(dirname "$nvim")" "$(dirname "$backup")"
+}
+
+stop-editors() {
+  # TODO:
+  # remove the above check
+  # find all nvim editors in tmux
+  # record the pane and cli
+  # <esc><esc>:mksession <random-filename>|xa!<cr>
+  #shellcheck disable=SC2009
+  { ! ps -C nvim >/dev/null; } || { echo 'nvim still running'; exit 1; }
+}
+
+start-editors() {
+  :
+  # TODO:
+  # loop through all the known nvim editors
+  # :source <random-filename>
+}
+
+upgrade-editor() {
+  # Upgrade nvim
+  cp -a "$nvim" "$backup/nvim.bak"
+  curl -fL "$nvimurl" -o "$nvim" -z "$nvim"
+  chmod +x "$nvim"
+}
+
+upgrade-plugins() {
+  # Upgrade plugin manager
+  nvim +PlugUpgrade +qa
+  # Upgrade plugins
+  # +qa left off so you can interactively deal with issues
+  nvim '+PlugUpdate --sync'
+  nvim "+PlugSnaphot! $backup/snapshot-$(date -I).vim" +qa
+  nvim +checkhealth '+/WARNING\|ERROR'
+}
+
+list() {
+  ls -1 "$backup/snapshot"*.vim | xargs -r basename -a
+}
+
+rollback() {
+  # This is just here for reference.  You likely want to run these manually
+  cp "$backup/nvim.bak" "$nvim"
+  nvim "+source $backup/${1}"
+  nvim +checkhealth '+/WARNING\|ERROR'
+}
+
+main() {
+  prep
+  set -x
+  stop-editors
+  upgrade-editor
+  upgrade-plugins
+  start-editors
+}
+
+main "$@"

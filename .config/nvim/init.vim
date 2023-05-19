@@ -2,7 +2,7 @@
 "exec" "$HOME/bin/nvim-upgrade"
 
 " Requires: neovim or vim, curl or wget
-" Optional: git, rg, fd, node, npm, watchman
+" Optional: git, rg, fd, node, npm, watchman, tmux
 " Optional Vim: fzf
 " Unsupported: Windows gVim
 
@@ -133,16 +133,16 @@ function! s:Term(args)
 endfunction
 command! -nargs=? Terminal call s:Term(<q-args>)
 
+" code completion
+vnoremap <leader>r<tab> :!{ echo $'Complete:\n```%:e'; cat; } \| gpt \| sed -n '/^```/, /^```/ { /```/ \!p; };'<cr>
 " Inject last zsh command
 nnoremap <leader>r$ : r !sed -rn '$ { s/^[^;]*;//; p; }' ~/.zsh_history<cr>
 " Run line in shell and inject output
-vnoremap <leader>r! y:'<,'>!bash<cr>P
+vnoremap <leader>r! y:'<,'>!tweak \| bash \| tweak<cr>P
 nnoremap <leader>r! yy:.!bash<cr>P
 nnoremap <leader>rw :up\|Silent pandoc % -o /tmp/vim.pdf<cr>
 vnoremap <leader>rw :'<,'>w /tmp/vim.md\|Silent pandoc /tmp/vim.md -o /tmp/vim.pdf<cr>
 nnoremap <leader>rp :Silent pomostart<cr>
-nnoremap <leader>rs :r !vtt<cr>
-nnoremap <leader>rS :Silent vtt \| xsel -i -b<cr>
 nnoremap <leader>rd :Silent tmux-start debug<cr>
 nnoremap <leader>rD :Silent tmux-start undebug<cr>
 nnoremap <leader>rc :Silent md2rt-clip<cr>
@@ -281,6 +281,8 @@ nnoremap <leader>i :execute "update\|silent !curl -fs 'http://localhost:63342/ap
 "TODO: what? vnoremap <leader>c :I#<ESC><C-i>
 "   close current buffer
 nnoremap <leader>x :bn\|bd#<CR>
+inoremap <M-x> <esc>ZZ
+nnoremap <M-x> ZZ
 "   browse files in same dir as current file
 function! g:DeleteThisFile()
   update
@@ -290,7 +292,7 @@ function! g:DeleteThisFile()
   bdelete #
 endfunction
 noremap <leader><leader>rm <Cmd>call g:DeleteThisFile()<cr>
-noremap <leader><leader>grm <Cmd>silent !git rm %\|bdelete!<CR>
+noremap <leader><leader>grm <Cmd>exec 'silent !git rm '.expand('%')\|bdelete!<CR>
 " select all
 nnoremap <leader>ga ggyG<c-o>
 if g:hasgit
@@ -362,7 +364,7 @@ inoremap <C-k> <C-o>d$
 " excluded: c-b
 
 " CREATE/SAVE FILES
-nnoremap <leader><leader>t :exec "e ".system('mktemp -p /var/tmp')<cr>
+nnoremap <leader><leader>t :exec "e ".system('mktemp -p /var/tmp --suffix=.md')<cr>
 nnoremap <leader>w :up<CR>
 nnoremap <leader>W :wa<CR>
 set autoread
@@ -375,10 +377,52 @@ let &backupdir = s:data_dir . '/backup//'
 " file type mappings
 autocmd BufRead,BufNewFile Dockerfile setlocal filetype=sh
 
-" markdown
-autocmd FileType markdown setlocal spell
-autocmd BufRead /tmp/tuir_*.txt setlocal filetype=markdown | execute '/Formatting help/,/link text/ d _' | execute 'normal Go'
-nnoremap <leader>Q :u0<cr>:wq<cr>
+" On save, if the file starts with shebang and isn't already executable,
+" run !chmod +x % and reload
+augroup make_executable
+  autocmd!
+  autocmd BufWritePost * if getline(1) =~ "^#!" && !executable(expand('%')) 
+    \ | execute 'silent !chmod +x %'
+    \ | edit 
+    \ | endif
+augroup END
+
+vnoremap <leader>r. y<cmd>execute substitute(@", '\n *\(\\ \|\)\?', ' \| ', 'gm')<cr>
+
+" AI
+augroup ai
+  autocmd!
+  autocmd BufRead,BufNewFile *.gpt
+    \ setlocal filetype=markdown
+    \ | nnoremap <leader>rw :up\|execute 'silent !~/src/ai/mdgpt '.expand('%')\|e<cr>
+    \ | nnoremap <leader>ra Go><space>
+    \ | nnoremap <silent> <leader>rv ?```<cr>kVnj
+augroup END
+" TODO:
+" In insert mode, while in a quote block, auto-indent with `< `
+
+vnoremap <leader>rs :w! /tmp/mimic \| silent !mimic3 < /tmp/mimic<cr>
+
+nnoremap <M-v> <cmd>r !vtt<cr>
+inoremap <M-v> <c-o><cmd>execute "normal! i". system("vtt")<cr>
+" Perform AI on selected text
+vnoremap <M-v> :'<,'>!set -euo pipefail; { vtt \| tweak; echo 'The text: '; cat; } \| noprompt gpt<cr>
+nnoremap <M-v> <cmd>r !vtt<cr>
+" TODO:
+" ask GPT a question and it answers
+
+augroup md
+  autocmd!
+  autocmd FileType markdown setlocal spell
+  autocmd BufRead /tmp/tuir_*.txt
+    \ setlocal filetype=markdown
+    \ | silent! execute '1 | /Enter your reply below/,/link text/ d _'
+    \ | silent! execute '%s/^  |/> /'
+    \ | execute 'normal Go'
+    \ | nnoremap <leader>Q :u0<cr>:wq<cr>
+augroup END
+" TODO: 
+" If replying to the same comment again, after a failure, reload prior comment
 
 " remove trailing spaces on save
 "autocmd BufWritePre * %s/\s\+$//e
@@ -406,13 +450,13 @@ inoremap <C-Space> <Esc>
 inoremap <C-@> <Esc>
 inoremap <C-c> <esc>
 
-nnoremap <leader>zn :set relativenumber!<CR>
-nnoremap <leader>zs :set spell!<CR>
-nnoremap <leader>zb :set breakindent!<CR>
+nnoremap <leader>zn :setlocal relativenumber!<CR>
+nnoremap <leader>zs :setlocal spell!<CR>
+nnoremap <leader>zb :setlocal breakindent!<CR>
 nnoremap <silent> <leader>z= z=1<cr><cr>
-nnoremap <leader>zm :set showmatch!<CR>
-nnoremap <leader>zw :set wrap!<CR>
-nnoremap <leader>zl :set list!<CR>
+nnoremap <leader>zm :setlocal showmatch!<CR>
+nnoremap <leader>zw :setlocal wrap!<CR>
+nnoremap <leader>zl :setlocal list!<CR>
 nnoremap <leader>zg :GitGutterToggle<CR>
 set number
 set relativenumber
@@ -439,6 +483,8 @@ noremap <leader>,vG :wincmd l\|wincmd c\|wincmd c\|wincmd c\|wincmd c\|wincmd c<
 noremap <leader>vR ,vG,vg
 
 
+luafile ~/.config/nvim/plugin/shell.lua
+
 
 "TODO
 " next
@@ -447,6 +493,7 @@ noremap <leader>vR ,vG,vg
 "     use environment.  imports, libraries
 "     vnoremap <leader>r! y:'<,'>!bash<cr>P
 "     nnoremap <leader>r! yy:.!bash<cr>P
+"   [m, ]m -  [nvim-treesitter-textobjects](https://github.com/nvim-treesitter/nvim-treesitter-textobjects#text-objects-move)
 "   unit tests
 "     RED/GREEN status
 "   status line
@@ -677,4 +724,5 @@ noremap <leader>vR ,vG,vg
 "  silent !python3 -m pip uninstall neovim
 "  silent !python3 -m pip install --user --upgrade pynvim
 "endif
+
 

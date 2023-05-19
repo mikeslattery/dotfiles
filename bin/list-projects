@@ -1,0 +1,5 @@
+#!/bin/bash
+
+set -euo pipefail
+
+find ~/src -maxdepth 3 -type d -name .git | xargs -r dirname

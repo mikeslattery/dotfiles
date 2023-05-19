@@ -1,0 +1,90 @@
+#!/bin/bash
+
+set -euo pipefail
+
+#server=mike@192.168.1.185
+server=t590
+
+# Allow run from remote
+export DISPLAY=:0
+
+# Run in background
+background() {
+  nohup > /dev/null 2>/dev/null "$@" &
+}
+
+has() {
+  command -v "$1" 2>/dev/null 1>/dev/null
+}
+
+running() {
+  ps -fC "$1" &>/dev/null
+}
+
+# fatal error
+die() {
+  echo "ERROR: $*"
+  if has zenity; then
+    zenity --error --text="$*"
+  elif has notify-send; then
+    nodify-send "$*"
+  fi
+  exit 1
+}
+
+# usage $0 y zoom command...
+terminal() {
+  y="$1"; shift
+  zoom="$1"; shift
+  background gnome-terminal \
+    --maximize \
+    "--geometry=+0+$y" --zoom="$zoom" \
+    --full-screen --hide-menubar -- \
+    ssh "$server" -tt "$@"
+}
+
+chrome() {
+  background chromium-browser
+}
+
+lock() {
+  cinnamon-screensaver-command --activate
+  xset dpms force off
+}
+
+unlock() {
+  xset dpms force on
+}
+
+logout() {
+  cinnamon-session-quit --display=:0 --logout --no-prompt
+}
+
+start-barrier() {
+  if ! running barrierc; then
+    if has barrierc; then
+      # untested
+      barrierc --daemon "$server"
+    elif has flatpak; then
+      # ensure barrier is top window
+      sleep 1
+      background flatpak run com.github.debauchee.barrier
+    fi
+  fi
+}
+
+main() {
+  nc -zvw4 "$server" 22 || die "Server $server not reachable"
+
+  unlock
+
+  # monitor
+  terminal    0 0.75 tmux attach -t top
+  # laptop
+  terminal 1024 0.75 tmux attach -t left
+
+  # start-barrier
+}
+
+main "$@"
+

@@ -7,9 +7,8 @@
 
 set -eu
 
-if git rev-parse --verify HEAD >/dev/null 2>&1
-then
-	against=HEAD
+if git rev-parse --verify HEAD >/dev/null 2>&1; then
+	against="${1:-HEAD}"
 else
 	# Initial commit: diff against an empty tree object
 	against="$(git hash-object -t tree /dev/null)"
@@ -25,36 +24,30 @@ has() {
 # Redirect output to stderr.
 exec 1>&2
 
-# Get list of staged files
-filesargs() {
-  git diff -z --name-only --diff-filter=AM --cached "$against" -- | \
-    xargs -0 -r \
-    "$@"
+stagedFiles() {
+  git diff -z --name-only --diff-filter=AM --cached "$against" --
 }
 
-# If there are whitespace errors, print the offending file names and fail.
-filesargs git diff-index --check --cached "$against" --
+# If there are whitespace or conflict errors, print the offending file names and fail.
+stagedFiles | xargs -0r git diff-index --check --cached "$against" --
 
-# no TODO comments.   TODOs are allowed for commit, but not push.
-( filesargs grep -F TODO ) && exit 1
-
-# editorconfig-check
+# editorconfig-check, but don't disallow the commit.
 if has ec; then
-  filesargs ec
+  stagedFiles | xargs -0r ec || true
 else
   echo '  see https://github.com/editorconfig-checker/editorconfig-checker'
   exit 1
 fi
 
-has gitleaks
 gitleaks protect -v --staged
 
 # TODO:
 # Configuration: allow TODOs, skip editorconfig, skip other steps
 # Call <project-root>/bin/g pre-commit
-# git fetch parent branch
-# Report conflicting files, with command to view and/or resolve
+# check for parent branch name.  git config --local parent.name <branch>
+# git fetch remote branch and remote parent branch
+# Report conflicting files with remote and parent, with command to view and/or resolve
 # List commits made to parent branch
-# List your PR reviews (don't show errors), with command to open in browser
-# List your tickets assigned to you.
+# List your PR reviews, with command to open in browser
+# List new ticket activity since start of branch
 # Share code with pre-push

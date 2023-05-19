@@ -1,5 +1,5 @@
 [Added Associations]
-image/jpeg=pinta.desktop;feh.desktop;org.gnome.eog.desktop;org.gnome.gThumb.desktop;
+image/jpeg=org.gnome.gThumb.desktop;pinta.desktop;feh.desktop;org.gnome.eog.desktop;
 text/csv=libreoffice-calc.desktop;
 application/pdf=org.gnome.Evince.desktop;org.inkscape.Inkscape.desktop;org.pwmt.zathura-pdf-poppler.desktop;
 video/x-matroska=org.avidemux.Avidemux.desktop;org.gnome.Totem.desktop;vlc.desktop;

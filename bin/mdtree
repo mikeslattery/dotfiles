@@ -1,0 +1,91 @@
+#!/usr/bin/env node
+
+fs = require('fs')
+
+const argv = process.argv.slice(2)
+
+const filename = argv[0]
+const topcaption = filename.replace(/^.*\//, '').replace(/\.md$/,'')
+
+const lines = fs.readFileSync(filename).toString().split('\n')
+
+var outputText = ''
+
+function out(line) {
+  outputText += '\n' + line
+}
+
+out(`digraph ${topcaption.replace(/\s/g, '_')} {\nrankdir = "LR"; `)
+
+var headerStack = [[topcaption, 0]]
+headerStack.peek = function() {
+  return this[this.length - 1]
+}
+headerStack.safePop = function() {
+  if ( this.length > 1 ) {
+    this.pop()
+  } else {
+    console.warn(`// oops`)
+  }
+  return this[this.length - 1]
+}
+headerStack.replace = function(newtop) {
+  this[this.length - 1] = newtop
+}
+lines.forEach((line, index) => {
+  const level = line.replace(/^(#* )?.*$/, '$1').length - 1
+
+  if (level > 0) {
+
+    const caption = line.replace(/^#+ (.*)$/, '$1')
+
+    var [topCaption, topLevel] = headerStack.peek()
+
+    // new level deeper
+    if (level > topLevel) {
+      out(`"${topCaption}" -> "${caption}"; // deeper`)
+      headerStack.push([caption, level])
+    }
+    // same level as last
+    else if (level == topLevel) {
+      headerStack.pop()
+      out(`// stack=[${headerStack.join('], [')}]`);
+      [topCaption, topLevel] = headerStack.peek()
+      out(`"${topCaption}" -> "${caption}"; // same`)
+      headerStack.push([caption, level])
+    }
+    // higher level
+    else if (level < topLevel) {
+      headerStack.safePop();
+      out(`// stack=[${headerStack.join('], [')}]`);
+      headerStack.safePop();
+      out(`// stack=[${headerStack.join('], [')}]`);
+      // headerStack.pop();
+      // out(`// stack=[${headerStack.join('], [')}]`);
+      [topCaption, topLevel] = headerStack.peek();
+      out(`"${topCaption}" -> "${caption}"; // higher`);
+      headerStack.push([caption, level]);
+      // headerStack.push([topCaption, topLevel]);
+    }
+    out(`// ${index} stack=[${headerStack.join('], [')}]\n`)
+  }
+})
+out(`// stack=${headerStack.length}`)
+
+out('}')
+
+const child_process = require('child_process')
+
+// Convert markdown content to SVG using Graphviz's dot command
+const dotCommand = `dot -Tsvg -o ${filename.replace('.md', '.svg')}`;
+
+const dotProcess = child_process.exec(dotCommand, (err, stdout, stderr) => {
+  if (err) {
+    console.error(`Error: ${err}`);
+    return;
+  }
+  console.log(`SVG generated and saved to ${filename.replace('.md', '.svg')}`);
+});
+
+dotProcess.stdin.write(outputText); // Send content to stdin
+dotProcess.stdin.end();

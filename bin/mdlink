@@ -1,0 +1,50 @@
+#!/bin/bash
+
+set -euo pipefail
+
+url="${1:-$(xsel -o -b)}"
+
+gettitle() {
+  curl -Lfs "$1" -s | \
+    sed -r '
+      H;1h;$!d;x;
+      /<title/!d;
+      s|</title>.*$||;
+      s|^.*<title[^>]*>||;
+
+      s|GitHub - [^/]*/||;
+
+      s|\n| |g;
+      s|^\s*||; s|\s*$||;
+      '
+}
+
+extracttitle() {
+  echo -n "$1" | sed -r '
+    s|/$||;
+    s|\.html$||;
+    s|^https?//||;
+    s|^.*/||;
+    s|^(.)|\U\1|;
+    s|-| |g;
+    '
+}
+
+if [[ "$url" != *.pdf* ]]; then
+  title="$(gettitle "$url")"
+else
+  title=''
+fi
+
+if [[ -z "$title" ]]; then
+  title="$(extracttitle "$url")"
+fi
+
+if [[ -z "$title" ]]; then
+  echo "* <${url}>"
+else
+  echo "* [${title}](${url})"
+fi
+
+# See also
+# https://unix.stackexchange.com/questions/103252/how-do-i-get-a-websites-title-using-command-line/103352#103352

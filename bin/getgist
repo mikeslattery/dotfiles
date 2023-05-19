@@ -1,0 +1,10 @@
+#!/bin/bash
+
+set -euo pipefail
+
+gist="$1"
+shift
+
+gistraw="${gist/github.com/githubusercontent.com}/raw"
+curl -sf "$gistraw"
+

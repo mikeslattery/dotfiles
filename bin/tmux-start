@@ -1,6 +1,6 @@
 #!/bin/bash
 
-set -eu
+set -euo pipefail
 
 # Creates beginning layout
 # ane ends with tmux running in the foreground.
@@ -36,7 +36,7 @@ start-apps() {
 
   # main app and tdd
   tmux send-keys -t 'top:0.0' 'npm run dev'
-  tmux send-keys -t 'top:0.2' 'tdd'
+  tmux send-keys -t 'top:0.2' 'tdd' Enter
 
   tmux send-keys -t 'left:0.0' 'DISPLAY=:0 wtfutil'
 }
@@ -52,6 +52,16 @@ stop-apps() {
   tmux send-keys -t 'top:0.2' 'q'
 }
 
+_hinting() {
+  # $1 = full|medium|none
+  gsettings set org.gnome.settings-daemon.plugins.xsettings hinting "$1"
+}
+
+_bluetooth() {
+  # $1 = block|unblock
+  ( set -eu; rfkill list bluetooth -o ID -n | xargs -rn1 rfkill "$1"; ) &
+}
+
 _brightness() {
   gdbus call --session \
     --dest org.gnome.SettingsDaemon.Power \
@@ -64,19 +74,7 @@ _brightness() {
   # echo "$max * $1 / 100" | bc > /sys/class/backlight/intel_backlight/brightness
 }
 
-battery() {
-  # tweaks to take less battery.
-
-  # Disable marks.nvim plugin
-  tmux list-panes -F '#{pane_current_command} #{pane_id}' -a | \
-    sed -rn 's/^n?vim //p' | \
-    xargs -tI{} tmux send-keys -t {} :MarksToggleSigns Enter
-
-  # dashboard
-  killall wtfutil
-
-  _brightness 15
-
+_blankTabs() {
   # Open empty tab in all firefox windows
   origwin="$(xdotool getactivewindow)"
   ffmain="$(xdotool search --onlyvisible --classname '^firefox$')"
@@ -87,23 +85,55 @@ battery() {
     fi
   done
   xdotool windowactivate "$origwin"
+}
+
+toggle-marks() {
+  tmux list-panes -F '#{pane_current_command} #{pane_id}' -a | \
+    sed -rn 's/^n?vim //p' | \
+    xargs -tI{} tmux send-keys -t {} :MarksToggleSigns Enter
+}
+
+battery() {
+  # tweaks to take less battery.
+
+  # Disable marks.nvim plugin
+  toggle-marks
+
+  # dashboard
+  killall --wait wtfutil || true
+  tmux send-keys -t 'left:0.0' 'stty sane' Enter
+
+  _brightness 15
+
+  _bluetooth block
+
+  # _hinting none
+
+  _blankTabs
 
   laptop-off
+
+  xdg-screensaver activate
 }
 
 ac() {
   # tweaks to take more battery.
 
   # Enable marks.nvim
-  tmux list-panes -F '#{pane_current_command} #{pane_id}' -a | \
-    sed -rn 's/^n?vim //p' | \
-    xargs -tI{} tmux send-keys -t {} :MarksToggleSigns Enter
+  toggle-marks
 
   tmux send-keys -t 'left:0.0' 'DISPLAY=:0 wtfutil' Enter
 
   _brightness 70
 
+  _bluetooth unblock
+
+  # _hinting full
+
   laptop-on
+
+  # set charging level
+  sudo tlp start
 }
 
 top-session() {
@@ -111,7 +141,7 @@ top-session() {
   tmux send-keys 'npm run dev' Enter
 
   tmux split-window -h -c ~/src/nuxt/newstart2
-  tmux send-keys '.vim/jest-watch' Enter
+  tmux send-keys 'shortprompt' Enter '.vim/jest-watch' Enter
 
   tmux select-pane -L
   tmux split-window -v -c ~/src/nuxt/newstart2

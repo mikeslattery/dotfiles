@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# Name the tmux windows from current directory
+
+set -euo pipefail
+
+tmux rename-window "$(basename "$PWD")"
+

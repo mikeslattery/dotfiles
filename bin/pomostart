@@ -1,0 +1,2 @@
+echo "$(date +%s)" > ~/.local/state/pomodoro
+echo "$(date +'%F %T')" >> /tmp/pomos.log
