@@ -42,10 +42,10 @@ start-apps() {
 }
 
 stop-apps() {
-  # graceful shutdown of neovim
-  tmux list-panes -F '#{pane_current_command} #{pane_id}' -a | \
-    sed -rn 's/^n?vim //p' | \
-    xargs -tI{} tmux send-keys -t {} :xa Enter
+# graceful shutdown of neovim
+tmux list-panes -F '#{pane_current_command} #{pane_id}' -a | \
+  sed -rn 's/^n?vim //p' | \
+  xargs -tI{} tmux send-keys -t {} :xa Enter
 
   # main app and tdd
   tmux send-keys -t 'top:0.0' C-c
@@ -85,6 +85,10 @@ _blankTabs() {
     fi
   done
   xdotool windowactivate "$origwin"
+}
+
+_renumberPanes() {
+  tmux move-windows -r
 }
 
 toggle-marks() {
@@ -223,11 +227,15 @@ boot() {
   tmux attach-session -t main
 }
 
+bill() {
+  echo "HI BILL! $*"
+}
+
 main() {
   command="${1:-boot}"
   shift
-  set -x
   "$command" "$@"
 }
 
 main "$@"
+

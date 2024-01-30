@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -euo pipefail
-nvim="$HOME/.local/bin/nvim"
+nvim="$HOME/bin/nvim"
 backup="$HOME/.local/share/nvim/backup"
 version="nightly"  # or stable, see also https://github.com/neovim/neovim/tags
 nvimurl="https://github.com/neovim/neovim/releases/download/$version/nvim.appimage"

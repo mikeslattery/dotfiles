@@ -13,3 +13,5 @@
 
 [init]
 	templateDir = ~/.config/git/templates
+[alias]
+	sync = syncr sync

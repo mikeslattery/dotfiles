@@ -49,7 +49,7 @@ fi
 # Install oh-my-zsh
 if ! [[ -d "$ZSH" ]]; then
     if has zsh && has git; then
-        sh ~/.zshrc install
+        sh "$0" install
     else
         echo 'W: oh-my-zsh requires: zsh, git, chsh'
     fi
@@ -252,6 +252,7 @@ alias rgj="rg -g'*.java' -g'*.kt' -g'*.groovy' -g'build.gradle' --heading"
 export RIPGREP_CONFIG_PATH="$HOME/.config/ripgreprc"
 export FZF_DEFAULT_COMMAND='fd --hidden --exclude ".git" --exclude "package-lock.json" .'
 export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+alias fzp='fzf -m --preview="[ -f {} ] && bat -r :100 --color=always {} || tree -C {}"'
 
 unalias ls &>/dev/null || true
 if has exa; then
@@ -371,12 +372,13 @@ umask 027
 export ANDROID_SDK_ROOT=$HOME/Android/Sdk
 
 EDITOR="$(command -v nvim || command -v vi)"
-if [[ -n "$TMUX" ]]; then
-  EDITOR="tmux popup -E $EDITOR"
-fi
+# if [[ -n "$TMUX" ]]; then
+#   EDITOR="tmux popup -E $EDITOR"
+# fi
 export EDITOR
 
-# Container package manager
+# Run program within a container with my identity
+# Usage: contize [options] [--name <name>] <image> [<cmd> [<args...>]]
 contize() {
     podman run -it --rm \
         --security-opt label=disable \
@@ -388,6 +390,8 @@ contize() {
 #        -v "/tmp/empty:$HOME/.mozilla" -v "/tmp/empty:$HOME/.ssh" -v "/tmp/empty:$HOME/.gnupg" -v "/tmp/empty:$HOME/.cache/mozilla" \
 }
 
+# Run as root in a running container
+# Usage: sudo-contize [options] <name> [<cmd> [<args...>]]
 sudo-contize() {
     podman exec -it -u 0:0 -w /root --privileged "$@"
 }

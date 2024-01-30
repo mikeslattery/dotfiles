@@ -1,6 +1,7 @@
 -g!package-lock.json
 -g!yarn.lock
 -g!.git
+-g!*.ipynb
 -g!*.svg
 -g!app.css
 -g!sar.html

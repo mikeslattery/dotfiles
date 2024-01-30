@@ -7,13 +7,16 @@ if has_key(g:plugs, 'telescope.nvim')
   " Search selected text
   vnoremap <leader>* <cmd>lua vim.cmd('noau normal! "vy"');require('telescope.builtin').live_grep({default_text = vim.fn.getreg("v")})<cr>
 
-  noremap <leader>b <cmd>lua require('telescope.builtin').buffers({sort_mru=true, ignore_current_buffer=true})<cr>
+  noremap <leader>fb <cmd>lua require('telescope.builtin').buffers({sort_mru=true})<cr>
+  noremap <leader>b <cmd>lua require('telescope.builtin').buffers({sort_mru=true, ignore_current_buffer=true, show_all_buffers=false})<cr>
   if executable('fd')
     noremap <leader>ff <cmd>Telescope fd<cr>
   else
     noremap <leader>ff <cmd>Telescope find_files<cr>
   endif
-  noremap <leader>m <cmd>Telescope oldfiles<cr>
+  noremap <leader>fm <cmd>Telescope oldfiles<cr>
+  " TODO: do not show directories (netrw).  Only show files
+  noremap <leader>m <cmd>lua require('telescope.builtin').oldfiles({only_cwd=true})<cr>
   if g:hasgit
     if has_key(g:plugs, 'coc.nvim')
       noremap <leader>e :CocCommand explorer<cr>

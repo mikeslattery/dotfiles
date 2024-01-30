@@ -30,6 +30,12 @@ Usages:
 
 10. The code uses single quotes for some strings and double quotes for others. It would be better to use a consistent style throughout the code.
 
+TODOS:
+
+* Start over with TDD+AI development
+* cgi-gateway: name, selection, dirty? 
+* Fix bounds error on last line without newline
+
 --]]
 
 MARK_NS = vim.api.nvim_create_namespace('asyncShell')
@@ -148,6 +154,8 @@ function asyncShell(command, operation, line1, line2)
           vim.api.nvim_buf_set_text(
             bufnum, start_row, start_col, end_row, end_col, output)
         end
+
+        print(string.format("%s done", command, exit_job_id))
       end
       vim.api.nvim_buf_del_extmark(bufnum, MARK_NS, mark1)
       vim.api.nvim_buf_del_extmark(bufnum, MARK_NS, mark2)
@@ -164,7 +172,7 @@ function asyncShell(command, operation, line1, line2)
   vim.fn.chanclose(job_id, "stdin")
 
   last_job_id = job_id
-  print(string.format("To kill [%s]> :call jobstop(%d)", command, job_id))
+  print(string.format("Running: [%s] To kill :call jobstop(%d)", command, job_id))
 end
 
 function registerXCommands()

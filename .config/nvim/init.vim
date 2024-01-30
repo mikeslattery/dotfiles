@@ -45,6 +45,9 @@ if has('nvim')
   Plug 'chentoast/marks.nvim'
   Plug 'ggandor/leap.nvim'
   Plug 'norcalli/nvim-colorizer.lua'
+
+  Plug '~/src/research/genie'
+  Plug '~/src/ax'
 else
   if executable('fzf')
     Plug 'junegunn/fzf.vim'
@@ -133,6 +136,22 @@ function! s:Term(args)
 endfunction
 command! -nargs=? Terminal call s:Term(<q-args>)
 
+" Tab management
+
+let g:lasttab = 1
+autocmd TabLeave * let g:lasttab = tabpagenr()
+nnoremap <Leader>tl :execute 'tabn ' . g:lasttab<cr>
+" LUA equivalent:
+" vim.g.lasttab = 1
+" vim.api.nvim_create_autocmd("TabLeave", { pattern = "*", callback = function() vim.g.lasttab = vim.api.nvim_tabpage_get_number(0) end })
+" vim.keyset.set('n', '<Leader>tl', '', function() vim.cmd.tabn(vim.g.lasttab) end)
+
+nnoremap <Leader>t^ :tabn 1<cr>
+nnoremap <Leader>tn :tabnext<CR>
+nnoremap <Leader>tp :tabprev<CR>
+nnoremap <Leader>tc :tabclose<CR>
+nnoremap <Leader>t% :tabnew #<CR>
+
 " code completion
 vnoremap <leader>r<tab> :!{ echo $'Complete:\n```%:e'; cat; } \| gpt \| sed -n '/^```/, /^```/ { /```/ \!p; };'<cr>
 " Inject last zsh command
@@ -188,7 +207,7 @@ function! s:Source(file)
   endif
   let v:this_session = a:file
 endfunction
-autocmd VimLeave * call s:SaveState()
+autocmd VimLeavePre * call s:SaveState()
 autocmd FocusLost * call SaveStateTimer(0)
 
 " Set Project
@@ -226,7 +245,6 @@ function! SaveStateTimer(tid)
   wviminfo!
 endfunction
 function! s:SaveState()
-  wall
   call SaveStateTimer(0)
 endfunction
 function s:SaveSession()
@@ -256,10 +274,17 @@ nnoremap <leader><leader>c :ChProject ~/src/
 nnoremap <leader><leader>w :update\|silent! make -s\|redraw!\|cc<cr>
 nnoremap <leader><leader>q :execute 'silent !tmux send-keys -t 1 "'.escape(getline('.'), '"#').'" Enter'<cr>:redraw!<cr>
 
-" emulate tmux panes
+" Simulate tmux widnows/panes
 nnoremap <c-w><c-^> <c-w>p
+" splits
 nnoremap <c-w>% <c-w>v<c-w>l:bp<cr>
 nnoremap <c-w>" <c-w>s<c-w>j:bp<cr>
+" resize
+nnoremap <c-w><c-left> <c-w>>
+nnoremap <c-w><c-right> <c-w><
+nnoremap <c-w><c-up> <c-w>-
+nnoremap <c-w><c-down> <c-w>+
+nnoremap <c-w>z :tabnew #<cr>
 
 " WHITESPACE
 set tabstop=2
@@ -383,7 +408,7 @@ augroup make_executable
   autocmd!
   autocmd BufWritePost * if getline(1) =~ "^#!" && !executable(expand('%')) 
     \ | execute 'silent !chmod +x %'
-    \ | edit 
+    \ | checktime
     \ | endif
 augroup END
 
@@ -483,7 +508,9 @@ noremap <leader>,vG :wincmd l\|wincmd c\|wincmd c\|wincmd c\|wincmd c\|wincmd c<
 noremap <leader>vR ,vG,vg
 
 
-luafile ~/.config/nvim/plugin/shell.lua
+" luafile ~/.config/nvim/plugin/shell.lua
+luafile ~/.config/nvim/config.lua
+
 
 
 "TODO

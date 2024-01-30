@@ -1,5 +1,5 @@
 [Added Associations]
-image/jpeg=org.gnome.gThumb.desktop;pinta.desktop;feh.desktop;org.gnome.eog.desktop;
+image/jpeg=pinta.desktop;org.gnome.gThumb.desktop;feh.desktop;org.gnome.eog.desktop;
 text/csv=libreoffice-calc.desktop;
 application/pdf=org.gnome.Evince.desktop;org.inkscape.Inkscape.desktop;org.pwmt.zathura-pdf-poppler.desktop;
 video/x-matroska=org.avidemux.Avidemux.desktop;org.gnome.Totem.desktop;vlc.desktop;
@@ -31,7 +31,7 @@ video/x-mpeg-system=vlc.desktop;
 video/mp4v-es=vlc.desktop;
 video/x-m4v=vlc.desktop;
 video/quicktime=vlc.desktop;
-video/webm=vlc.desktop;
+video/webm=org.avidemux.Avidemux.desktop;vlc.desktop;
 video/3gp=vlc.desktop;
 video/3gpp=vlc.desktop;
 video/3gpp2=vlc.desktop;
@@ -61,7 +61,7 @@ audio/x-pn-realaudio=vlc.desktop;
 audio/x-pn-realaudio-plugin=vlc.desktop;
 audio/x-real-audio=vlc.desktop;
 audio/x-realaudio=vlc.desktop;
-audio/mpeg=vlc.desktop;rhythmbox.desktop;
+audio/mpeg=audacity.desktop;vlc.desktop;rhythmbox.desktop;
 audio/mpg=vlc.desktop;
 audio/mp1=vlc.desktop;
 audio/mp2=vlc.desktop;
@@ -118,6 +118,9 @@ x-scheme-handler/http=firefox.desktop;
 x-scheme-handler/https=firefox.desktop;
 text/html=firefox.desktop;
 image/png=pinta.desktop;
+application/xhtml+xml=firefox.desktop;
+application/x-core=org.gnome.TextEditor.desktop;
+application/octet-stream=org.gnome.TextEditor.desktop;
 
 [Default Applications]
 video/x-ogm+ogg=vlc.desktop
