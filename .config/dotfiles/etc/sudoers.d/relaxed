@@ -2,23 +2,23 @@
 # These should not make new changes to the OS,
 # except for updates or synchronization.
 
+# Syntax check this file
+# visudo -c -f ~/.config/dotfiles/etc/sudoers.d/relaxed
+# Required post-install
+# sudo chmod 0440 /etc/sudoers.d/relaxed
+
 # PACKAGE MANAGEMENT
-%wheel	ALL=(ALL)	NOPASSWD: /usr/bin/dnf history
-%wheel	ALL=(ALL)	NOPASSWD: /usr/bin/dnf history *
+%wheel	ALL=(ALL)	NOPASSWD: /usr/bin/dnf history, /usr/bin/dnf history *
 %wheel	ALL=(ALL)	NOPASSWD: /usr/bin/dnf info *
-%wheel	ALL=(ALL)	NOPASSWD: /usr/bin/dnf list
-%wheel	ALL=(ALL)	NOPASSWD: /usr/bin/dnf list *
+%wheel	ALL=(ALL)	NOPASSWD: /usr/bin/dnf list, /usr/bin/dnf list *
 %wheel	ALL=(ALL)	NOPASSWD: /usr/bin/dnf provides *
 %wheel	ALL=(ALL)	NOPASSWD: /usr/bin/dnf repolist
 %wheel	ALL=(ALL)	NOPASSWD: /usr/bin/dnf search *
-%wheel	ALL=(ALL)	NOPASSWD: /usr/bin/dnf upgrade
-%wheel	ALL=(ALL)	NOPASSWD: /usr/bin/dnf upgrade *
-%wheel	ALL=(ALL)	NOPASSWD: /usr/bin/dnf upgrade-minimal
-%wheel	ALL=(ALL)	NOPASSWD: /usr/bin/dnf upgrade-minimal *
+%wheel	ALL=(ALL)	NOPASSWD: /usr/bin/dnf upgrade, /usr/bin/dnf upgrade *
+%wheel	ALL=(ALL)	NOPASSWD: /usr/bin/dnf upgrade-minimal, /usr/bin/dnf upgrade-minimal *
 %wheel	ALL=(ALL)	NOPASSWD: /usr/bin/dnf autoremove
 
-%wheel	ALL=(ALL)	NOPASSWD: /usr/bin/flatpak update
-%wheel	ALL=(ALL)	NOPASSWD: /usr/bin/flatpak update *
+%wheel	ALL=(ALL)	NOPASSWD: /usr/bin/flatpak update, /usr/bin/flatpak update *
 
 # SEARCHING FILES
 %wheel	ALL=(ALL)	NOPASSWD: /usr/bin/du *
@@ -29,6 +29,10 @@
 %wheel	ALL=(ALL)	NOPASSWD: /usr/sbin/tlp start
 %wheel	ALL=(ALL)	NOPASSWD: /usr/sbin/tlp fullcharge
 %wheel	ALL=(ALL)	NOPASSWD: /usr/bin/tlp-stat *
+
+# I/O
+%wheel  ALL=(ALL)       NOPASSWD: /usr/bin/netstat *
+%wheel  ALL=(ALL)       NOPASSWD: /usr/sbin/rfkill *
 
 # BTRFS
 %wheel	ALL=(ALL)	NOPASSWD: /usr/sbin/btrfs filesystem df *
@@ -46,3 +50,9 @@
 %wheel	ALL=(ALL)	NOPASSWD: /usr/sbin/btrfs subvolume show *
 %wheel	ALL=(ALL)	NOPASSWD: /usr/sbin/btrfs subvolume sync *
 %wheel	ALL=(ALL)	NOPASSWD: /usr/sbin/btrfs subvolume list *
+
+# SUDO
+%wheel	ALL=(ALL)	NOPASSWD: /usr/sbin/visudo -c
+Defaults timestamp_timeout=90
+Defaults editor=/usr/bin/vi
+
