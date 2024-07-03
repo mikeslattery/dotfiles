@@ -76,7 +76,7 @@ pathmunge "node_modules/.bin"
 addpath "$HOME/bin"
 addpath "$HOME/.local/bin"
 addpath "$HOME/go/bin"
-addpath "$HOME/src/ai"
+addpath "$HOME/src/my/ai"
 
 alias is_fedora='grep -sq fedora /etc/os-release'
 

@@ -57,6 +57,11 @@ _hinting() {
   gsettings set org.gnome.settings-daemon.plugins.xsettings hinting "$1"
 }
 
+_wifi() {
+  # $1 = block|unblock
+  ( set -eu; rfkill list wlan -o ID -n | xargs -rn1 rfkill "$1"; ) &
+}
+
 _bluetooth() {
   # $1 = block|unblock
   ( set -eu; rfkill list bluetooth -o ID -n | xargs -rn1 rfkill "$1"; ) &
@@ -95,6 +100,17 @@ toggle-marks() {
   tmux list-panes -F '#{pane_current_command} #{pane_id}' -a | \
     sed -rn 's/^n?vim //p' | \
     xargs -tI{} tmux send-keys -t {} :MarksToggleSigns Enter
+}
+
+# suspend and wake
+sleep() {
+  _bluetooth block
+  _wifi block
+  sync
+  sleep 3
+  sudo systemctl suspend
+  _bluetooth unblock
+  _wifi unblock
 }
 
 battery() {

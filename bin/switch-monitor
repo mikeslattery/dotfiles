@@ -4,17 +4,63 @@
 # number are specific to current layout
 # TODO: query with xrandr
 
+set -eu
+
 eval "$(xdotool getmouselocation --shell)"
+eval "$(xdotool getdisplaygeometry --shell)"
 
-if [[ "$X" -lt 1920 ]]; then
-  # left to right
-  X="$(( "$X" + 1920 ))"
-  Y="$(( "$Y" + 620 ))"
-else
-  # right to left
-  X="$(( "$X" - 1920 ))"
-  Y="$(( "$Y" - 620 ))"
-fi
+moveMouseToOtherDisplay() {
+  if [[ "$X" -lt "$WIDTH" ]]; then
+    # left to right
+    X="$(( "$X" + "$WIDTH" ))"
+  else
+    # right to left
+    X="$(( "$X" - "$WIDTH" ))"
+  fi
 
-xdotool mousemove "$X" "$Y"
+  xdotool mousemove "$X" "$Y"
+}
 
+main() {
+  moveMouseToOtherDisplay
+  # moveRightWindowLeft
+  # moveLeftWindowRight
+}
+
+# TODO:
+moveRightWindowLeft() {
+  ORIGX="$X"
+  if [[ "$X" -lt "$WIDTH" ]]; then
+    # left to right
+    X="$(( "$X" + "$WIDTH" ))"
+    xdotool mousemove "$X" "$Y"
+    sleep 0.1
+  fi
+  WINDOW="$(xdotool getactivewindow)"
+  xdotool keydown Shift keydown Super key Left keyup Super keyup Shift
+  sleep 0.1
+  xdotool windowactivate "$WINDOW"
+  sleep 0.1
+  xdotool mousemove "$ORIGX" "$Y"
+}
+
+moveLeftWindowRight() {
+  if [[ "$X" -ge "$WIDTH" ]]; then
+    # right to left
+    RIGHTX="$X"
+    LEFTX="$(( "$RIGHTX" - "$WIDTH" ))"
+    xdotool mousemove "$LEFTX" "$Y"
+    sleep 0.1
+  else
+    LEFTX="$X"
+    RIGHTX="$(( "$LEFTX" + "$WIDTH" ))"
+  fi
+  sleep 0.1
+  xdotool keydown Shift keydown Super key Right keyup Super keyup Shift
+  sleep 0.1
+  xdotool mousemove "$RIGHTX" "$Y"
+  sleep 0.1
+  xdotool mousemove "$LEFTX" "$Y"
+}
+
+main "$@"
