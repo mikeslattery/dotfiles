@@ -22,9 +22,11 @@ map <leader>ar <Plug>(coc-refactor)
 autocmd FileType scss setl iskeyword+=@-@
 
 "TODO: nnoremap <leader>fl :CocList<cr>
+"To search> :CocList marketplace
 
 let g:coc_global_extensions = [
   \ 'coc-lists',
+  \ 'coc-marketplace',
   \ 'coc-eslint',
   \ 'coc-html',
   \ 'coc-css',
@@ -36,6 +38,7 @@ let g:coc_global_extensions = [
   \ 'coc-tsserver',
   \ 'coc-helper',
   \ 'coc-tailwindcss',
+  \ 'coc-python',
   \ ]
 "  \'coc-prettier',
 "  \'coc-jest',

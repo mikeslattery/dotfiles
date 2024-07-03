@@ -3,7 +3,8 @@
 set -euo pipefail
 nvim="$HOME/bin/nvim"
 backup="$HOME/.local/share/nvim/backup"
-version="nightly"  # or stable, see also https://github.com/neovim/neovim/tags
+# version="nightly"  # or stable, see also https://github.com/neovim/neovim/tags
+version="stable"  # or stable, see also https://github.com/neovim/neovim/tags
 nvimurl="https://github.com/neovim/neovim/releases/download/$version/nvim.appimage"
 
 prep() {
@@ -30,7 +31,9 @@ start-editors() {
 
 upgrade-editor() {
   # Upgrade nvim
-  cp -a "$nvim" "$backup/nvim.bak"
+  if [[ -f "$nvim" ]]; then
+    cp -a "$nvim" "$backup/nvim.bak"
+  fi
   curl -fL "$nvimurl" -o "$nvim" -z "$nvim"
   chmod +x "$nvim"
 }
@@ -61,7 +64,7 @@ main() {
   set -x
   stop-editors
   upgrade-editor
-  upgrade-plugins
+  # upgrade-plugins
   start-editors
 }
 

@@ -46,8 +46,8 @@ if has('nvim')
   Plug 'ggandor/leap.nvim'
   Plug 'norcalli/nvim-colorizer.lua'
 
-  Plug '~/src/research/genie'
-  Plug '~/src/ax'
+  Plug '~/src/my/genie'
+  Plug '~/src/my/ax'
 else
   if executable('fzf')
     Plug 'junegunn/fzf.vim'
@@ -180,7 +180,7 @@ vnoremap <leader>rs y:execute 'silent !xsel -o -b\|ssh phone termux-tts-speak &'
 set errorformat+=%-G%.%#
 
 " SESSION AND CONFIG MANAGEMENT
-nnoremap <leader>r. :execute getline('.')<CR>
+nnoremap <leader>r. :execute getline('.')<CR>j
 nnoremap <leader>ra :source $MYVIMRC<CR>
 nnoremap <leader>ru :PlugUpdate --sync\|PlugUpgrade\|CocUpdateSync<cr>
 " Needed for coc-explorer
@@ -360,7 +360,7 @@ noremap c ""c
 noremap x "_x
 nnoremap <leader>q @q
 
-set clipboard=unnamed,unnamedplus
+set clipboard=unnamedplus
 " ctrl-backspace to delete previous word
 if has('gui_running') || has('nvim')
   inoremap <C-bs> <C-w>
@@ -475,7 +475,8 @@ inoremap <C-Space> <Esc>
 inoremap <C-@> <Esc>
 inoremap <C-c> <esc>
 
-nnoremap <leader>zn :setlocal relativenumber!<CR>
+nnoremap <leader>zn :setlocal relativenumber! number<CR>
+nnoremap <leader>zN :setlocal norelativenumber nonumber<CR>
 nnoremap <leader>zs :setlocal spell!<CR>
 nnoremap <leader>zb :setlocal breakindent!<CR>
 nnoremap <silent> <leader>z= z=1<cr><cr>
@@ -509,7 +510,7 @@ noremap <leader>vR ,vG,vg
 
 
 " luafile ~/.config/nvim/plugin/shell.lua
-luafile ~/.config/nvim/config.lua
+" luafile ~/.config/nvim/config.lua
 
 
 

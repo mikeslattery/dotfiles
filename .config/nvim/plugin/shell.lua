@@ -30,12 +30,58 @@ Usages:
 
 10. The code uses single quotes for some strings and double quotes for others. It would be better to use a consistent style throughout the code.
 
+
 TODOS:
 
 * Start over with TDD+AI development
 * cgi-gateway: name, selection, dirty? 
 * Fix bounds error on last line without newline
+* Xs. streaming.  Maintain screen offset and cursor line location.
+  * doesn't change size of selection until stdout expands past original range end
+  * When used without a range, it acts like `Xr`
+  * Update at EOL or EOF.
+* Xstop - stop last running program, incl streaming
+* Xwait - wait for pending jobs to finish
 
+DIFF LOGIC:
+1. At start, record extmark char offsets, undo level, and selection checksum
+1. Run command and capture stdout
+1. If extmarks are not deleted, no changes, and not in insert mode within marks.
+    a. Replace range
+1. Else do 3-way diff with entire file before/after
+    a. `mksession`
+    a. record current undo (`vim.fn.undotree().seq_cur`)
+    a. Write file to MYFILE
+    a. undo (or redo) until back where it was.  Write contents of buffer to file (OLDFILE)
+    a. Write file with selection replaced with stdout. (3 writes to YOURFILE)
+    a. redo to current undo (or reverse)
+    a. Record undo level
+    a. `vim.api.nvim_exec2(vim.fn.system('diff3 --ed MYFILE OLDFILE YOURFILE'))`
+    a. restore session
+    a. delete MYFILE OLDEFILE YOURFILE session
+1. Things left out as they are taken care of automatically.
+    a. If in insert or command mode, the editor will automatically wait.
+    a. Use using `ed` commands, marks will be preserved.
+    a. `mksession` is used to record top line offset and cursor position
+    a. undo is used to restore original content of entire file
+1. Won't do
+    a. If conflicts detected, undo and use built-in diff merge functionality
+
+vim.api.nvim_create_augroup("LastVisualMode", { clear = true })
+
+-- autocmd ModeChanged [vV\x16]*:* let g:last_visual_mode = v:event.old_mode
+vim.api.nvim_create_autocmd("ModeChanged", {
+    group = "LastVisualMode",
+    pattern = "[vV\x16]*:*",
+    callback = function(event)
+        vim.g.last_visual_mode = event.old_mode
+    end,
+})
+
+for use with:
+    if start_row ~= line1 or end_row ~= line2 or vim.fn.mode() == 'V' then
+to replace:
+    if start_row ~= line1 or end_row ~= line2 then
 --]]
 
 MARK_NS = vim.api.nvim_create_namespace('asyncShell')
@@ -62,6 +108,7 @@ end
 --]]
 function asyncShell(command, operation, line1, line2)
   local bufnum = vim.api.nvim_get_current_buf()
+  local num_lines = vim.api.nvim_buf_line_count(bufnum)
   local start_row, start_col, end_row, end_col
 
   -- :r !command
@@ -74,18 +121,28 @@ function asyncShell(command, operation, line1, line2)
     _, start_row, start_col = unpack(vim.fn.getpos("'<"))
     _, end_row,   end_col   = unpack(vim.fn.getpos("'>"))
 
-    -- print(
-    --   command .. ', ' .. bufnum .. ', (' .. start_row .. '/' .. line1 .. ',' .. start_col .. '), (' .. end_row .. '/' .. line2 .. ', ' .. end_col .. ')')
+    -- TODO: or last visual mode was "V"
     if start_row ~= line1 or end_row ~= line2 then
-      -- If visual-mode selection is not the same as the range, use the range
-      -- print 'V mode'
+      -- If visual-mode line selection is not the same as the range
+      --   or in visual-line-mode,
+      --   then use the range
       start_row = line1
       start_col = 1
       end_row = line2 + 1
       end_col = 1
     end
-    if end_col >= MAX_LENGTH then
-      -- print 'max len'
+
+    -- if past end of file
+    if end_row > num_lines and end_col == 1 then
+      end_row = end_row - 1
+      end_col = vim.v.maxcol
+    end
+
+    if end_col == vim.v.maxcol then
+      -- from :help getpos():
+      --   A very large column number equal to |v:maxcol| can be returned,
+      --   in which case it means "after the end of the line".
+      -- So, we will calculate end_col
       local last_line_text = vim.api.nvim_buf_get_lines(bufnum, end_row - 1, end_row, false)[1]
       end_col = #last_line_text + 1
     end
@@ -98,6 +155,7 @@ function asyncShell(command, operation, line1, line2)
   end_col = end_col - 1
   -- lua print empty line.
 
+  -- print(string.format("range [%d,%d][%d,%d] of %d", start_row, start_col, end_row, end_col, num_lines))
   local selected_lines = vim.api.nvim_buf_get_text(
     bufnum, start_row, start_col, end_row, end_col, {})
   -- print(string.format("[%s]", table.concat(selected_lines, "] [")))
@@ -183,7 +241,7 @@ function registerXCommands()
   -- :Xw is similar to :w !command
   vim.cmd([[command! -nargs=1 -range Xw lua asyncShell(<q-args>, 'w', <line1>, <line2>) ]])
   -- Xstop to kill last run command
-  vim.cmd([[command! Xstop lua killAsyncShell() ]])
+  vim.cmd([[command! X9 lua killAsyncShell() ]])
 end
 
 -- Register async shell commands

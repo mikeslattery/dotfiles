@@ -9,6 +9,7 @@ if has_key(g:plugs, 'telescope.nvim')
 
   noremap <leader>fb <cmd>lua require('telescope.builtin').buffers({sort_mru=true})<cr>
   noremap <leader>b <cmd>lua require('telescope.builtin').buffers({sort_mru=true, ignore_current_buffer=true, show_all_buffers=false})<cr>
+  noremap <leader>B <cmd>lua require('telescope.builtin').buffers({sort_mru=true, ignore_current_buffer=true, show_all_buffers=true})<cr>
   if executable('fd')
     noremap <leader>ff <cmd>Telescope fd<cr>
   else
