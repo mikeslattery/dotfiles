@@ -1,2 +1,3 @@
 .dotfiles
 .git
+.local/share/containers/storage

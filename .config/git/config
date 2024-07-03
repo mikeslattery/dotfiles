@@ -15,3 +15,5 @@
 	templateDir = ~/.config/git/templates
 [alias]
 	sync = syncr sync
+[safe]
+	directory = /app
