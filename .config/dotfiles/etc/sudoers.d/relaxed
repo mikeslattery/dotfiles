@@ -6,6 +6,8 @@
 # visudo -c -f ~/.config/dotfiles/etc/sudoers.d/relaxed
 # Required post-install
 # sudo chmod 0440 /etc/sudoers.d/relaxed
+# Changes
+# diff -u <(sudo cat /etc/sudoers.d/relaxed) ~/.config/dotfiles/etc/sudoers.d/relaxed
 
 # PACKAGE MANAGEMENT
 %wheel	ALL=(ALL)	NOPASSWD: /usr/bin/dnf history, /usr/bin/dnf history *
@@ -17,6 +19,7 @@
 %wheel	ALL=(ALL)	NOPASSWD: /usr/bin/dnf upgrade, /usr/bin/dnf upgrade *
 %wheel	ALL=(ALL)	NOPASSWD: /usr/bin/dnf upgrade-minimal, /usr/bin/dnf upgrade-minimal *
 %wheel	ALL=(ALL)	NOPASSWD: /usr/bin/dnf autoremove
+%wheel	ALL=(ALL)	NOPASSWD: /usr/bin/dnf needs-restarting, /usr/bin/dnf needs-restarting *
 
 %wheel	ALL=(ALL)	NOPASSWD: /usr/bin/flatpak update, /usr/bin/flatpak update *
 
@@ -56,3 +59,6 @@
 Defaults timestamp_timeout=90
 Defaults editor=/usr/bin/vi
 
+# SERVICES
+%wheel	ALL=(ALL)	NOPASSWD: /usr/bin/systemctl start sshd.service
+%wheel	ALL=(ALL)	NOPASSWD: /usr/bin/systemctl start docker.service
