@@ -392,6 +392,7 @@ inoremap <C-k> <C-o>d$
 nnoremap <leader><leader>t :exec "e ".system('mktemp -p /var/tmp --suffix=.md')<cr>
 nnoremap <leader>w :up<CR>
 nnoremap <leader>W :wa<CR>
+nnoremap <c-s> :up<cr>
 set autoread
 set hidden
 set undofile
@@ -408,9 +409,14 @@ augroup make_executable
   autocmd!
   autocmd BufWritePost * if getline(1) =~ "^#!" && !executable(expand('%')) 
     \ | execute 'silent !chmod +x %'
-    \ | checktime
+    \ | call timer_start(100, 'TimerEdit', {'repeat': -1})
     \ | endif
 augroup END
+function! TimerEdit(timer)
+  if expand('%') != ''
+    edit %
+  endif
+endfunction
 
 vnoremap <leader>r. y<cmd>execute substitute(@", '\n *\(\\ \|\)\?', ' \| ', 'gm')<cr>
 

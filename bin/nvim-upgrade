@@ -34,7 +34,7 @@ upgrade-editor() {
   if [[ -f "$nvim" ]]; then
     cp -a "$nvim" "$backup/nvim.bak"
   fi
-  curl -fL "$nvimurl" -o "$nvim" -z "$nvim"
+  curl -C - --retry 5 --retry-delay 1 -fL "$nvimurl" -o "$nvim" -z "$nvim"
   chmod +x "$nvim"
 }
 
