@@ -1,0 +1,13 @@
+#!/bin/bash
+#shellcheck disable=SC2016
+
+set -euo pipefail
+
+lines="$(find ~/.config -mindepth 2 -maxdepth 2 -name 'init.lua' -o -name 'init.vim' | \
+  awk -F/ '{print $(NF-1)}')"
+
+height="$(( $(echo -n "$lines" | wc -l) + 5 ))"
+
+echo "$lines" | \
+  fzf --reverse --prompt='Neovim Configs> ' --border --height="$height" | \
+    xargs -d$'\n' -rn1 bash -c 'export NVIM_APPNAME="$1"; shift; exec nvim '"$*" --

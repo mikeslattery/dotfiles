@@ -1,0 +1,48 @@
+#!/usr/bin/awk -f
+
+# Takes the output of grep/make (with line numbers) and generates a patch file.
+# This can be useful for doing mass edits.
+
+# Example CLI usage:
+# 1. Run: find -name '*.java' grep -ln '<pattern>' > grep.diff
+# 2. Edit grep.diff for the changes you want to make.
+# 3. To apply run: patch -p1 < grep.diff
+
+# Example Vim usage with Ripgrep:
+# 1. :r !rg '<pattern>' -g'*.java' --no-heading -n
+# 2. Edit
+# 3. :%w !patch -p1
+
+{
+    if ($0 == "--") next
+
+    split($0, parts, /[:\-]/)
+    filePath = parts[1]
+    lineNumber = parts[2]
+    # code = substr($0, index($0, parts[3]))
+
+    # the current value of the line in `filePath` at `lineNumber`
+    command = "sed -n '" lineNumber "p' " filePath
+    command | getline oldcode
+    close(command)
+
+    print "diff --git a/" filePath " b/" filePath
+    print "--- a/" filePath
+    print "+++ b/" filePath
+    print "@@ -" lineNumber " +" lineNumber " @@ "
+    print "-" oldcode
+    print "+" oldcode
+}
+
+#TODO:
+# Support more formats.
+#   * lint.  path/to/file:line:column:message
+#   * error log.  [ERROR] /path/to/file.java:line:column:message
+#   * maven log.  [ERROR] /path/to/file.java:[line,column] message
+#   * java trace.  at classname.method(filename.java:line)
+#   * javac. 1. ERROR in /path/to/file.java (at line 1)
+# Combine headers
+#
+# Read the line from the file (for lint/error formats)
+# `--grep <args>` pass-through to grep
+# Rewrite in more robust language

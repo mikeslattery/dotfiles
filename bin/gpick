@@ -1,0 +1,45 @@
+#!/bin/bash
+
+set -euo pipefail
+
+read-ops() {
+	echo -n 'git diff --name-only
+git diff --name-only --cached
+git ls-files
+git ls-files --others --exclude-standard
+cat
+'
+}
+
+prefix() {
+	# sed 's/^/git -P /'
+	cat
+}
+
+write-ops() {
+	echo -n 'git checkout
+git reset
+git add
+git --paginate diff
+git -P diff
+git --paginate log
+git rm
+git stash push --
+printf %s\n
+bat
+'
+}
+
+readop="$(read-ops | fzf --preview "bash -c {}" | prefix)"
+$readop | fzf -m --preview "git diff --quiet {} && bat --color=always {} || (git diff {} | bat -l diff --color=always )" >/tmp/files.txt
+op="$(write-ops | fzf | prefix)"
+cat /tmp/files.txt | xargs -tr $op
+
+#TODO:
+# add conflicted files to read-ops
+# mktemp
+# preview list of files.  diff if changed, else diff --cached else entire file
+# reduce write-ops to what makes sense based on read-op
+# run git status for write-ops that changed it
+# follow-up ops: loop again, lazygit, commit, amend, rebase, push, exit
+# similar script+alias for dealing with branchs (worktrees, pick, create)

@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# Prints out all executables running in all Tmux panes
+
+tmux list-panes -a -F \
+	'#{session_name}:#{window_index}.#{pane_index} #{window_name} #{pane_pid} #{pane_current_command}' | rg -v ' (zsh|tmux)$'
+
+#TODO
+# print out the full command line
+# don't print current pane or shells

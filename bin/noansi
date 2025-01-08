@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# Removes ANSI codes.
+
+sed -u -E 's/\x1b\[[0-9;]*[a-z]//g'
