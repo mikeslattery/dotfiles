@@ -1,10 +1,15 @@
 #!/bin/bash
 
-# Prints out all executables running in all Tmux panes
+# Prints out all launched executables running in all Tmux panes
 
 tmux list-panes -a -F \
-	'#{session_name}:#{window_index}.#{pane_index} #{window_name} #{pane_pid} #{pane_current_command}' | rg -v ' (zsh|tmux)$'
-
-#TODO
-# print out the full command line
-# don't print current pane or shells
+	'#{pane_id} #{session_name}:#{window_index}.#{pane_index} #{pane_pid} #{pane_current_path}' |
+  sed -E "/^${TMUX_PANE} /d; s/^%[0-9]* //; s|${HOME}|~|;" |
+	while read -r session_pane pane_pid pane_path; do
+		# echo "[$pane_pid] [$full_command]"
+		full_command=$(ps -o args= --ppid "$pane_pid")
+		pid="$(ps -o pid= --ppid "$pane_pid" | sed 's/^ *//')"
+		if [[ -n "$full_command" ]]; then
+			echo -e "$session_pane\t$pid\t$pane_path\t$full_command"
+		fi
+	done

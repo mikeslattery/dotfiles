@@ -7,7 +7,6 @@ read-ops() {
 git diff --name-only --cached
 git ls-files
 git ls-files --others --exclude-standard
-cat
 '
 }
 
@@ -34,6 +33,7 @@ readop="$(read-ops | fzf --preview "bash -c {}" | prefix)"
 $readop | fzf -m --preview "git diff --quiet {} && bat --color=always {} || (git diff {} | bat -l diff --color=always )" >/tmp/files.txt
 op="$(write-ops | fzf | prefix)"
 cat /tmp/files.txt | xargs -tr $op
+git -P status -s
 
 #TODO:
 # add conflicted files to read-ops

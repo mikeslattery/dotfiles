@@ -1,13 +1,73 @@
 #!/bin/bash
-#shellcheck disable=SC2016
-
 set -euo pipefail
 
-lines="$(find ~/.config -mindepth 2 -maxdepth 2 -name 'init.lua' -o -name 'init.vim' | \
-  awk -F/ '{print $(NF-1)}')"
+# Neovim configuration selection
+# Provides a fuzzy search for all directories under ~/.config for init.lua
 
-height="$(( $(echo -n "$lines" | wc -l) + 5 ))"
+# Usage: nvims
 
-echo "$lines" | \
-  fzf --reverse --prompt='Neovim Configs> ' --border --height="$height" | \
-    xargs -d$'\n' -rn1 bash -c 'export NVIM_APPNAME="$1"; shift; exec nvim '"$*" --
+# Requires:
+# fzf
+# optional: eza or lsd or tree
+# optional: mdcat or bat
+
+# Example distro installs
+# git clone --depth 1 https://github.com/NvChad/starter        ~/.config/nvchad
+# git clone --depth 1 https://github.com/LazyVim/starter       ~/.config/lazy
+# git clone --depth 1 https://github.com/AstroNvim/template    ~/.config/astro
+# git clone --depth 1 git@github.com:mattleong/CosmicNvim.git  ~/.config/cosmic
+# git clone --depth 1 https://github.com/nvim-lua/kickstart.nvim.git ~/.config/kickstart
+
+# Example personal config installs
+# git clone --depth 1 https://github.com/ThePrimeagen/neovimrc ~/.config/prime
+# git clone --depth 1 https://github.com/folke/dot.git; mv dot/nvim ~/.config/folke; rm dot -rf
+# git clone --depth 1 https://github.com/ayamir/nvimdots       ~/.config/nvimdots
+
+# Support Vim config as a choice
+if [[ ! -f ~/.config/vimrc/init.vim ]] && [[ -f ~/.vimrc ]]; then
+	mkdir -p ~/.config/vimrc
+	ln -sfn ~/.vimrc ~/.config/vimrc/init.vim
+fi
+
+configs() {
+	find ~/.config -mindepth 2 -maxdepth 2 -name 'init.lua' -o -name 'init.vim' |
+		awk -F/ '{print $(NF-1)}'
+}
+
+has() {
+	command -v "$1" &>/dev/null
+}
+export -f has
+
+preview() {
+	dir="$HOME/.config/$1"
+	file="${dir}/README.md"
+	if [[ -f "$file" ]]; then
+		if has mdcat; then
+			mdcat "$file"
+		elif has bat; then
+			bat -p "$file" --color=always
+		else
+			cat "$file"
+		fi
+	else
+		if has eza; then
+			eza -T "$dir" --color=always
+		elif has lsd; then
+			lsd --tree "$dir" --color=always
+		elif has tree; then
+			tree -C "$dir"
+		else
+			ls -R "$dir"
+		fi
+	fi
+}
+export -f preview
+
+choice="$(configs |
+	fzf --prompt 'Neovim Config> ' --preview 'bash -c "preview {}"')"
+
+echo "NVIM_APPNAME=$choice nvim $*" >&2
+
+export NVIM_APPNAME="$choice"
+# exec nvim "$@"
