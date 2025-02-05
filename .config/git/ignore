@@ -10,6 +10,7 @@
 # Vim
 tags
 /.vim/
+/.nvim/
 Session.vim
 
 # JVM
@@ -26,6 +27,10 @@ nohup.out
 
 # Sandbox files
 junk*
+
+# Logs
+.zsh_local_history
+.bash_local_history
 
 # See header comment for why these aren't ignored globally:
 # *.log

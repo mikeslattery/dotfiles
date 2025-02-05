@@ -192,6 +192,31 @@ alias fd='fd --hidden --exclude=.git'
 xble() { set -eu; cat > "$1"; chmod u+x "$1"; }
 unalias md &>/dev/null || true
 md() { set -eu; mkdir -p "$1"; cd "$1"; }
+
+if iszsh; then
+  zshaddhistory() {
+    if git rev-parse --is-inside-work-tree &>/dev/null; then
+      local commitid="$(git rev-parse --short HEAD 2>/dev/null)"
+      local now="$(date +'%Y-%m-%d %H:%M:%S')"
+      local branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null)"
+      local git_dir="$(git rev-parse --show-toplevel 2>/dev/null)"
+      echo -n "${now} ${commitid} ${branch}  \$ ${1}" >> "${git_dir}/.zsh_local_history"
+    fi
+  }
+else
+  bashaddhistory() {
+    if git rev-parse --is-inside-work-tree &>/dev/null; then
+      local last_command="$(history 1 | sed 's/^[ ]*[0-9]*[ ]*//')"
+      local commitid="$(git rev-parse --short HEAD 2>/dev/null)"
+      local now="$(date +'%Y-%m-%d %H:%M:%S')"
+      local branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null)"
+      local git_dir="$(git rev-parse --show-toplevel 2>/dev/null)"
+      echo "${now} ${commitid} ${branch}  \$ ${last_command}" >> "${git_dir}/.bash_local_history"
+    fi
+  }
+  PROMPT_COMMAND='bashaddhistory'
+fi
+
 command_not_found_handler() {
     _log() {
       echo "$*" >&2
