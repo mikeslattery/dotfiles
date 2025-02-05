@@ -104,10 +104,12 @@ toggle-marks() {
 
 # suspend and wake
 sleep() {
+  sleep 2
   _bluetooth block
   _wifi block
   sync
-  sleep 3
+  echo 'Shutting down in 3s...'
+  command sleep 3
   sudo systemctl suspend
   _bluetooth unblock
   _wifi unblock
