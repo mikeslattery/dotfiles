@@ -1,0 +1,5 @@
+return {
+  {
+    'Saghen/blink.cmp',
+  },
+}

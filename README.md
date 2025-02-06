@@ -101,7 +101,7 @@ or, if you don't want to use the install script, you can install manually:
 ```sh
 cd ~
 curl -sO https://raw.githubusercontent.com/mikeslattery/dotfiles/master/.zshrc
-sh .zshrc install
+bash .zshrc install
 source .zshrc
 git clone --bare https://github.com/mikeslattery/dotfiles .dotfiles
 config config --local status.showUntrackedFiles no
