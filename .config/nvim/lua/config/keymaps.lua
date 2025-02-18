@@ -48,6 +48,14 @@ map({ "n", "i", "c", "v", "x", "o", "t", "s" }, "<M-k>", function()
   require("which-key").show({ mode = vim.api.nvim_get_mode().mode })
 end)
 
+-- toggle auto-pair
+vim.g.minipairs_disable = true
+vim.keymap.set({ "i", "n", "v" }, "<M-[>", function()
+  local disabled = not vim.g.minipairs_disable
+  vim.g.minipairs_disable = disabled
+  vim.api.nvim_echo({ { "Autopairing: " .. tostring(not disabled) } }, true, {})
+end, { desc = "Toggle pairing" })
+
 -- \<mark>
 map("n", "\\", function()
   print("Type global mark: ")

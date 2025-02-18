@@ -3,7 +3,8 @@ return {
   { "noice.nvim",         enabled = false },
   { "persistence.nvim",   enabled = false },
   { "todo-comments.nvim", enabled = false },
-  { "mini.pairs",         enabled = false },
+  -- mini.pairs is disabled/enabed in keymaps.lua
+  -- { "mini.pairs",         enabled = false },
   { "conform.nvim",       enabled = false },
   {
     "snacks.nvim",
