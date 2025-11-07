@@ -35,3 +35,5 @@ junk*
 # See header comment for why these aren't ignored globally:
 # *.log
 
+.aider*
+.env

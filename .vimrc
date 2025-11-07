@@ -218,11 +218,13 @@ command! UpdateDefaults !curl -LO https://raw.githubusercontent.com/mikeslattery
 
 " If this is the .vimrc, not a plugin, then load init.vim
 if $MYVIMRC == expand('<sfile>:p')
-  let $MYVIMRC = s:configdir . '/init.vim'
-  source $MYVIMRC
-endif
-
-if &exrc && filereadable('.nvimrc')
+  let s:initvim = s:configdir . '/init.vim'
+  if filereadable(s:initvim)
+    let $MYVIMRC = s:initvim
+    source $MYVIMRC
+  endif
+" if this file is a plugin
+elseif &exrc && filereadable('.nvimrc')
   source .nvimrc
 endif
 
