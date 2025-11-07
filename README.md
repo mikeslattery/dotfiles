@@ -14,15 +14,17 @@ This describes the configuration dotfiles and the environments supported.
 
 Some of the following may not be fully supported at any time as I change tools.
 
-### Software
+### Notable Software
 
-* Neovim, IDEAVim
+* Neovim with LazyVim
 * Zsh, Oh-My-Zsh
-* Tmux, Alacritty
+* Tmux, Ghostty
 * npm, yarn, node
 * i3, sway
 * `fzf`, `rg`, `fd`, `bat`, `eza`
 * Podman
+* Pandoc
+* Fedora
 
 ### Operating Environments
 
@@ -33,14 +35,13 @@ Environments I've successfully used with these dot files.
 * Termux Android app
 * Remote RHEL servers over ssh (w/o git installed)
 * WSL 1, WSL 2
-* Cygwin, Msys2
-* Git for Windows (stripped down Msys2)
+* Cygwin, Msys2, Git for Windows
 
 ### Notable Features of my configuration
 
 * Auto-install of plugin managers on first use, for Neovim, Tmux, Zsh
-* Dracula theme for Neovim, Tmux, Alacritty, i3/sway, Gtk, Slack, but with darker background
-* [True color](https://gist.github.com/andersevenrud/015e61af2fd264371032763d4ed965b6) support across alacritty, tmux, Neovim 
+* Dracula theme for Tmux, Gnome/Gtk, Slack, but with darker background
+* [True color](https://gist.github.com/andersevenrud/015e61af2fd264371032763d4ed965b6) support across Ghostty, Tmux, Neovim 
 * `.zshrc` also serves as a `.bashrc`
 * Powerline fonts across alacritty, tmux, neovim
 * Mouseless usage as a goal, with vi keybindings when possible
