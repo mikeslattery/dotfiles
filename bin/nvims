@@ -69,5 +69,16 @@ choice="$(configs |
 
 echo "NVIM_APPNAME=$choice nvim $*" >&2
 
+dir="$HOME/.config/$choice"
+if [[ -d "${dir}/.git" ]]; then
+    read -r -p "This config is under source control.  Do a git pull (N/y)? " pull
+    if [[ "$pull" == "y" ]]; then
+        git -C "$dir" pull
+    fi
+fi
+
+#TODO: detect package manager and auto-install it.
+
 export NVIM_APPNAME="$choice"
-# exec nvim "$@"
+
+exec nvim "$@"

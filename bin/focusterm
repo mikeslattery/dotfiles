@@ -1,0 +1,144 @@
+#!/bin/bash
+
+# Focus the window and pane for the current terminal.
+
+# Usage: focusterm
+
+# Requirements:
+# Linux
+# xdotool, ps
+
+set -euo pipefail
+
+# Focus the multiplexer pane the shell script is running in.
+focus_pane() {
+	if [[ -n "${TMUX_PANE:-}" ]]; then
+		tmux select-pane -t "$TMUX_PANE"
+	fi
+
+	# Focus the Kitty pane the shell script is running in.
+	if [[ -n "${KITTY_PANE_ID:-}" ]]; then
+		kitty @ focus-window --match id:"$KITTY_WINDOW_ID"
+		kitty @ goto-layout --match id:"$KITTY_PANE_ID"
+	fi
+
+	# Focus the wezterm pane the shell script is running in.
+	if [[ -n "${WEZTERM_PANE:-}" ]]; then
+		wezterm cli activate-pane --pane-id "$WEZTERM_PANE"
+	fi
+
+    # NOTE: Ghostty cannot be controlled in this way.
+}
+
+get_ppid() {
+	ps -o ppid= -p "$1" | xargs
+}
+
+# Traverse up process tree to find X11 Window
+get_window_id() {
+	local pid="$1"
+	local window_id=""
+
+	while [[ "$pid" != "1" ]] && [[ -z "$window_id" ]]; do
+		# get parent pid
+		pid="$(get_ppid "$pid")"
+		window_id="$(xdotool search --onlyvisible --pid "$pid" 2>/dev/null || true)"
+	done
+
+	echo -n "$window_id"
+}
+
+# Get the pid of the shell process
+get_shell_pid() {
+	if [[ -n "$TMUX" ]]; then
+		tmux_pid="$(tmux display -p '#{client_pid}')"
+		get_ppid "$tmux_pid"
+	else
+		get_ppid "$$"
+	fi
+}
+
+focus_window() {
+	# Check for the current windowing system and focus the window accordingly.
+	if [[ "$XDG_SESSION_TYPE" == "wayland" ]]; then
+		# For Sway (wlroots)
+		if [[ -n "$SWAYSOCK" ]] && command -v swaymsg &>/dev/null; then
+			shell_pid="$(get_shell_pid)"
+			if [[ -n "$shell_pid" ]]; then
+				swaymsg "[pid=${shell_pid}] focus" >/dev/null
+			fi
+		# For Hyprland
+		elif [[ -n "$HYPRLAND_INSTANCE_SIGNATURE" ]] && command -v hyprctl &>/dev/null; then
+			shell_pid="$(get_shell_pid)"
+			if [[ -n "$shell_pid" ]]; then
+				hyprctl dispatch focuswindow "pid:${shell_pid}" >/dev/null
+			fi
+		# For GNOME on Wayland
+		elif [[ "$XDG_CURRENT_DESKTOP" == *"GNOME"* ]] && command -v gdbus &>/dev/null; then
+			shell_pid="$(get_shell_pid)"
+			if [[ -n "$shell_pid" ]]; then
+				# This uses a GNOME Shell specific D-Bus call to find the window by PID and activate it.
+				gdbus call --session --dest org.gnome.Shell --object-path /org/gnome/Shell \
+					--method org.gnome.Shell.Eval \
+					"global.get_window_actors().find(a => a.get_meta_window().get_pid() === ${shell_pid})?.activate(global.get_current_time())" >/dev/null
+			fi
+		# For KDE Plasma on Wayland
+		elif [[ "$XDG_CURRENT_DESKTOP" == *"KDE"* ]] && command -v qdbus &>/dev/null; then
+			shell_pid="$(get_shell_pid)"
+			if [[ -n "$shell_pid" ]]; then
+				# This uses a KWin D-Bus script to find the window by PID and activate it.
+				qdbus org.kde.kwin.Scripting /Scripting org.kde.kwin.Scripting.evaluate \
+					"var clients = workspace.clientList();
+                    for (var i = 0; i < clients.length; i++) {
+                        var client = clients[i]; if (client.pid == ${shell_pid}) { workspace.activeClient = client; break;
+                    } }" >/dev/null
+			fi
+		# For Wayfire
+		elif [[ "$XDG_CURRENT_DESKTOP" == "Wayfire" ]] && command -v wcm &>/dev/null; then
+			shell_pid="$(get_shell_pid)"
+			if [[ -n "$shell_pid" ]]; then
+				# This uses the wm-actions plugin to focus the window by PID.
+				wcm -m wm-actions focus-view-by-pid "${shell_pid}" >/dev/null
+			fi
+		fi
+	# Fallback to X11
+	else
+		# Get the x11 window-id
+		if [[ -n "${ALACRITTY_WINDOW_ID:-}" ]]; then
+			window_id="$ALACRITTY_WINDOW_ID"
+		elif [[ -n "${WINDOW_ID:-}" ]]; then
+			window_id="$WINDOW_ID"
+		elif [[ -n "${WINDOWID:-}" ]]; then
+			window_id="$WINDOWID"
+		else
+			shell_pid="$(get_shell_pid)"
+			window_id="$(get_window_id "$shell_pid")"
+		fi
+
+		if [[ -n "$window_id" ]] && command -v xdotool &>/dev/null; then
+			xdotool windowactivate "$window_id"
+		fi
+	fi
+}
+
+
+main() {
+	focus_pane
+    focus_window
+}
+
+main
+
+#TODO:
+# Untested:
+#   Kitty, wezterm
+#   Wayland Gnome, KDE, Wayfire, Sway
+# WM/OS:
+#   Neovim GUIs
+#   WSLg
+#   Windows (Git for Windows)
+#   Mac
+# Multiplexers:
+#   Ghostty
+#   Terminator
+#   Screen

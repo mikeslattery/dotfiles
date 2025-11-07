@@ -1,0 +1,43 @@
+#!/bin/bash
+
+set -eu
+
+# This script launches a terminal, then tmux,
+# and finally attempts to restore the last tmux-resurrect session.
+
+RESTORE_COMMAND="$HOME/.tmux/plugins/tmux-resurrect/scripts/restore.sh"
+TMUX_RESTORE_COMMAND="exec tmux new-session \\; run-shell $RESTORE_COMMAND"
+
+if ! [[ -x "$RESTORE_COMMAND" ]]; then
+    # If resurrect isn't installed, do nothing
+    RESTORE_COMMAND="false"
+fi
+
+_term() {
+    if command -v "$1" &>/dev/null; then
+        nohup "$1" -e "$SHELL" --login -c "$TMUX_RESTORE_COMMAND" &>/dev/null &
+        return 0
+    else
+        return 1
+    fi
+}
+
+# If not in a terminal
+if [[ -z "${TERM_PROGRAM:-}" ]]; then
+    _term ghostty \
+        || _term alacrity \
+        || _term wezterm \
+        || echo "No Supported Terminal"
+# within terminal, but not not in tmux
+elif [[ -z "${TMUX:-}" ]]; then
+    if tmux ls &>/dev/null; then
+        # If an existing session, just connect to it
+        tmux attach -t "$(tmux ls -F'#W' | tail -1)"
+    else
+        # else create first new session
+        eval "$TMUX_RESTORE_COMMAND"
+    fi
+else
+    # within tmux
+    "$RESTORE_COMMAND"
+fi

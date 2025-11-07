@@ -1,0 +1,84 @@
+#!/bin/bash
+
+source ~/src/my/aiagent/.env
+export OPENAI_API_KEY
+
+# Usage: mkv2txt INPUT.mkv > OUTPUT.txt
+
+# Requirements:
+# ffmpeg        - to convert to .wav
+# whisperc      - whisper.cpp binary to convert wav to text
+# openai_python - to call gpt-4o-mini
+# OPENAI_API_KEY env var
+
+# Check for input argument
+if [ "$#" -ne 1 ]; then
+  echo "Usage: $(basename $0) <input.mkv>"
+  exit 1
+fi
+
+main() {
+  input="$1"
+
+  cat "$input" | mkv2wav | wav2text # | text2markdown
+}
+
+mkv2wav() {
+  ffmpeg -i /dev/stdin -vn -acodec pcm_s16le -ar 16000 -ac 1 -f wav -y /dev/stdout \
+    2>>/tmp/stderr.log
+}
+
+wav2text() {
+  tmpfile="$(mktemp -u /tmp/stdin.XXXXXX.wav)"
+  cat > "$tmpfile"
+  whisperc -m ~/.local/share/whisper/ggml-tiny.en.bin -nt \
+    --output-txt "$tmpfile" 2>/tmp/stderr.log
+  rm "$tmpfile"
+}
+
+
+
+_wav2text() {
+  cat > input.wav
+  ffmpeg -i input.wav -f segment -segment_time 600s -c copy output%03d.wav
+
+  for file in output*.wav; do
+    curl -sSf \
+      https://api.openai.com/v1/audio/transcriptions \
+      -H "Authorization: Bearer $OPENAI_API_KEY" \
+      -H "Content-Type: multipart/form-data" \
+      -F model="whisper-1" \
+      -F language="en" \
+      -F response_format="text" \
+      -F file="@$file;filename=$file" \
+    2>> /tmp/stderr.log
+
+    rm "$file"
+  done
+  rm input.wav
+}
+
+
+
+gpt() {
+prompt="$1"
+openai api chat.completions.create \
+    -m 'gpt-4o-mini' \
+    -g user "$prompt" \
+    -t 0.2 \
+    --stream \
+    2>> /tmp/stderr.log
+}
+
+text2markdown() {
+  prompt="$(cat)
+
+INSTRUCTION:
+Re-structure as markdown, and fix spelling and grammar mistakes,
+but do not lose any information"
+
+  echo "$prompt" | gpt  
+} 
+
+cp /dev/null /tmp/stderr.log
+main "$@" # || echo "Usage: mkv2txt INPUT.mkv > OUTPUT.txt"

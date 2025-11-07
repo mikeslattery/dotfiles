@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# Usage: tmux-select <session>:<window>.<pane>
+
+set -eu
+
+tmux switch-client -t "$1"
+tmux select-window -t "$1"
+tmux select-pane   -t "$1"
+

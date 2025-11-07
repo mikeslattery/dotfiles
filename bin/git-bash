@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# From WSL2, runs Git Windows Git-Bash interactive shell.
+
+# Usage:
+# git-bash [--cd <dir>] [--no-cd] [args..]
+
+# <no-args>  - By default pwd will be the Windows home directory.
+# --no-cd    - Current WSL2 directory
+# --cd <dir> - Change to WSL2 directory <dir>
+
+export PATH="/mingw64/bin:$PATH"
+
+if [[ "${1:-}" == "--cd" ]]; then
+  cd "$2"
+  shift; shift
+elif [[ "${1:-}" == "--no-cd" ]]; then
+  shift
+else
+  cd "/mnt/c/Users/$USER"
+fi
+
+exec /mnt/c/Program\ Files/Git/usr/bin/bash.exe \
+  --login -i \
+  -c 'PATH="$PATH:/mingw64/bin" exec bash "$@"' -- "$@"
+

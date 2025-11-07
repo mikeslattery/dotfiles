@@ -4,5 +4,11 @@
 
 set -euo pipefail
 
-tmux rename-window "$(basename "$PWD")"
+where="$(basename "$PWD")"
+
+if [[ "$PWD" == "$HOME" ]]; then
+  where="home"
+fi
+
+tmux rename-window "$where"
 

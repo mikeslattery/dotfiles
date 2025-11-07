@@ -1,15 +1,36 @@
 #!/bin/bash
 
+{
 # Prints out all launched executables running in all Tmux panes
+if [[ "$1" == "--all" ]]; then
+  echo $'ID\tName\tpid\tPath\tCommand'
+fi
 
 tmux list-panes -a -F \
-	'#{pane_id} #{session_name}:#{window_index}.#{pane_index} #{pane_pid} #{pane_current_path}' |
-  sed -E "/^${TMUX_PANE} /d; s/^%[0-9]* //; s|${HOME}|~|;" |
-	while read -r session_pane pane_pid pane_path; do
-		# echo "[$pane_pid] [$full_command]"
-		full_command=$(ps -o args= --ppid "$pane_pid")
-		pid="$(ps -o pid= --ppid "$pane_pid" | sed 's/^ *//')"
-		if [[ -n "$full_command" ]]; then
-			echo -e "$session_pane\t$pid\t$pane_path\t$full_command"
-		fi
-	done
+  $'#{pane_id}\t#{session_name}:#{window_index}.#{pane_index}\t#{window_name}\t#{pane_pid}\t#{pane_current_path}' |
+  sed -E "/^${TMUX_PANE}\\t/d; s/^%[0-9]*\\t//; s|${HOME}|~|;" |
+  while IFS=$'\t' read -r session_pane window_name pane_pid pane_path; do
+    # echo "[$pane_pid] [$full_command]"
+    full_command="$(ps -o args= --ppid "$pane_pid" | head -1 | cut -c-80)"
+    if [[ -n "$full_command" ]] || [[ "$1" == "--all" ]]; then
+      # echo -e "$session_pane\t$pane_path\t$full_command"
+      echo -n "$session_pane"
+      echo -ne "\t"
+      if [[ "$1" == "--all" ]]; then
+        pid="$(ps -o pid= --ppid "$pane_pid" | sed 's/^ *//' | head -1)"
+        echo -n "$window_name"
+        echo -ne "\t"
+        echo -n "$pid"
+        echo -ne "\t"
+      fi
+      echo -n "$pane_path"
+      echo -ne "\t"
+      echo "$full_command"
+    fi
+  done
+} |
+  if [[ "$1" == "--all" ]]; then
+    pandoc -f tsv -t commonmark_x
+  else
+    cat
+  fi

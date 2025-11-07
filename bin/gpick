@@ -1,45 +1,65 @@
 #!/bin/bash
 
+# git convenience utility
+# 1) pick file list operations, 2) pick listed files, 3) list file operations, 4) do operation
+# Reqires: git, fzf, bat, eza
+
 set -euo pipefail
 
 read-ops() {
-	echo -n 'git diff --name-only
+	echo -n 'git ls-files --others --exclude-standard bin
+git diff --name-only
 git diff --name-only --cached
 git ls-files
-git ls-files --others --exclude-standard
+fd --hidden --no-ignore -E .git -E node_modules
 '
 }
 
-prefix() {
-	# sed 's/^/git -P /'
-	cat
-}
 
 write-ops() {
-	echo -n 'git checkout
-git reset
-git add
+	echo -n 'git add
 git --paginate diff
-git -P diff
-git --paginate log
+git --paginate diff --cached
+git --no-pager diff
+git checkout
+git reset
 git rm
+git --paginate log
 git stash push --
-printf %s\n
 bat
+rm
+printf %s\n
 '
 }
 
-readop="$(read-ops | fzf --preview "bash -c {}" | prefix)"
-$readop | fzf -m --preview "git diff --quiet {} && bat --color=always {} || (git diff {} | bat -l diff --color=always )" >/tmp/files.txt
-op="$(write-ops | fzf | prefix)"
-cat /tmp/files.txt | xargs -tr $op
-git -P status -s
+git-status() {
+    git --no-pager -c color.ui=always status -s -uno | sort
+}
+OLDSTATUS="$(git-status)"
+
+LIST_PREVIEW='xargs -d"\n" -r eza --color=always -dl --git --no-user --no-permissions --no-time --no-filesize'
+# Use diff, else content
+FILE_PREVIEW='eza --color=always -dl --git --no-user {}; git diff --quiet {} && bat --color=always --style=numbers,grid {} || (git diff {} | bat -l diff --color=always --style=grid )'
+
+readop="$(read-ops | fzf --preview "GIT_PAGER='' bash -c {} | $LIST_PREVIEW")"
+bash -c "$readop" | fzf -m --bind 'alt-a:select-all' --preview "$FILE_PREVIEW" >/tmp/files.txt
+
+writeop="$(write-ops "$readop" | fzf --preview "cat /tmp/files.txt | $LIST_PREVIEW")"
+echo -n '+ ' >&2
+cat /tmp/files.txt | xargs -d"\n" -tr $writeop
+rm /tmp/files.txt
+
+# Show status, if changed
+NEWSTATUS="$(git-status)"
+if [[ "$OLDSTATUS" != "$NEWSTATUS" ]]; then
+    echo "$NEWSTATUS" >&2
+fi
 
 #TODO:
 # add conflicted files to read-ops
 # mktemp
 # preview list of files.  diff if changed, else diff --cached else entire file
 # reduce write-ops to what makes sense based on read-op
-# run git status for write-ops that changed it
-# follow-up ops: loop again, lazygit, commit, amend, rebase, push, exit
-# similar script+alias for dealing with branchs (worktrees, pick, create)
+# --follow-up  gpick, lazygit, git commit, git commit -a, git commit && git push, git commit --amend --no-edit, git push, gh pr
+# similar script+alias for dealing with branches (worktrees, pick, create) and stashes
+

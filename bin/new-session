@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# Creates a new tmux session, attached to current
+
+# To remove:
+# tmux kill-session -t "$name"
+
+set -euo pipefail
+
+if [[ "$#" == "0" ]]; then
+  echo "Usage: $(basename "$0") <session-name>"
+  exit 1
+fi
+
+name="$1"
+
+if [ -z "${TMUX:-}" ]; then
+  # If not running inside tmux, just create a new session and attach
+  tmux new-session -s "$name"
+else
+  # If running inside tmux, create a new session but do not attach to it (-d)
+  # Then, switch the current client to the new session.
+  tmux new-session -s "$name" -d
+  tmux switch-client -t "${name}:0"
+fi
+

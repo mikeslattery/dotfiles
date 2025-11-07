@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# Convert mkv to mp3.
+# Usage: mkv2mp3 <infile.mkv> <outfile.mkv>
+
+set -ueo pipefail
+
+ffmpeg -i "$1" -q:a 0 -map a "$2"
