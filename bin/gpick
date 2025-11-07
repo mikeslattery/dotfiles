@@ -11,7 +11,7 @@ read-ops() {
 git diff --name-only
 git diff --name-only --cached
 git ls-files
-fd --hidden --no-ignore -E .git -E node_modules
+fd . -tf --hidden --no-ignore -E .git -E node_modules
 "
 }
 
