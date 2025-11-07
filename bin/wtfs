@@ -192,7 +192,7 @@ set-timer() {(
 
   timer="$HOME/.local/state/timers/$name"
   mkdir -p "$(dirname "$timer")"
-  
+
   if [[ -f "$timer" ]]; then
     #shellcheck disable=SC1090
     source "$timer"
@@ -340,7 +340,7 @@ _main "$@"
 # next priority item:
 #    refund, downage, high server resource usage,
 #    calendar appointment warning,
-#    periodic (lunch, end of day, stand-up), 
+#    periodic (lunch, end of day, stand-up),
 #    new onsite error, user complaint,
 #    failed build, failed unit test,
 #    pomodoro 5 minute warning,
@@ -449,7 +449,7 @@ _main "$@"
 #         "Accept-Language": "en-US,en;q=0.5",
 #         "Sec-WebSocket-Version": "13",
 #         "Sec-WebSocket-Extensions": "permessage-deflate",
-#         "Sec-WebSocket-Key": "aao4u7RXQY9+qsR+OzkcRg==",
+#         "Sec-WebSocket-Key": "****",
 #         "Pragma": "no-cache",
 #         "Cache-Control": "no-cache"
 #     },
