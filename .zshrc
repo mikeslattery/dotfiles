@@ -22,9 +22,6 @@ fi
 
 if [[ -n "$ZSH_VERSION" ]]; then
     alias iszsh=true
-    function has() {
-        (( $+commands[$1] ))
-    }
 else
     alias iszsh=false
 
@@ -36,15 +33,15 @@ else
 
     export PS1='[\h \W]$ '
 
-    function has() {
-        command -v "$1" &>/dev/null
-    }
-
     # Ignore .zsh stuff
     setopt() { :; }
     unsetopt() { :; }
 
 fi
+
+function has() {
+    command -v "$1" &>/dev/null
+}
 
 # Install oh-my-zsh
 if ! [[ -d "$ZSH" ]]; then
@@ -78,12 +75,11 @@ addpath "$HOME/.local/bin"
 addpath "$HOME/go/bin"
 addpath "$HOME/src/my/ai"
 
-alias is_fedora='grep -sq fedora /etc/os-release'
-
-if has podman && ! has docker; then
-    docker() { podman "$@"; }
-    docker-compose() { podman-compose "$@"; }
+if [[ -x /home/linuxbrew/.linuxbrew/bin/brew ]]; then
+  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
 fi
+
+alias is_fedora='grep -sq fedora /etc/os-release'
 
 if iszsh; then
     ZSH_THEME="darkblood" # set by `omz`
@@ -106,24 +102,15 @@ if iszsh; then
 
     completions=( fd vagrant yarn )
 
-    plugins=( git gradle npm )
+    plugins=( )
 
-    if is_fedora; then
-        plugins+=('dnf')
-    fi
-    if has brew; then
-        plugins+=('brew')
-    fi
-    if has mosh; then
-        plugins+=('mosh')
-    fi
-    if has docker || has podman; then
-        if ! has docker; then
-            docker() { podman "$@"; }
-            docker-compose() { podman-compose "$@"; }
-        fi
-        plugins+=('docker' 'docker-compose')
-    fi
+    # find programs without a plugin
+    # fd -tx . $(echo "$PATH" | tr : $'\n') -d1 | x basename -a | rg -F -x -f <(ls -1 ~/.oh-my-zsh/plugins) | rg -v -f <(tr ' ' $'\n' <<<"$plugins")
+    for plugin in dnf fzf git gradle npm brew podman docker docker-compose kubectl direnv; do
+      if has "$plugin" && [[ -d "$ZSH/plugins/$plugin" ]]; then
+        plugins+=("$plugin")
+      fi
+    done
 
     for plugin in "${completions[@]}"; do
         fpath=("$ZSH/plugins/$plugin" $fpath)
@@ -144,6 +131,11 @@ else
     HISTCONTROL=ignoreboth
 fi
 
+if has podman && ! has docker; then
+    docker() { podman "$@"; }
+    docker-compose() { podman-compose "$@"; }
+fi
+
 # User configuration
 
 # export LANG=en_US.UTF-8
@@ -157,6 +149,8 @@ export CDPATH="$HOME/src"
 export LESS=-iRj3
 setopt cdablevars
 unsetopt autocd
+
+export PIP_REQUIRE_VIRTUALENV=true
 
 export TUIR_BROWSER=w3m
 export TUIR_EDITOR=nvim
@@ -193,25 +187,21 @@ xble() { set -eu; cat > "$1"; chmod u+x "$1"; }
 unalias md &>/dev/null || true
 md() { set -eu; mkdir -p "$1"; cd "$1"; }
 
-if iszsh; then
-  zshaddhistory() {
-    if git rev-parse --is-inside-work-tree &>/dev/null; then
-      local commitid="$(git rev-parse --short HEAD 2>/dev/null)"
-      local now="$(date +'%Y-%m-%d %H:%M:%S')"
-      local branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null)"
-      local git_dir="$(git rev-parse --show-toplevel 2>/dev/null)"
-      echo -n "${now} ${commitid} ${branch}  \$ ${1}" >> "${git_dir}/.zsh_local_history"
-    fi
-  }
-else
+zshaddhistory() {
+  # only record if in a git-managed project.
+  if git rev-parse --is-inside-work-tree &>/dev/null; then
+    local commitid="$(git rev-parse --short HEAD 2>/dev/null)"
+    local now="$(date +'%Y-%m-%d %H:%M:%S')"
+    local branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null)"
+    local git_dir="$(git rev-parse --show-toplevel 2>/dev/null)"
+    echo -n "${now} ${commitid} ${branch}  \$ ${1}" >> "${git_dir}/.zsh_local_history"
+  fi
+}
+if ! iszsh; then
   bashaddhistory() {
     if git rev-parse --is-inside-work-tree &>/dev/null; then
       local last_command="$(history 1 | sed 's/^[ ]*[0-9]*[ ]*//')"
-      local commitid="$(git rev-parse --short HEAD 2>/dev/null)"
-      local now="$(date +'%Y-%m-%d %H:%M:%S')"
-      local branch="$(git rev-parse --abbrev-ref HEAD 2>/dev/null)"
-      local git_dir="$(git rev-parse --show-toplevel 2>/dev/null)"
-      echo "${now} ${commitid} ${branch}  \$ ${last_command}" >> "${git_dir}/.bash_local_history"
+      zshaddhistory "$last_command"
     fi
   }
   PROMPT_COMMAND='bashaddhistory'
@@ -280,12 +270,13 @@ export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
 alias fzp='fzf -m --preview="[ -f {} ] && bat -r :100 --color=always {} || tree -C {}"'
 
 unalias ls &>/dev/null || true
-if has exa; then
-    ls() { exa "$@"; }
-    alias l='exa -la --git -I .git'
-    alias la='exa -la --git -I .git'
-    alias ll='exa -l --git -I .git'
-    alias lsa='exa -laa --git -I .git'
+if has eza; then
+    ls() { eza "$@"; }
+    alias l='eza -la --git -I .git'
+    alias la='eza -la --git -I .git'
+    alias ll='eza -l --git -I .git'
+    alias lsa='eza -laa --git -I .git'
+    alias lt='exa -l -s date'
 fi
 
 alias u='urxvt -e tmux &'
@@ -559,11 +550,22 @@ lntmp() {
 
 # to undo run lzsh
 shortprompt() {
-  omz theme use bira
-  export PROMPT="${PROMPT/\%n@\%m/!%h}"
+  omz theme use gnzh
+  PROMPT="${PROMPT/\%n/!%h}"
+  export PROMPT="${PROMPT/@/ }"
+}
+
+longprompt() {
+  omz theme use agnoster
+  export PROMPT="!%h$PROMPT"
 }
 
 alias config="git -C $HOME --git-dir=$HOME/.dotfiles --work-tree=$HOME"
+CONFIG() { ( cd ~; GIT_DIR=$HOME/.dotfiles GIT_WORK_TREE=$HOME "$@"; ); }
+
+
+source ~/.ssh/sshlib.sh
+addpath "$HOME/.local/share/JetBrains/Toolbox/scripts"
 
 # cleanup
 unset -f pathmunge
@@ -581,4 +583,5 @@ unset -f addpath
 # export PERL_LOCAL_LIB_ROOT="$HOME/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"
 # export PERL_MB_OPT="--install_base \"$HOME/perl5\""
 # export PERL_MM_OPT="INSTALL_BASE=$HOME/perl5"
-eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+
+

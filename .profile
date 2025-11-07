@@ -24,3 +24,8 @@ unset -f pathmunge
 if [ -x "$HOME/.local/bin/nvim" ] && [ -z "$EDITOR" ]; then
   export EDITOR="$HOME/.local/bin/nvim"
 fi
+
+
+# Added by Toolbox App
+export PATH="$PATH:/home/v747103/.local/share/JetBrains/Toolbox/scripts"
+

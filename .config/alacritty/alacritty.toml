@@ -1,5 +1,3 @@
-import = ["~/.config/alacritty/dracula/dracula.toml"]
-shell = "/usr/bin/zsh"
 
 [colors.primary]
 background = "#121212"
@@ -135,3 +133,9 @@ save_to_clipboard = false
 
 [window]
 startup_mode = "Fullscreen"
+
+[general]
+import = ["~/.config/alacritty/dracula/dracula.toml"]
+
+[terminal]
+shell = "/usr/bin/zsh"

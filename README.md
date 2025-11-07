@@ -16,12 +16,12 @@ Some of the following may not be fully supported at any time as I change tools.
 
 ### Software
 
-* Neovim, Vim, IDEAVim
+* Neovim, IDEAVim
 * Zsh, Oh-My-Zsh
 * Tmux, Alacritty
 * npm, yarn, node
 * i3, sway
-* `fzf`, `rg`, `fd`, `bat`, `exa`
+* `fzf`, `rg`, `fd`, `bat`, `eza`
 * Podman
 
 ### Operating Environments
@@ -32,17 +32,16 @@ Environments I've successfully used with these dot files.
 * Docker containers: alpine, ubuntu, fedora, debian
 * Termux Android app
 * Remote RHEL servers over ssh (w/o git installed)
-* WSL 1  (WSL 2 not tested)
+* WSL 1, WSL 2
 * Cygwin, Msys2
 * Git for Windows (stripped down Msys2)
 
 ### Notable Features of my configuration
 
-* Auto-install of plugin managers for Neovim, Tmux, Zsh, on first use
+* Auto-install of plugin managers on first use, for Neovim, Tmux, Zsh
 * Dracula theme for Neovim, Tmux, Alacritty, i3/sway, Gtk, Slack, but with darker background
 * [True color](https://gist.github.com/andersevenrud/015e61af2fd264371032763d4ed965b6) support across alacritty, tmux, Neovim 
 * `.zshrc` also serves as a `.bashrc`
-* `init.vim` also serves as a `.vimrc`
 * Powerline fonts across alacritty, tmux, neovim
 * Mouseless usage as a goal, with vi keybindings when possible
 * Similar keybindings for tmux, i3, neovim
@@ -52,8 +51,8 @@ Environments I've successfully used with these dot files.
 
 ### Notable individual files and directories
 
-* [.vimrc](.vimrc) implements Neovim defaults and then sources [.config/nvim/init.vim](.config/nvim/init.vim)
 * [.config/dotfiles](.config/dotfiles) location for support files for this dotfiles project.
+* [.config/dotfiles/etc] - source location of some system `/etc` files
 
 ### Various high level To-Dos
 
@@ -74,6 +73,7 @@ Environments I've successfully used with these dot files.
 * Mappings and configuration
   * Better integrate i3/sway, Neovim, tmux, firefox, zathura, tuir, vifm, jetbrains.
   * Switch to Neovim native LSP.  Fallback to ALE
+  * Reintroduce a `.vimrc`
 * Installs and scripts
   * Install script for packages, including Google Drive and Keepass
   * [Gnome CPU usage](https://github.com/corecoding/Vitals)
@@ -159,6 +159,7 @@ It is located at [.local/bin/dotfiles](.local/bin/dotfiles).
 
 ```
 config   ...        - git subcommand.  Requires alias in .zshrc
+CONFIG git ...      - alias sets GIT_DIR, GIT_WORK_TREE
 dotfiles help       - Usage.
 dotfiles etc        - Copy ~/.config/dotfiles/etc to /etc
 dotfiles ssh <host> - Install to ssh host
