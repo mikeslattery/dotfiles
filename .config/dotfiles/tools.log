@@ -1,38 +1,51 @@
-npm uninstall -g npe
-npm uninstall -g npx
-man pip install
-pip install psutil
-sudo pip install psutil
-pip install wpm
-npm install -g npm-check-updates
-npm install -g yarn
-pip uninstall tuir
-sudo pip uninstall tuir
-pip install tuir
-npm install -g neovim && gen install neovim && nvim --clean +checkhealth
-gem install neovim && nvim --clean +checkhealth
+pip install pynvim --upgrade
 gem install neovim
-python -m pip install --user --upgrade pynvim
-python -m pip uninstall neovim pynvim
-python -m pip uninstall -y neovim pynvim
-python -m pip install --user --upgrade pynvim
-python -m pip uninstall -y neovim
-python2 -m pip uninstall neovim
-npm install -g pnpm
-npm install -g npe
+pip install openai
+pip install virtualenv
+pip uninstall virtualenv
+pip install virtualenv
+pip install virtualenv --upgrade
+pip install virtualenv
+pip install tiktoken
+pip install jedi
+pip install pandas
 pip install tuir
-npm install -g neovim
-npm install -g npm
-npm install -g node
-pip install -g cli
-pip install cli
-pip install socli
-npm install -g sendgrid-cli
-npm install -g sendgrid/sendgrid-cli
-npm install -g jest-simple-reporter
+pip uninstall tuir
 pip install tuir
-pip install socli
-pip install tuir
-man pip install
-history | rg 'install -g' | less
-  rg '\bpip\d? install|install -g' > ~/.config/dotfiles/tools.log
+pip install --help
+pip install --upgrade litellm
+pip install --upgrade openai
+pip install pygame
+pip install buildozer
+pip install distutils
+pip install --upgrade
+pip install --upgrade pip
+pip install distutils
+pip install --upgrade setuptools
+pip install Cython
+pip install javac
+pip uninstall aider
+python -m pip uninstall aider-install
+python3 -m pip install poetry
+pip install -r cookbook/examples/apps/agentic_rag/requirements.txt
+pip install steamlit
+pip install pgvector
+pip install pypdf
+pip install bs4
+pip install psycopg
+pip install psycopg_c psycogg_binary libpq
+pip install pg_config psycopg_c psycogg_binary libpq
+pip install psycopg_c psycogg_binary libpq
+pip install psycopg_c libpq
+pip install -U google-genai sqlalchemy pgvector pypdf agno
+pip install -U agno
+pip uninstall agno
+pip install -U agno
+pip install open-webui
+pip install aider-install
+pip install openai
+python -m pip install aider-install
+python -m pip uninstall aider-install
+pip install -r requirements.txt
+history | rg 'pip install'
+pip install --help
