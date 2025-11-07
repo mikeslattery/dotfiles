@@ -4,8 +4,7 @@ return {
     lazy = true,
     cmd = { "Wish" },
     opts = {
-      model = 'anthropic/claude-3.5-sonnet:beta',
-      -- model = 'gpt-4o',
+      model = os.getenv("OPENAI_API_MODEL"),
     },
   },
   {

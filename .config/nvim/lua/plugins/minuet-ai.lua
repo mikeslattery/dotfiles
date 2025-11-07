@@ -1,3 +1,10 @@
+-- https://github.com/milanglacier/minuet-ai.nvim
+-- https://ai.google.dev/gemini-api/docs/models
+
+local PROVIDER = 'gemini'
+local MODEL = 'gemini-2.5-flash'
+local ENABLE_AUTO_COMPLETE = false
+
 return {
   {
     'milanglacier/minuet-ai.nvim',
@@ -34,15 +41,28 @@ return {
         enable_auto_complete = false,
       },
       blink = {
-        enable_auto_complete = false,
+        enable_auto_complete = ENABLE_AUTO_COMPLETE,
       },
       n_completions = 5,
-      provider = 'gemini',
+      provider = PROVIDER,
       provider_options = {
         gemini = {
+          model = MODEL,
+          -- system = "see [Prompt] section for the default value",
+          -- few_shots = "see [Prompt] section for the default value",
+          -- chat_input = "See [Prompt Section for default value]",
+          -- stream = true,
+          -- api_key = 'GEMINI_API_KEY',
+          keymap = {
+            -- Manually invoke minuet completion.
+            ['<A-y>'] = function()
+              require('minuet').make_blink_map()
+            end,
+          },
+
           optional = {
             generationConfig = {
-              maxOutputTokens = 256,
+              maxOutputTokens = 512,
             },
             safetySettings = {
               {
@@ -60,3 +80,7 @@ return {
     },
   },
 }
+
+-- TODO:
+-- high temperature
+-- hotkeys to change settings: max output, autocomplete

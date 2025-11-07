@@ -35,24 +35,24 @@ M.allowed_marks = { ".", "'" }
 ---@type Plugin
 ---@return PluginItem[]
 function M.run(_trigger, _mode, buf)
-  local marks = marks_module.run(_trigger, _mode, buf)
+    local marks = marks_module.run(_trigger, _mode, buf)
 
-  local unique_values = {}
-  for i = #marks, 1, -1 do
-    local key = marks[i].key
-    local value = marks[i].value
+    local unique_values = {}
+    for i = #marks, 1, -1 do
+        local key = marks[i].key
+        local value = marks[i].value
 
-    if (key:match("^%a$") or vim.tbl_contains(M.allowed_marks, key))
-        and not unique_values[value] then
-      -- mark is allowed, but don't let duplicates later
-      unique_values[value] = true
-    else
-      -- Remove non-unique marks or unsupported marks
-      table.remove(marks, i)
+        if (key:match("^%a$") or vim.tbl_contains(M.allowed_marks, key))
+            and not unique_values[value] then
+            -- mark is allowed, but don't let duplicates later
+            unique_values[value] = true
+        else
+            -- Remove non-unique marks or unsupported marks
+            table.remove(marks, i)
+        end
     end
-  end
 
-  return marks
+    return marks
 end
 
 return M
