@@ -1,0 +1,65 @@
+#!/bin/bash
+
+# This script converts a Markdown table from stdin to CSV on stdout.
+# It handles basic Markdown table syntax, including:
+# - Headers separated by '---' or '==='
+# - Cells separated by '|'
+# - Optional leading/trailing pipes
+# - Trimming whitespace from cells
+
+# Function to trim leading/trailing whitespace from a string
+trim() {
+    local var="$1"
+    echo -n "$var" | sed -E 's/^ *//; s/ *$//;'
+    # var="${var#"${var%%[![:space:]]*}"}" # Remove leading whitespace
+    # var="${var%"${var##*[![:space:]]*}"}" # Remove trailing whitespace
+    # echo -n "$var"
+}
+
+# Initialize an array to store headers
+headers=()
+# Flag to indicate if we've processed the header separator
+header_separator_found=false
+
+while IFS= read -r line; do
+    # Skip empty lines
+    [[ -z "$line" ]] && continue
+
+    # Remove leading/trailing pipes if present
+    line="${line#|}"
+    line="${line%|}"
+
+    # Check for header separator line (e.g., '---|---')
+    if [[ "$line" =~ ^[[:space:]]*[-=]+([[:space:]]*\|[[:space:]]*[-=]+)*[[:space:]]*$ ]]; then
+        header_separator_found=true
+        continue # Skip the separator line itself
+    fi
+
+    # Split the line by '|'
+    IFS='|' read -r -a cells <<< "$line"
+
+    # Process cells
+    csv_row=""
+    for cell in "${cells[@]}"; do
+        trimmed_cell=$(trim "$cell")
+        # Escape double quotes within the cell by doubling them
+        escaped_cell="${trimmed_cell//\"/\"\"}"
+        # Enclose the cell in double quotes
+        csv_row+="\"$escaped_cell\","
+    done
+
+    # Remove the trailing comma
+    csv_row="${csv_row%,}"
+
+    # If header separator hasn't been found yet, this is the header row
+    if ! $header_separator_found; then
+        headers=("${cells[@]}") # Store original cells for potential future use (though not strictly needed for basic CSV)
+        echo "$csv_row" # Print the header row
+    else
+        # This is a data row
+        echo "$csv_row"
+    fi
+
+done
+
+exit 0

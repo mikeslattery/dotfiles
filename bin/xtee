@@ -1,0 +1,15 @@
+#!/bin/bash
+set -euo pipefail
+
+# like tee but makes file executable and color codes
+# usage: tee <file>
+# Does not support tee options or multiple files
+# Other usages:
+# color: tee <file> | bat -ppf
+# no output: tee <file> >/dev/null
+
+file="$1"; shift
+
+tee "$file"
+chmod u+x "$file"
+
