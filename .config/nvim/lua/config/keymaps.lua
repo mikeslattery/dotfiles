@@ -9,17 +9,24 @@
 -- utilities
 local map = vim.keymap.set
 local function unmap(mode, lhs)
-    pcall(vim.api.nvim_del_keymap, mode, lhs)
+    if type(lhs) == "table" then
+        for _, key in ipairs(lhs) do
+            unmap(mode, key)
+        end
+        return
+    else
+        pcall(vim.api.nvim_del_keymap, mode, lhs)
+    end
 end
+
 
 -- unmaps
 
-unmap(',')
+unmap('n', ',')
+unmap('n', { 'f', 'F', 't', 'T', ';' })
 
 -- simple mappings in vimscript
 vim.cmd([[
-
-unmap ,
 
 inoremap jk <esc>
 nnoremap ,w <cmd>up<cr>
@@ -63,10 +70,23 @@ vim.keymap.set({ "i", "n", "v" }, "<M-[>", function()
 end, { desc = "Toggle pairing" })
 
 -- \<mark>
+-- Goes to the file of a global mark, but without going to the line
 map("n", "\\", function()
-    print("Type global mark: ")
-    -- TODO: a TUI of buffers
-    local mark = vim.fn.getcharstr()
+    -- Prompt with list of global marks
+    local marks_info = vim.fn.getmarklist()
+    local global_marks = {}
+    for _, m in ipairs(marks_info) do
+        if m.mark:match("^'%u$") then
+            table.insert(global_marks, m.mark:sub(2))
+        end
+    end
+    table.sort(global_marks)
+    print(table.concat(global_marks, ", ") .. " | Type global mark: ")
+
+    -- get mark
+    local mark = vim.fn.getcharstr():upper()
+
+    -- go to the mark
     if not mark:match("^%u$") then return end
     local filepath = vim.api.nvim_get_mark(mark, {})[4]
     if #filepath > 0 then
@@ -76,19 +96,19 @@ map("n", "\\", function()
     end
 end, { noremap = true, silent = true })
 
--- j/k - 1) add long skips to jumplist, 2) single-step over wrapped lines
-local function skipper(char)
+
+-- relative jumps
+for _, char in ipairs({ "j", "k" }) do
     map({ "n", "x" }, char, function()
         if vim.v.count == 0 then
+            -- single-step over wrapped lines
             return "g" .. char
         elseif vim.v.count > 5 then
-            -- add to jumplist
+            -- add long jumps to jumplist
             return "m'" .. vim.v.count .. char
-        else
-            return vim.v.count .. char
+        else -- vim.v.count 1-5
+            -- normal
+            return char
         end
-    end, { expr = true })
+    end, { expr = true, silent = true, noremap = true })
 end
-
-skipper('j')
-skipper('k')

@@ -3,17 +3,22 @@
 -- Neovim plugin that updates environmental variables
 -- to give spawned apps more context
 
+--- shell script how-tos
+--- nvim --headless --clean --server $NVIM_SOCKET \
+---    --remote <file>
+---    --remote-send '<keystrokes>'
+---    --remote-expr '<vimscript-expression>'
+
 local M = {}
 
-local function setenv(name, value)
-    vim.fn.setenv(name, value or '')
-end
+local setenv = vim.fn.setenv
 
 -- Function to update environment variables based on current buffer
 local function update_env_vars()
     setenv('NVIM_BUFNAME', vim.fn.expand('%:p'))
     setenv('NVIM_FILETYPE', vim.bo.filetype)
     setenv('NVIM_BUFTYPE', vim.bo.buftype)
+    setenv('NVIM_BUFNR', tostring(vim.api.nvim_get_current_buf()))
     setenv('NVIM_SOCKET', vim.v.servername)
 end
 
@@ -26,9 +31,7 @@ function M.setup()
         'FileType'
     }, {
         group = context_group,
-        callback = function()
-            update_env_vars()
-        end,
+        callback = update_env_vars
     })
 
     setenv('NVIM_PID', tostring(vim.uv.os_getpid()))
